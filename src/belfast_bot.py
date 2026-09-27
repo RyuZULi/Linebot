@@ -4,8 +4,15 @@ Belfast：秘書 bot，負責熱量估算 + 飲食紀錄 + 一般聊天。
 2026/9/27 從原本的 line_bot.py 拆出來——那時候 Ryuzu 身兼熱量估算跟
 開發助手兩個角色，後來決定拆成兩個獨立 LINE bot：Ryuzu 專心做開發
 助手（見 dev_bot.py），這邊的熱量估算/飲食紀錄邏輯改用 Belfast 這個
-沉穩秘書人設接手，程式邏輯完全繼承自舊版 line_bot.py（D2/D3/D5），
-只有人設文字跟掛載方式改了。
+人設接手，程式邏輯完全繼承自舊版 line_bot.py（D2/D3/D5），只有人設
+文字跟掛載方式改了。
+
+人設取自《碧藍航線》的 Belfast：沉穩優雅、溫柔體貼的白髮女僕，稱
+使用者「主人」，其實很喜歡主人，但這份心意藏在得體的言行舉止底下，
+不太直接說出口——這裡的訊息文字（GUIDE_MESSAGE、PROCESSING_MESSAGE
+等對話包裝）都套這個語氣；熱量估算的數據表本身（format_final_reply／
+format_summary_reply，在 final_estimate.py）維持嚴謹格式，不參雜
+角色扮演語氣，避免影響估算內容的可讀性與可信度。
 
 跟 dev_bot.py 共用同一個 Flask process/port（見 webhook_app.py），
 用 register(handler, configuration) 把這裡的事件處理器掛到專屬於
@@ -41,32 +48,33 @@ from parse_calorie_report import parse as parse_calorie_report
 MAX_LINE_TEXT_LENGTH = 5000
 
 GUIDE_MESSAGE = (
-    "主人，若想知道熱量，將照片傳給我即可，我會先詢問您是要親自計算，"
-    "還是您已經知道熱量、直接告知我就好。\n"
-    "想查看歷史紀錄請說「紀錄」，想看上一次的品項細節請說「細節」，"
-    "若不想留下紀錄，可以說「刪除」（能加註「今天早上」之類的時間範圍）。\n"
-    "除此之外，也歡迎與我聊聊其他話題。"
+    "主人，想知道熱量的話，把照片交給我就好，我會先問問您是想讓我親自"
+    "估算，還是您自己已經有數，跟我說一聲就好。\n"
+    "想回顧之前的紀錄，說聲「紀錄」；想看上次的品項細節，說「細節」；"
+    "不想留下這次的紀錄，跟我說「刪除」（可以加上「今天早上」之類的"
+    "時間，我會明白的）。\n"
+    "除此之外，不管想聊什麼，我都很樂意陪您聊聊。"
 )
 
-PROCESSING_MESSAGE = "收到了，主人。我這就動用兩套辨識模型仔細比對，大約需要 30 到 60 秒，請您稍候。"
+PROCESSING_MESSAGE = "好的，主人，交給我吧。這就仔細比對一下，大約需要 30 到 60 秒，麻煩您稍等我一下。"
 
-PHOTO_INTENT_TEXT = "照片已經收到，主人。這次是要我為您計算熱量，還是您已經知道數字、由您親自告知我？"
+PHOTO_INTENT_TEXT = "照片我收到了，主人。這次是要我親自為您估算，還是您已經知道熱量，想直接告訴我呢？"
 
-REPORT_PROMPT_TEXT = "明白了。請告訴我這是什麼、大概多少大卡，我會記錄下來，之後也能派上用場。"
+REPORT_PROMPT_TEXT = "好，那就麻煩您告訴我這是什麼、大概多少大卡，我會好好記下來，之後也能派上用場。"
 
-REPORT_PARSE_FAIL_TEXT = "抱歉，我沒能從中辨識出熱量數字。麻煩您講得再清楚一些，例如「白飯大概280大卡」，主人。"
+REPORT_PARSE_FAIL_TEXT = "抱歉，主人，我沒能從中聽出熱量的數字。可以麻煩您說得再清楚一點嗎？比如「白飯大概280大卡」這樣。"
 
-CANCEL_TEXT = "好的，這一餐就不記錄了，主人。若之後改變主意，隨時可以再傳一次。"
+CANCEL_TEXT = "好的，這一餐我們就不記錄了。不過主人，也別忘了好好照顧自己，這是我在意的事。"
 
-PORTION_CONFIRM_TEXT = "請問這次估算的份量，跟您實際吃的相比如何？"
+PORTION_CONFIRM_TEXT = "這次估算的份量，跟您實際吃的比起來如何呢？"
 
-NO_FOOD_MESSAGE = "十分抱歉，主人，這張照片我無法辨識出任何食物，能否請您重新拍一張更清楚的照片？"
+NO_FOOD_MESSAGE = "真是抱歉，主人，這張照片我看不太出來是什麼食物。方便的話，可以麻煩您重新拍一張清楚一點的嗎？"
 
-ERROR_MESSAGE = "十分抱歉，主人，剛剛的處理出了點問題，這次不列入紀錄，請稍後再試一次。"
+ERROR_MESSAGE = "抱歉，主人，剛才處理的時候出了點小狀況，這次就不算數了。稍後再麻煩您試一次，好嗎？"
 
-NO_PENDING_MEAL_MESSAGE = "抱歉，主人，我已經找不到那筆紀錄了，麻煩您重新傳一次照片。"
+NO_PENDING_MEAL_MESSAGE = "抱歉，主人，我這邊已經找不到那筆紀錄了，麻煩您重新傳一次照片。"
 
-NO_PENDING_PHOTO_MESSAGE = "抱歉，主人，剛才那張照片我已經不記得了，請重新傳送一次。"
+NO_PENDING_PHOTO_MESSAGE = "抱歉，主人，剛剛那張照片我這邊已經沒有保留了，請您再傳一次。"
 
 TIME_OF_DAY_LABELS = {"morning": "早上", "afternoon": "下午", "evening": "晚上", None: ""}
 
@@ -204,14 +212,14 @@ def _handle_report_text(reply_token: str, user_id: str, text: str):
     )
     _reply(
         reply_token,
-        f"記錄完成，主人。「{food_name}」大約 {kcal} 大卡，我已經存進您的紀錄，之後也查得到這筆資料。",
+        f"記下了，主人。「{food_name}」大約 {kcal} 大卡，我已經放進您的紀錄裡，之後也查得到這筆資料。",
     )
 
 
 def _format_history(user_id: str) -> str:
     rows = meal_db.get_recent(user_id, limit=10)
     if not rows:
-        return "目前還沒有任何紀錄，主人。傳張照片，或告訴我您吃了什麼吧。"
+        return "目前還沒有留下任何紀錄呢，主人。傳張照片，或告訴我您吃了什麼，我都很樂意幫您記著。"
     lines = ["【最近的飲食紀錄】"]
     for r in rows:
         lines.append(f"{r['created_at']}　{r['summary']}")
@@ -231,8 +239,8 @@ def _handle_delete(user_id: str, text: str) -> str:
     date_label = "今天" if date_filter == "today" else "昨天"
     time_label = TIME_OF_DAY_LABELS.get(time_of_day, "")
     if count == 0:
-        return f"{date_label}{time_label}沒有可以刪除的紀錄，主人。"
-    return f"已經刪除{date_label}{time_label}的 {count} 筆紀錄，主人。"
+        return f"{date_label}{time_label}沒有紀錄可以刪除喔，主人。"
+    return f"好的，{date_label}{time_label}的 {count} 筆紀錄我已經刪掉了，主人。"
 
 
 def _process_image_async(message_id: str, user_id: str):
