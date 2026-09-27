@@ -24,9 +24,9 @@ data/nutrition5k/clip_index.npz
 *_scratch.*
 
 # 使用者實際使用產生的個人資料，不是原始碼，也涉及隱私
-# （飲食紀錄、使用者自建的熱量知識庫），不進版控。
+# （飲食紀錄、使用者自建的熱量知識庫、任務清單、開發助手綁定的
+# owner 身份），不進版控。
 data/line_bot.db
+data/dev_tasks.db
+data/dev_owner.json
 data/user_provided/chroma_store/
-
-# 開發任務功能會在這裡建立隔離的 git worktree，本身不該被主分支追蹤。
-worktrees/

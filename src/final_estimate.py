@@ -100,10 +100,10 @@ def format_adjusted_reply(result: dict, adjust_key: str) -> str:
     adjusted = round(base * multiplier, 1)
 
     if adjust_key == "same":
-        return f"哼，算本大小姐猜對了——才不是因為特別用心觀察您的份量。維持原本估計：已知品項加總約 {base} 大卡（信心程度：{result['meal']['overall_tier']}）。"
+        return f"了解，維持原本估計：已知品項加總約 {base} 大卡（信心程度：{result['meal']['overall_tier']}）。"
 
     return (
-        f"早該早點說清楚——不過也罷，誰讓是您呢。份量比本大小姐假設的{label}，已知品項加總概略調整為約 {adjusted} 大卡"
+        f"明白了，份量比原先估計的{label}。已知品項加總概略調整為約 {adjusted} 大卡"
         f"（原估計 {base} 大卡 × {multiplier}，這是粗略整體調整，不是重新逐項計算，僅供參考）。"
     )
 
