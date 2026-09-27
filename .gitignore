@@ -1,0 +1,32 @@
+# 密鑰／環境變數，絕對不上傳
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# 向量索引與大型中繼資料（可重新產生，不需要進版控）
+data/nutrition_db/chroma_store/
+data/composite_dishes/chroma_store/
+data/**/*.pdf
+
+# Nutrition5k 下載下來的照片(3000多張)跟 CLIP 索引(500多MB)，
+# 用 src/download_nutrition5k.py + src/meal_similarity.py 可以重新產生，
+# 不應該進版控，不然一個 commit 就會塞爆 repo。
+data/nutrition5k/images/
+data/nutrition5k/clip_index.npz
+
+# 暫存/探索用的輸出
+*_scratch.*
+
+# 使用者實際使用產生的個人資料，不是原始碼，也涉及隱私
+# （飲食紀錄、使用者自建的熱量知識庫），不進版控。
+data/line_bot.db
+data/user_provided/chroma_store/
+
+# 開發任務功能會在這裡建立隔離的 git worktree，本身不該被主分支追蹤。
+worktrees/

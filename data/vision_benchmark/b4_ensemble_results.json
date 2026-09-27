@@ -1,0 +1,1420 @@
+[
+  {
+    "items": [
+      {
+        "name": "白飯",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "白飯"
+        ]
+      },
+      {
+        "name": "炸雞腿",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "炸雞腿"
+        ]
+      },
+      {
+        "name": "玉米",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "玉米"
+        ]
+      },
+      {
+        "name": "炒青菜",
+        "portion_size": "一份",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "炒青菜"
+        ]
+      },
+      {
+        "name": "水煮蛋",
+        "portion_size": "一個",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "水煮蛋",
+          "煮蛋"
+        ]
+      },
+      {
+        "name": "泡菜",
+        "portion_size": "半碗",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "泡菜"
+        ]
+      },
+      {
+        "name": "炸豬排",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "炸豬排"
+        ]
+      },
+      {
+        "name": "蔬菜沙拉",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "蔬菜沙拉"
+        ]
+      }
+    ],
+    "dropped_items": [],
+    "per_model_raw": {
+      "minicpm-v": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炸雞腿",
+          "portion_size": "一份"
+        },
+        {
+          "name": "玉米",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "水煮蛋",
+          "portion_size": "一顆"
+        },
+        {
+          "name": "泡菜",
+          "portion_size": "半碗"
+        }
+      ],
+      "qwen3-vl:8b": [
+        {
+          "name": "白飯",
+          "portion_size": "一碗"
+        },
+        {
+          "name": "炸豬排",
+          "portion_size": "一份"
+        },
+        {
+          "name": "煮蛋",
+          "portion_size": "一個"
+        },
+        {
+          "name": "蔬菜沙拉",
+          "portion_size": "一份"
+        },
+        {
+          "name": "玉米",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "一份"
+        }
+      ]
+    },
+    "per_model_ok": {
+      "minicpm-v": true,
+      "qwen3-vl:8b": true
+    },
+    "image": "8695271.png",
+    "elapsed_sec": 46.7
+  },
+  {
+    "items": [
+      {
+        "name": "白飯",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "白飯"
+        ]
+      },
+      {
+        "name": "炸雞腿",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "炸雞腿"
+        ]
+      },
+      {
+        "name": "糖醋排骨",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "糖醋排骨"
+        ]
+      },
+      {
+        "name": "西蘭花",
+        "portion_size": "幾朵",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "西蘭花"
+        ]
+      },
+      {
+        "name": "花椰菜",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "花椰菜"
+        ]
+      },
+      {
+        "name": "紅甜椒",
+        "portion_size": "一片",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "紅甜椒",
+          "紅辣椒"
+        ]
+      },
+      {
+        "name": "番茄",
+        "portion_size": "一片",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "番茄",
+          "茄子"
+        ]
+      },
+      {
+        "name": "玉米",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "玉米"
+        ]
+      },
+      {
+        "name": "火腿",
+        "portion_size": "一片",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "火腿",
+          "火腿片"
+        ]
+      },
+      {
+        "name": "炸豬排",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "炸豬排"
+        ]
+      },
+      {
+        "name": "溏心蛋",
+        "portion_size": "半個",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "溏心蛋"
+        ]
+      },
+      {
+        "name": "豆腐",
+        "portion_size": "幾顆",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "豆腐",
+          "青豆"
+        ]
+      },
+      {
+        "name": "南瓜",
+        "portion_size": "兩塊",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "南瓜"
+        ]
+      }
+    ],
+    "dropped_items": [
+      {
+        "name": "煮蛋",
+        "portion_size": "一片",
+        "reason": "單一模型辨識且份量描述很小，予以捨去"
+      },
+      {
+        "name": "芝士",
+        "portion_size": "一片",
+        "reason": "單一模型辨識且份量描述很小，予以捨去"
+      },
+      {
+        "name": "紫洋蔥",
+        "portion_size": "幾片",
+        "reason": "單一模型辨識且份量描述很小，予以捨去"
+      },
+      {
+        "name": "炒白菜",
+        "portion_size": "幾片",
+        "reason": "單一模型辨識且份量描述很小，予以捨去"
+      }
+    ],
+    "per_model_raw": {
+      "minicpm-v": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炸雞腿",
+          "portion_size": "一份"
+        },
+        {
+          "name": "煮蛋",
+          "portion_size": "一片"
+        },
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "西蘭花",
+          "portion_size": "一份"
+        },
+        {
+          "name": "花椰菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "紅甜椒",
+          "portion_size": "一片"
+        },
+        {
+          "name": "茄子",
+          "portion_size": "一份"
+        },
+        {
+          "name": "玉米",
+          "portion_size": "一份"
+        },
+        {
+          "name": "火腿",
+          "portion_size": "一片"
+        },
+        {
+          "name": "芝士",
+          "portion_size": "一片"
+        }
+      ],
+      "qwen3-vl:8b": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炸豬排",
+          "portion_size": "一份"
+        },
+        {
+          "name": "火腿片",
+          "portion_size": "一片"
+        },
+        {
+          "name": "溏心蛋",
+          "portion_size": "半個"
+        },
+        {
+          "name": "豆腐",
+          "portion_size": "一份"
+        },
+        {
+          "name": "青豆",
+          "portion_size": "幾顆"
+        },
+        {
+          "name": "紅辣椒",
+          "portion_size": "幾片"
+        },
+        {
+          "name": "紫洋蔥",
+          "portion_size": "幾片"
+        },
+        {
+          "name": "西蘭花",
+          "portion_size": "幾朵"
+        },
+        {
+          "name": "番茄",
+          "portion_size": "一片"
+        },
+        {
+          "name": "炒白菜",
+          "portion_size": "幾片"
+        },
+        {
+          "name": "南瓜",
+          "portion_size": "兩塊"
+        }
+      ]
+    },
+    "per_model_ok": {
+      "minicpm-v": true,
+      "qwen3-vl:8b": true
+    },
+    "image": "images (1).jpg",
+    "elapsed_sec": 57.6
+  },
+  {
+    "items": [
+      {
+        "name": "白飯",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "白飯"
+        ]
+      },
+      {
+        "name": "糖醋排骨",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "糖醋排骨"
+        ]
+      },
+      {
+        "name": "炒米粉",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "炒米粉"
+        ]
+      },
+      {
+        "name": "炒青菜",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "炒青菜"
+        ]
+      },
+      {
+        "name": "炸香蕉",
+        "portion_size": "半碗",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "炸香蕉"
+        ]
+      },
+      {
+        "name": "烤雞腿",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "烤雞腿"
+        ]
+      },
+      {
+        "name": "豆腐",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "豆腐"
+        ]
+      }
+    ],
+    "dropped_items": [],
+    "per_model_raw": {
+      "minicpm-v": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒米粉",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炸香蕉",
+          "portion_size": "半碗"
+        }
+      ],
+      "qwen3-vl:8b": [
+        {
+          "name": "白飯",
+          "portion_size": "一份"
+        },
+        {
+          "name": "烤雞腿",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒米粉",
+          "portion_size": "一份"
+        },
+        {
+          "name": "豆腐",
+          "portion_size": "一份"
+        }
+      ]
+    },
+    "per_model_ok": {
+      "minicpm-v": true,
+      "qwen3-vl:8b": true
+    },
+    "image": "images (2).jpg",
+    "elapsed_sec": 32.6
+  },
+  {
+    "items": [
+      {
+        "name": "白飯",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "白飯"
+        ]
+      },
+      {
+        "name": "糖醋排骨",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "糖醋排骨"
+        ]
+      },
+      {
+        "name": "炒青菜",
+        "portion_size": "一份",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "炒菠菜",
+          "炒青菜"
+        ]
+      },
+      {
+        "name": "西蘭花",
+        "portion_size": "半碗",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "西蘭花"
+        ]
+      },
+      {
+        "name": "胡蘿蔔",
+        "portion_size": "半碗",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "胡蘿蔔"
+        ]
+      },
+      {
+        "name": "番茄",
+        "portion_size": "幾顆",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "番茄"
+        ]
+      },
+      {
+        "name": "炒芥藍",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "炒芥藍"
+        ]
+      }
+    ],
+    "dropped_items": [
+      {
+        "name": "烤鴨",
+        "portion_size": "幾片",
+        "reason": "單一模型辨識且份量描述很小，予以捨去"
+      }
+    ],
+    "per_model_raw": {
+      "minicpm-v": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "西蘭花",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "胡蘿蔔",
+          "portion_size": "半碗"
+        }
+      ],
+      "qwen3-vl:8b": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "烤鴨",
+          "portion_size": "幾片"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "番茄",
+          "portion_size": "幾顆"
+        },
+        {
+          "name": "炒菠菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒芥藍",
+          "portion_size": "一份"
+        }
+      ]
+    },
+    "per_model_ok": {
+      "minicpm-v": true,
+      "qwen3-vl:8b": true
+    },
+    "image": "images (3).jpg",
+    "elapsed_sec": 46.7
+  },
+  {
+    "items": [
+      {
+        "name": "白飯",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "白飯"
+        ]
+      },
+      {
+        "name": "炸雞腿",
+        "portion_size": "一份",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "炸雞腿"
+        ]
+      },
+      {
+        "name": "炒青菜",
+        "portion_size": "一份",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "炒芹菜",
+          "炒青菜"
+        ]
+      },
+      {
+        "name": "玉米",
+        "portion_size": "半碗",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "玉米"
+        ]
+      },
+      {
+        "name": "青椒",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "青椒"
+        ]
+      },
+      {
+        "name": "炒蛋",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "炒蛋"
+        ]
+      },
+      {
+        "name": "洋蔥",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "洋蔥"
+        ]
+      },
+      {
+        "name": "茄子",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "茄子"
+        ]
+      }
+    ],
+    "dropped_items": [],
+    "per_model_raw": {
+      "minicpm-v": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炸雞腿",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "玉米",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "青椒",
+          "portion_size": "一份"
+        }
+      ],
+      "qwen3-vl:8b": [
+        {
+          "name": "白飯",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炸雞腿",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒蛋",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒芹菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "洋蔥",
+          "portion_size": "一份"
+        },
+        {
+          "name": "茄子",
+          "portion_size": "一份"
+        }
+      ]
+    },
+    "per_model_ok": {
+      "minicpm-v": true,
+      "qwen3-vl:8b": true
+    },
+    "image": "images (4).jpg",
+    "elapsed_sec": 61.6
+  },
+  {
+    "items": [
+      {
+        "name": "糖醋排骨",
+        "portion_size": "兩片",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "糖醋排骨"
+        ]
+      },
+      {
+        "name": "炒青菜",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "炒青菜"
+        ]
+      },
+      {
+        "name": "白飯",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "白飯"
+        ]
+      },
+      {
+        "name": "炸雞腿",
+        "portion_size": "一份",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "炸雞腿"
+        ]
+      },
+      {
+        "name": "洋蔥絲",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "洋蔥絲"
+        ]
+      },
+      {
+        "name": "滷肉塊",
+        "portion_size": "兩塊",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "滷肉塊"
+        ]
+      }
+    ],
+    "dropped_items": [],
+    "per_model_raw": {
+      "minicpm-v": [
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炸雞腿",
+          "portion_size": "一份"
+        }
+      ],
+      "qwen3-vl:8b": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炸雞腿",
+          "portion_size": "一份"
+        },
+        {
+          "name": "糖醋排骨",
+          "portion_size": "兩片"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "洋蔥絲",
+          "portion_size": "一份"
+        },
+        {
+          "name": "滷肉塊",
+          "portion_size": "兩塊"
+        }
+      ]
+    },
+    "per_model_ok": {
+      "minicpm-v": true,
+      "qwen3-vl:8b": true
+    },
+    "image": "images (5).jpg",
+    "elapsed_sec": 37.8
+  },
+  {
+    "items": [
+      {
+        "name": "糖醋排骨",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "糖醋排骨"
+        ]
+      },
+      {
+        "name": "炒青菜",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "炒青菜"
+        ]
+      },
+      {
+        "name": "土豆",
+        "portion_size": "一顆",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "土豆"
+        ]
+      },
+      {
+        "name": "炸豬排",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "炸豬排"
+        ]
+      },
+      {
+        "name": "滷蛋",
+        "portion_size": "一顆",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "滷蛋"
+        ]
+      },
+      {
+        "name": "醃蘿蔔",
+        "portion_size": "兩片",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "醃蘿蔔"
+        ]
+      }
+    ],
+    "dropped_items": [
+      {
+        "name": "南瓜",
+        "portion_size": "一片",
+        "reason": "單一模型辨識且份量描述很小，予以捨去"
+      },
+      {
+        "name": "辣椒",
+        "portion_size": "幾片",
+        "reason": "單一模型辨識且份量描述很小，予以捨去"
+      }
+    ],
+    "per_model_raw": {
+      "minicpm-v": [
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "南瓜",
+          "portion_size": "一片"
+        },
+        {
+          "name": "土豆",
+          "portion_size": "一顆"
+        },
+        {
+          "name": "辣椒",
+          "portion_size": "幾片"
+        }
+      ],
+      "qwen3-vl:8b": [
+        {
+          "name": "炸豬排",
+          "portion_size": "一份"
+        },
+        {
+          "name": "滷蛋",
+          "portion_size": "一顆"
+        },
+        {
+          "name": "醃蘿蔔",
+          "portion_size": "兩片"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "一份"
+        }
+      ]
+    },
+    "per_model_ok": {
+      "minicpm-v": true,
+      "qwen3-vl:8b": true
+    },
+    "image": "images (6).jpg",
+    "elapsed_sec": 25.8
+  },
+  {
+    "items": [
+      {
+        "name": "白飯",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "白飯"
+        ]
+      },
+      {
+        "name": "糖醋排骨",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "糖醋排骨"
+        ]
+      },
+      {
+        "name": "炒青菜",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "炒青菜"
+        ]
+      },
+      {
+        "name": "胡蘿蔔",
+        "portion_size": "多片",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "胡蘿蔔"
+        ]
+      },
+      {
+        "name": "馬鈴薯",
+        "portion_size": "多片",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "馬鈴薯"
+        ]
+      },
+      {
+        "name": "蛋絲",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "蛋絲"
+        ]
+      },
+      {
+        "name": "燉肉",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "燉肉"
+        ]
+      },
+      {
+        "name": "油菜",
+        "portion_size": "一根",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "油菜"
+        ]
+      }
+    ],
+    "dropped_items": [
+      {
+        "name": "玉米",
+        "portion_size": "一片",
+        "reason": "單一模型辨識且份量描述很小，予以捨去"
+      }
+    ],
+    "per_model_raw": {
+      "minicpm-v": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "胡蘿蔔",
+          "portion_size": "多片"
+        },
+        {
+          "name": "馬鈴薯",
+          "portion_size": "多片"
+        },
+        {
+          "name": "玉米",
+          "portion_size": "一片"
+        }
+      ],
+      "qwen3-vl:8b": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "蛋絲",
+          "portion_size": "一份"
+        },
+        {
+          "name": "燉肉",
+          "portion_size": "一份"
+        },
+        {
+          "name": "油菜",
+          "portion_size": "一根"
+        }
+      ]
+    },
+    "per_model_ok": {
+      "minicpm-v": true,
+      "qwen3-vl:8b": true
+    },
+    "image": "images (7).jpg",
+    "elapsed_sec": 43.5
+  },
+  {
+    "items": [
+      {
+        "name": "白飯",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "白飯"
+        ]
+      },
+      {
+        "name": "糖醋排骨",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "糖醋排骨"
+        ]
+      },
+      {
+        "name": "炒青菜",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "炒青菜"
+        ]
+      },
+      {
+        "name": "紅椒",
+        "portion_size": "幾顆",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "彩椒",
+          "紅椒",
+          "黃椒"
+        ]
+      },
+      {
+        "name": "胡蘿蔔",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "胡蘿蔔"
+        ]
+      },
+      {
+        "name": "烤雞胸肉",
+        "portion_size": "兩塊",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "烤雞胸肉",
+          "烤雞腿"
+        ]
+      },
+      {
+        "name": "涼拌捲心菜",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "涼拌捲心菜"
+        ]
+      }
+    ],
+    "dropped_items": [],
+    "per_model_raw": {
+      "minicpm-v": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "彩椒",
+          "portion_size": "一份"
+        },
+        {
+          "name": "胡蘿蔔",
+          "portion_size": "一份"
+        }
+      ],
+      "qwen3-vl:8b": [
+        {
+          "name": "白飯",
+          "portion_size": "一份"
+        },
+        {
+          "name": "烤雞胸肉",
+          "portion_size": "兩塊"
+        },
+        {
+          "name": "烤雞腿",
+          "portion_size": "一塊"
+        },
+        {
+          "name": "涼拌捲心菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "黃椒",
+          "portion_size": "幾顆"
+        },
+        {
+          "name": "紅椒",
+          "portion_size": "幾顆"
+        }
+      ]
+    },
+    "per_model_ok": {
+      "minicpm-v": true,
+      "qwen3-vl:8b": true
+    },
+    "image": "images.jpg",
+    "elapsed_sec": 54.6
+  },
+  {
+    "items": [
+      {
+        "name": "白飯",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "白飯"
+        ]
+      },
+      {
+        "name": "雞腿",
+        "portion_size": "一塊",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "炸雞塊",
+          "炸雞腿",
+          "雞腿"
+        ]
+      },
+      {
+        "name": "糖醋排骨",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "糖醋排骨"
+        ]
+      },
+      {
+        "name": "炒青菜",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "炒青菜"
+        ]
+      },
+      {
+        "name": "四季豆",
+        "portion_size": "半碗",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "四季豆"
+        ]
+      },
+      {
+        "name": "毛豆",
+        "portion_size": "半碗",
+        "ensemble_confidence": "共識品項",
+        "agree_count": 2,
+        "seen_names": [
+          "毛豆"
+        ]
+      },
+      {
+        "name": "涼拌豆芽",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "涼拌豆芽"
+        ]
+      },
+      {
+        "name": "玉米",
+        "portion_size": "一份",
+        "ensemble_confidence": "單一模型",
+        "agree_count": 1,
+        "seen_names": [
+          "玉米"
+        ]
+      }
+    ],
+    "dropped_items": [
+      {
+        "name": "紅辣椒",
+        "portion_size": "幾片",
+        "reason": "單一模型辨識且份量描述很小，予以捨去"
+      }
+    ],
+    "per_model_raw": {
+      "minicpm-v": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炸雞腿",
+          "portion_size": "一份"
+        },
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "四季豆",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "毛豆",
+          "portion_size": "半碗"
+        }
+      ],
+      "qwen3-vl:8b": [
+        {
+          "name": "白飯",
+          "portion_size": "一份"
+        },
+        {
+          "name": "雞腿",
+          "portion_size": "一塊"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "幾片"
+        },
+        {
+          "name": "炸雞塊",
+          "portion_size": "幾塊"
+        },
+        {
+          "name": "涼拌豆芽",
+          "portion_size": "一份"
+        },
+        {
+          "name": "毛豆",
+          "portion_size": "一份"
+        },
+        {
+          "name": "玉米",
+          "portion_size": "一份"
+        },
+        {
+          "name": "紅辣椒",
+          "portion_size": "幾片"
+        }
+      ]
+    },
+    "per_model_ok": {
+      "minicpm-v": true,
+      "qwen3-vl:8b": true
+    },
+    "image": "玫瑰油雞腿宮保豬肉會議便當-300x300.jpg",
+    "elapsed_sec": 52.2
+  }
+]

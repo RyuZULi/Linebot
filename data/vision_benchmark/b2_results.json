@@ -1,0 +1,344 @@
+{
+  "summary": {
+    "total": 10,
+    "parsed_ok": 10,
+    "parse_success_rate": 1.0,
+    "simplified_leak_count": 0
+  },
+  "results": [
+    {
+      "ok": true,
+      "raw": "```json\n{\n  \"items\": [\n    {\"name\": \"白飯\", \"portion_size\": \"半碗\"},\n    {\"name\": \"炸雞腿\", \"portion_size\": \"一份\"},\n    {\"name\": \"玉米\", \"portion_size\": \"半碗\"},\n    {\"name\": \"炒青菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"水煮蛋\", \"portion_size\": \"一颗\"},\n    {\"name\": \"泡菜\", \"portion_size\": \"半碗\"}\n  ]\n}\n```",
+      "items": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炸雞腿",
+          "portion_size": "一份"
+        },
+        {
+          "name": "玉米",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "水煮蛋",
+          "portion_size": "一顆"
+        },
+        {
+          "name": "泡菜",
+          "portion_size": "半碗"
+        }
+      ],
+      "image": "8695271.png",
+      "elapsed_sec": 9.5,
+      "simplified_leak": []
+    },
+    {
+      "ok": true,
+      "raw": "```json\n{\n  \"items\": [\n    {\"name\": \"白飯\", \"portion_size\": \"半碗\"},\n    {\"name\": \"炸雞腿\", \"portion_size\": \"一份\"},\n    {\"name\": \"煮蛋\", \"portion_size\": \"一片\"},\n    {\"name\": \"糖醋排骨\", \"portion_size\": \"一份\"},\n    {\"name\": \"炒青菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"西兰花\", \"portion_size\": \"一份\"},\n    {\"name\": \"花椰菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"紅萝卜\", \"portion_size\": \"一份\"},\n    {\"name\": \"紫菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"豆腐\", \"portion_size\": \"一份\"},\n    {\"name\": \"玉米\", \"portion_size\": \"一份\"},\n    {\"name\": \"火腿\", \"portion_size\": \"一片\"},\n    {\"name\": \"馬鈴薯\", \"portion_size\": \"一片\"}\n  ]\n}\n```",
+      "items": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炸雞腿",
+          "portion_size": "一份"
+        },
+        {
+          "name": "煮蛋",
+          "portion_size": "一片"
+        },
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "西蘭花",
+          "portion_size": "一份"
+        },
+        {
+          "name": "花椰菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "紅蘿蔔",
+          "portion_size": "一份"
+        },
+        {
+          "name": "紫菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "豆腐",
+          "portion_size": "一份"
+        },
+        {
+          "name": "玉米",
+          "portion_size": "一份"
+        },
+        {
+          "name": "火腿",
+          "portion_size": "一片"
+        },
+        {
+          "name": "馬鈴薯",
+          "portion_size": "一片"
+        }
+      ],
+      "image": "images (1).jpg",
+      "elapsed_sec": 4.2,
+      "simplified_leak": []
+    },
+    {
+      "ok": true,
+      "raw": "```json\n{\n  \"items\": [\n    {\"name\": \"白飯\", \"portion_size\": \"半碗\"},\n    {\"name\": \"糖醋排骨\", \"portion_size\": \"一份\"},\n    {\"name\": \"炒米粉\", \"portion_size\": \"半碗\"},\n    {\"name\": \"炒青菜\", \"portion_size\": \"半碗\"},\n    {\"name\": \"南瓜\", \"portion_size\": \"一片\"}\n  ]\n}\n```",
+      "items": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒米粉",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "南瓜",
+          "portion_size": "一片"
+        }
+      ],
+      "image": "images (2).jpg",
+      "elapsed_sec": 3.2,
+      "simplified_leak": []
+    },
+    {
+      "ok": true,
+      "raw": "```json\n{\n  \"items\": [\n    {\"name\": \"白飯\", \"portion_size\": \"半碗\"},\n    {\"name\": \"糖醋排骨\", \"portion_size\": \"一份\"},\n    {\"name\": \"炒青菜\", \"portion_size\": \"半碗\"},\n    {\"name\": \"西兰花\", \"portion_size\": \"半碗\"},\n    {\"name\": \"胡萝卜\", \"portion_size\": \"半碗\"}\n  ]\n}\n```",
+      "items": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "西蘭花",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "胡蘿蔔",
+          "portion_size": "半碗"
+        }
+      ],
+      "image": "images (3).jpg",
+      "elapsed_sec": 3.2,
+      "simplified_leak": []
+    },
+    {
+      "ok": true,
+      "raw": "```json\n{\n  \"items\": [\n    {\"name\": \"白飯\", \"portion_size\": \"半碗\"},\n    {\"name\": \"炸雞腿\", \"portion_size\": \"一份\"},\n    {\"name\": \"玉米\", \"portion_size\": \"半碗\"},\n    {\"name\": \"炒青菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"辣椒\", \"portion_size\": \"幾片\"}\n  ]\n}\n```",
+      "items": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炸雞腿",
+          "portion_size": "一份"
+        },
+        {
+          "name": "玉米",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "辣椒",
+          "portion_size": "幾片"
+        }
+      ],
+      "image": "images (4).jpg",
+      "elapsed_sec": 3.2,
+      "simplified_leak": []
+    },
+    {
+      "ok": true,
+      "raw": "```json\n{\n  \"items\": [\n    {\"name\": \"糖醋排骨\", \"portion_size\": \"一份\"},\n    {\"name\": \"炒青菜\", \"portion_size\": \"半碗\"},\n    {\"name\": \"白飯\", \"portion_size\": \"半碗\"},\n    {\"name\": \"炸雞腿\", \"portion_size\": \"一份\"}\n  ]\n}\n```",
+      "items": [
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炸雞腿",
+          "portion_size": "一份"
+        }
+      ],
+      "image": "images (5).jpg",
+      "elapsed_sec": 3.1,
+      "simplified_leak": []
+    },
+    {
+      "ok": true,
+      "raw": "```json\n{\n  \"items\": [\n    {\"name\": \"糖醋排骨\", \"portion_size\": \"一份\"},\n    {\"name\": \"炒青菜\", \"portion_size\": \"半碗\"},\n    {\"name\": \"南瓜\", \"portion_size\": \"一片\"},\n    {\"name\": \"土豆\", \"portion_size\": \"一颗\"},\n    {\"name\": \"辣椒\", \"portion_size\": \"多片\"}\n  ]\n}\n```",
+      "items": [
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "南瓜",
+          "portion_size": "一片"
+        },
+        {
+          "name": "土豆",
+          "portion_size": "一顆"
+        },
+        {
+          "name": "辣椒",
+          "portion_size": "多片"
+        }
+      ],
+      "image": "images (6).jpg",
+      "elapsed_sec": 3.2,
+      "simplified_leak": []
+    },
+    {
+      "ok": true,
+      "raw": "```json\n{\n  \"items\": [\n    {\"name\": \"白飯\", \"portion_size\": \"半碗\"},\n    {\"name\": \"糖醋排骨\", \"portion_size\": \"一份\"},\n    {\"name\": \"胡萝卜\", \"portion_size\": \"多片\"},\n    {\"name\": \"馬鈴薯\", \"portion_size\": \"多片\"},\n    {\"name\": \"青菜\", \"portion_size\": \"一片\"},\n    {\"name\": \"玉米\", \"portion_size\": \"一根\"},\n    {\"name\": \"胡萝卜絲\", \"portion_size\": \"多條\"}\n  ]\n}\n```",
+      "items": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "胡蘿蔔",
+          "portion_size": "多片"
+        },
+        {
+          "name": "馬鈴薯",
+          "portion_size": "多片"
+        },
+        {
+          "name": "青菜",
+          "portion_size": "一片"
+        },
+        {
+          "name": "玉米",
+          "portion_size": "一根"
+        },
+        {
+          "name": "胡蘿蔔絲",
+          "portion_size": "多條"
+        }
+      ],
+      "image": "images (7).jpg",
+      "elapsed_sec": 3.5,
+      "simplified_leak": []
+    },
+    {
+      "ok": true,
+      "raw": "```json\n{\n  \"items\": [\n    {\"name\": \"白飯\", \"portion_size\": \"半碗\"},\n    {\"name\": \"糖醋排骨\", \"portion_size\": \"一份\"},\n    {\"name\": \"炒青菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"彩椒\", \"portion_size\": \"一份\"},\n    {\"name\": \"胡萝卜\", \"portion_size\": \"一份\"}\n  ]\n}\n```",
+      "items": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "一份"
+        },
+        {
+          "name": "彩椒",
+          "portion_size": "一份"
+        },
+        {
+          "name": "胡蘿蔔",
+          "portion_size": "一份"
+        }
+      ],
+      "image": "images.jpg",
+      "elapsed_sec": 3.2,
+      "simplified_leak": []
+    },
+    {
+      "ok": true,
+      "raw": "```json\n{\n  \"items\": [\n    {\"name\": \"白飯\", \"portion_size\": \"半碗\"},\n    {\"name\": \"炸雞腿\", \"portion_size\": \"一份\"},\n    {\"name\": \"糖醋排骨\", \"portion_size\": \"一份\"},\n    {\"name\": \"炒青菜\", \"portion_size\": \"半碗\"},\n    {\"name\": \"四季豆\", \"portion_size\": \"半碗\"},\n    {\"name\": \"毛豆\", \"portion_size\": \"半碗\"}\n  ]\n}\n```",
+      "items": [
+        {
+          "name": "白飯",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "炸雞腿",
+          "portion_size": "一份"
+        },
+        {
+          "name": "糖醋排骨",
+          "portion_size": "一份"
+        },
+        {
+          "name": "炒青菜",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "四季豆",
+          "portion_size": "半碗"
+        },
+        {
+          "name": "毛豆",
+          "portion_size": "半碗"
+        }
+      ],
+      "image": "玫瑰油雞腿宮保豬肉會議便當-300x300.jpg",
+      "elapsed_sec": 3.2,
+      "simplified_leak": []
+    }
+  ]
+}

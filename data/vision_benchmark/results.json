@@ -1,0 +1,370 @@
+[
+  {
+    "image": "8695271.png",
+    "model": "llava",
+    "elapsed_sec": 6.4,
+    "raw_response": " ```json\n\n{\n  \"items\": [\n    {\"name\": \"雞肉\", \"portion_size\": \"一片\"},\n    {\"name\": \"米飯\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蛋\", \"portion_size\": \"一個\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一片\"}\n  ]\n}\n\n``` ",
+    "parsed_ok": true,
+    "items": [
+      {
+        "name": "雞肉",
+        "portion_size": "一片"
+      },
+      {
+        "name": "米飯",
+        "portion_size": "一份"
+      },
+      {
+        "name": "蔬菜",
+        "portion_size": "一份"
+      },
+      {
+        "name": "蛋",
+        "portion_size": "一個"
+      },
+      {
+        "name": "雞肉",
+        "portion_size": "一片"
+      }
+    ]
+  },
+  {
+    "image": "8695271.png",
+    "model": "llama3.2-vision",
+    "elapsed_sec": 2.9,
+    "error": "HTTP Error 500: Internal Server Error"
+  },
+  {
+    "image": "8695271.png",
+    "model": "minicpm-v",
+    "elapsed_sec": 27.9,
+    "raw_response": "根据照片中的内容，以下是可以看到的食物项目及其粗略份量描述：\n\n```json\n{\n  \"items\": [\n    {\"name\": \"白米饭\", \"portion_size\": \"一份\"},\n    {\"name\": \"炸猪排\", \"portion_size\": \"一片\"},\n    {\"name\": \"玉米\", \"portion_size\": \"一份\"},\n    {\"name\": \"青菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"水煮蛋\", \"portion_size\": \"一個\"},\n    {\"name\": \"泡菜\", \"portion_size\": \"一份\"}\n  ]\n}\n```",
+    "parsed_ok": false,
+    "parse_error": "Expecting value: line 1 column 1 (char 0)"
+  },
+  {
+    "image": "images (1).jpg",
+    "model": "llava",
+    "elapsed_sec": 29.6,
+    "raw_response": " ```json\n\n{\n  \"items\": [\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞蛋\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\":",
+    "parsed_ok": false,
+    "parse_error": "Expecting value: line 162 column 13 (char 6705)"
+  },
+  {
+    "image": "images (1).jpg",
+    "model": "llama3.2-vision",
+    "elapsed_sec": 7.6,
+    "error": "HTTP Error 500: Internal Server Error"
+  },
+  {
+    "image": "images (1).jpg",
+    "model": "minicpm-v",
+    "elapsed_sec": 3.8,
+    "raw_response": "根据照片中的内容，以下是实际看到的食物品项与粗略份量描述：\n\n```json\n{\n  \"items\": [\n    {\"name\": \"烤鸡肉\", \"portion_size\": \"一片\"},\n    {\"name\": \"煮鸡蛋\", \"portion_size\": \"一片\"},\n    {\"name\": \"炒蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"花椰菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"西兰花\", \"portion_size\": \"一份\"},\n    {\"name\": \"胡萝卜\", \"portion_size\": \"一份\"},\n    {\"name\": \"马铃薯\", \"portion_size\": \"一份\"},\n    {\"name\": \"紫甘蓝\", \"portion_size\": \"一份\"},\n    {\"name\": \"米饭\", \"portion_size\": \"一份\"},\n    {\"name\": \"炸猪排\", \"portion_size\": \"一片\"},\n    {\"name\": \"火腿\", \"portion_size\": \"一片\"},\n    {\"name\": \"芝士\", \"portion_size\": \"一片\"}\n  ]\n}\n```",
+    "parsed_ok": false,
+    "parse_error": "Expecting value: line 1 column 1 (char 0)"
+  },
+  {
+    "image": "images (2).jpg",
+    "model": "llava",
+    "elapsed_sec": 5.4,
+    "raw_response": " ```json\n\n{\n  \"items\": [\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"米飯\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"茄子\", \"portion_size\": \"一份\"},\n    {\"name\": \"韓式炒飯\", \"portion_size\": \"一份\"}\n  ]\n}\n\n``` ",
+    "parsed_ok": true,
+    "items": [
+      {
+        "name": "雞肉",
+        "portion_size": "一份"
+      },
+      {
+        "name": "米飯",
+        "portion_size": "一份"
+      },
+      {
+        "name": "蔬菜",
+        "portion_size": "一份"
+      },
+      {
+        "name": "茄子",
+        "portion_size": "一份"
+      },
+      {
+        "name": "韓式炒飯",
+        "portion_size": "一份"
+      }
+    ]
+  },
+  {
+    "image": "images (2).jpg",
+    "model": "llama3.2-vision",
+    "elapsed_sec": 7.6,
+    "error": "HTTP Error 500: Internal Server Error"
+  },
+  {
+    "image": "images (2).jpg",
+    "model": "minicpm-v",
+    "elapsed_sec": 3.2,
+    "raw_response": "根据照片中的内容，以下是实际看到的食物品项与粗略份量估计：\n\n```json\n{\n  \"items\": [\n    {\"name\": \"白米饭\", \"portion_size\": \"一份\"},\n    {\"name\": \"咖喱鸡腿\", \"portion_size\": \"一片\"},\n    {\"name\": \"炒米粉\", \"portion_size\": \"一份\"},\n    {\"name\": \"炒青菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"炒蘑菇\", \"portion_size\": \"一份\"}\n  ]\n}\n```",
+    "parsed_ok": false,
+    "parse_error": "Expecting value: line 1 column 1 (char 0)"
+  },
+  {
+    "image": "images (3).jpg",
+    "model": "llava",
+    "elapsed_sec": 5.6,
+    "raw_response": " ```json\n\n{\n  \"items\": [\n    {\n      \"name\": \"雞肉\",\n      \"portion_size\": \"一份\"\n    },\n    {\n      \"name\": \"米飯\",\n      \"portion_size\": \"一份\"\n    },\n    {\n      \"name\": \"蔬菜\",\n      \"portion_size\": \"一份\"\n    },\n    {\n      \"name\": \"蔬菜\",\n      \"portion_size\": \"一份\"\n    },\n    {\n      \"name\": \"蔬菜\",\n      \"portion_size\": \"一份\"\n    }\n  ]\n}\n\n``` ",
+    "parsed_ok": true,
+    "items": [
+      {
+        "name": "雞肉",
+        "portion_size": "一份"
+      },
+      {
+        "name": "米飯",
+        "portion_size": "一份"
+      },
+      {
+        "name": "蔬菜",
+        "portion_size": "一份"
+      },
+      {
+        "name": "蔬菜",
+        "portion_size": "一份"
+      },
+      {
+        "name": "蔬菜",
+        "portion_size": "一份"
+      }
+    ]
+  },
+  {
+    "image": "images (3).jpg",
+    "model": "llama3.2-vision",
+    "elapsed_sec": 7.6,
+    "error": "HTTP Error 500: Internal Server Error"
+  },
+  {
+    "image": "images (3).jpg",
+    "model": "minicpm-v",
+    "elapsed_sec": 3.3,
+    "raw_response": "根据照片中的内容，以下是可以看到的食物项目及其粗略份量描述：\n\n```json\n{\n  \"items\": [\n    {\"name\": \"白米饭\", \"portion_size\": \"一份\"},\n    {\"name\": \"鸡肉\", \"portion_size\": \"一片\"},\n    {\"name\": \"西兰花\", \"portion_size\": \"一份\"},\n    {\"name\": \"菠菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"红椒\", \"portion_size\": \"一份\"}\n  ]\n}\n```\n\n请注意，这只是一个基于照片中可见内容的估计，实际份量可能会有所不同。",
+    "parsed_ok": false,
+    "parse_error": "Expecting value: line 1 column 1 (char 0)"
+  },
+  {
+    "image": "images (4).jpg",
+    "model": "llava",
+    "elapsed_sec": 5.7,
+    "raw_response": " ```json\n\n{\n  \"items\": [\n    {\n      \"name\": \"雞肉\",\n      \"portion_size\": \"一份\"\n    },\n    {\n      \"name\": \"米飯\",\n      \"portion_size\": \"一份\"\n    },\n    {\n      \"name\": \"蔬菜\",\n      \"portion_size\": \"一份\"\n    },\n    {\n      \"name\": \"炒蛋\",\n      \"portion_size\": \"一份\"\n    },\n    {\n      \"name\": \"辣椒\",\n      \"portion_size\": \"一份\"\n    }\n  ]\n}\n\n``` ",
+    "parsed_ok": true,
+    "items": [
+      {
+        "name": "雞肉",
+        "portion_size": "一份"
+      },
+      {
+        "name": "米飯",
+        "portion_size": "一份"
+      },
+      {
+        "name": "蔬菜",
+        "portion_size": "一份"
+      },
+      {
+        "name": "炒蛋",
+        "portion_size": "一份"
+      },
+      {
+        "name": "辣椒",
+        "portion_size": "一份"
+      }
+    ]
+  },
+  {
+    "image": "images (4).jpg",
+    "model": "llama3.2-vision",
+    "elapsed_sec": 7.6,
+    "error": "HTTP Error 500: Internal Server Error"
+  },
+  {
+    "image": "images (4).jpg",
+    "model": "minicpm-v",
+    "elapsed_sec": 3.3,
+    "raw_response": "根据照片中的内容，以下是实际看到的食物项目及其粗略份量描述：\n\n```json\n{\n  \"items\": [\n    {\"name\": \"炸鸡腿\", \"portion_size\": \"一份\"},\n    {\"name\": \"白米饭\", \"portion_size\": \"半碗\"},\n    {\"name\": \"玉米\", \"portion_size\": \"一份\"},\n    {\"name\": \"炒鸡蛋\", \"portion_size\": \"一份\"},\n    {\"name\": \"青豆\", \"portion_size\": \"一份\"},\n    {\"name\": \"红辣椒\", \"portion_size\": \"一份\"}\n  ]\n}\n```",
+    "parsed_ok": false,
+    "parse_error": "Expecting value: line 1 column 1 (char 0)"
+  },
+  {
+    "image": "images (5).jpg",
+    "model": "llava",
+    "elapsed_sec": 5.0,
+    "raw_response": " ```json\n\n{\n  \"items\": [\n    {\"name\": \"雞肉\", \"portion_size\": \"一片\"},\n    {\"name\": \"蛋炒飯\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"}\n  ]\n}\n\n``` ",
+    "parsed_ok": true,
+    "items": [
+      {
+        "name": "雞肉",
+        "portion_size": "一片"
+      },
+      {
+        "name": "蛋炒飯",
+        "portion_size": "一份"
+      },
+      {
+        "name": "蔬菜",
+        "portion_size": "一份"
+      }
+    ]
+  },
+  {
+    "image": "images (5).jpg",
+    "model": "llama3.2-vision",
+    "elapsed_sec": 7.6,
+    "error": "HTTP Error 500: Internal Server Error"
+  },
+  {
+    "image": "images (5).jpg",
+    "model": "minicpm-v",
+    "elapsed_sec": 3.4,
+    "raw_response": "根据照片中的视觉信息，可以列出以下食物项目及其粗略份量描述：\n\n```json\n{\n  \"items\": [\n    {\"name\": \"炸鸡块\", \"portion_size\": \"一份\"},\n    {\"name\": \"糖醋排骨\", \"portion_size\": \"一份\"},\n    {\"name\": \"白饭\", \"portion_size\": \"半碗\"},\n    {\"name\": \"炒青菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"酸菜\", \"portion_size\": \"一份\"}\n  ]\n}\n```\n\n请注意，以上描述是基于照片中可见的内容，实际份量可能因个人食量和盘子大小而有所不同。",
+    "parsed_ok": false,
+    "parse_error": "Expecting value: line 1 column 1 (char 0)"
+  },
+  {
+    "image": "images (6).jpg",
+    "model": "llava",
+    "elapsed_sec": 5.0,
+    "raw_response": " ```json\n\n{\n  \"items\": [\n    {\"name\": \"燒肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"雞翼\", \"portion_size\": \"一份\"}\n  ]\n}\n``` ",
+    "parsed_ok": true,
+    "items": [
+      {
+        "name": "燒肉",
+        "portion_size": "一份"
+      },
+      {
+        "name": "蔬菜",
+        "portion_size": "一份"
+      },
+      {
+        "name": "雞翼",
+        "portion_size": "一份"
+      }
+    ]
+  },
+  {
+    "image": "images (6).jpg",
+    "model": "llama3.2-vision",
+    "elapsed_sec": 7.6,
+    "error": "HTTP Error 500: Internal Server Error"
+  },
+  {
+    "image": "images (6).jpg",
+    "model": "minicpm-v",
+    "elapsed_sec": 3.1,
+    "raw_response": "根据照片中的内容，以下是实际看到的食物品项与粗略份量描述：\n\n```json\n{\n  \"items\": [\n    {\"name\": \"排骨\", \"portion_size\": \"一片\"},\n    {\"name\": \"炒蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"芒果\", \"portion_size\": \"一片\"},\n    {\"name\": \"鹌鹑蛋\", \"portion_size\": \"一颗\"},\n    {\"name\": \"辣椒\", \"portion_size\": \"几片\"}\n  ]\n}\n```",
+    "parsed_ok": false,
+    "parse_error": "Expecting value: line 1 column 1 (char 0)"
+  },
+  {
+    "image": "images (7).jpg",
+    "model": "llava",
+    "elapsed_sec": 5.2,
+    "raw_response": " ```json\n\n{\n  \"items\": [\n    {\"name\": \"韓式飯碗\", \"portion_size\": \"一份\"},\n    {\"name\": \"燒肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"酥料\", \"portion_size\": \"一份\"}\n  ]\n}\n``` ",
+    "parsed_ok": true,
+    "items": [
+      {
+        "name": "韓式飯碗",
+        "portion_size": "一份"
+      },
+      {
+        "name": "燒肉",
+        "portion_size": "一份"
+      },
+      {
+        "name": "蔬菜",
+        "portion_size": "一份"
+      },
+      {
+        "name": "酥料",
+        "portion_size": "一份"
+      }
+    ]
+  },
+  {
+    "image": "images (7).jpg",
+    "model": "llama3.2-vision",
+    "elapsed_sec": 7.6,
+    "error": "HTTP Error 500: Internal Server Error"
+  },
+  {
+    "image": "images (7).jpg",
+    "model": "minicpm-v",
+    "elapsed_sec": 3.7,
+    "raw_response": "根据提供的照片，我可以看到以下食物品项：\n\n1. 紅燒肉（一份）\n2. 土豆（一份）\n3. 胡萝卜（一份）\n4. 菜心（一份）\n5. 菜花（一份）\n6. 白米饭（一份）\n\n因此，照片中的实际食物品项和粗略份量估算是：\n\n```json\n{\n    \"items\": [\n        {\"name\": \"紅燒肉\", \"portion_size\": \"一份\"},\n        {\"name\": \"土豆\", \"portion_size\": \"一份\"},\n        {\"name\": \"胡萝卜\", \"portion_size\": \"一份\"},\n        {\"name\": \"菜心\", \"portion_size\": \"一份\"},\n        {\"name\": \"菜花\", \"portion_size\": \"一份\"},\n        {\"name\": \"白米饭\", \"portion_size\": \"一份\"}\n    ]\n}\n```",
+    "parsed_ok": false,
+    "parse_error": "Expecting value: line 1 column 1 (char 0)"
+  },
+  {
+    "image": "images.jpg",
+    "model": "llava",
+    "elapsed_sec": 31.8,
+    "raw_response": " ```json\n\n{\n  \"items\": [\n    {\"name\": \"雞翅\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\":",
+    "parsed_ok": false,
+    "parse_error": "Expecting value: line 162 column 13 (char 6705)"
+  },
+  {
+    "image": "images.jpg",
+    "model": "llama3.2-vision",
+    "elapsed_sec": 7.6,
+    "error": "HTTP Error 500: Internal Server Error"
+  },
+  {
+    "image": "images.jpg",
+    "model": "minicpm-v",
+    "elapsed_sec": 3.7,
+    "raw_response": "根据照片中的内容，以下是实际看到的食物项目及其粗略份量描述：\n\n```json\n{\n  \"items\": [\n    {\n      \"name\": \"白米饭\",\n      \"portion_size\": \"一份\"\n    },\n    {\n      \"name\": \"煎鷄肉\",\n      \"portion_size\": \"三塊\"\n    },\n    {\n      \"name\": \"烤鷄肉\",\n      \"portion_size\": \"三塊\"\n    },\n    {\n      \"name\": \"花椰菜\",\n      \"portion_size\": \"一份\"\n    },\n    {\n      \"name\": \"黃椒\",\n      \"portion_size\": \"一份\"\n    },\n    {\n      \"name\": \"紅椒\",\n      \"portion_size\": \"一份\"\n    },\n    {\n      \"name\": \"胡萝卜\",\n      \"portion_size\": \"一份\"\n    }\n  ]\n}\n```",
+    "parsed_ok": false,
+    "parse_error": "Expecting value: line 1 column 1 (char 0)"
+  },
+  {
+    "image": "玫瑰油雞腿宮保豬肉會議便當-300x300.jpg",
+    "model": "llava",
+    "elapsed_sec": 5.3,
+    "raw_response": " ```json\n\n{\n  \"items\": [\n    {\"name\": \"雞肉\", \"portion_size\": \"一份\"},\n    {\"name\": \"米飯\", \"portion_size\": \"一份\"},\n    {\"name\": \"蔬菜\", \"portion_size\": \"一份\"},\n    {\"name\": \"蛋\", \"portion_size\": \"一份\"},\n    {\"name\": \"醬料\", \"portion_size\": \"一份\"}\n  ]\n}\n\n``` ",
+    "parsed_ok": true,
+    "items": [
+      {
+        "name": "雞肉",
+        "portion_size": "一份"
+      },
+      {
+        "name": "米飯",
+        "portion_size": "一份"
+      },
+      {
+        "name": "蔬菜",
+        "portion_size": "一份"
+      },
+      {
+        "name": "蛋",
+        "portion_size": "一份"
+      },
+      {
+        "name": "醬料",
+        "portion_size": "一份"
+      }
+    ]
+  },
+  {
+    "image": "玫瑰油雞腿宮保豬肉會議便當-300x300.jpg",
+    "model": "llama3.2-vision",
+    "elapsed_sec": 7.6,
+    "error": "HTTP Error 500: Internal Server Error"
+  },
+  {
+    "image": "玫瑰油雞腿宮保豬肉會議便當-300x300.jpg",
+    "model": "minicpm-v",
+    "elapsed_sec": 3.2,
+    "raw_response": "根据照片中的内容，以下是实际看到的食物品项及其粗略份量描述：\n\n```json\n{\n  \"items\": [\n    {\"name\": \"白米饭\", \"portion_size\": \"一份\"},\n    {\"name\": \"鸡肉腿\", \"portion_size\": \"一片\"},\n    {\"name\": \"炸鸡翅\", \"portion_size\": \"一份\"},\n    {\"name\": \"炒四季豆\", \"portion_size\": \"一份\"},\n    {\"name\": \"炒毛豆\", \"portion_size\": \"一份\"},\n    {\"name\": \"炒花生\", \"portion_size\": \"一份\"},\n    {\"name\": \"炒青菜\", \"portion_size\": \"一份\"}\n  ]\n}\n```",
+    "parsed_ok": false,
+    "parse_error": "Expecting value: line 1 column 1 (char 0)"
+  }
+]

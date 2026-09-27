@@ -1,0 +1,261 @@
+{
+  "confusion": {
+    "expect_exact": [
+      {
+        "query": "白飯",
+        "confidence": "exact",
+        "matched_item": "白飯"
+      },
+      {
+        "query": "花椰菜",
+        "confidence": "exact",
+        "matched_item": "花椰菜"
+      },
+      {
+        "query": "馬鈴薯",
+        "confidence": "exact",
+        "matched_item": "馬鈴薯"
+      },
+      {
+        "query": "玉米",
+        "confidence": "exact",
+        "matched_item": "甜玉米"
+      },
+      {
+        "query": "紅蘿蔔",
+        "confidence": "exact",
+        "matched_item": "胡蘿蔔平均值"
+      },
+      {
+        "query": "雞腿",
+        "confidence": "exact",
+        "matched_item": "棒棒腿(肉雞)"
+      },
+      {
+        "query": "紫菜",
+        "confidence": "exact",
+        "matched_item": "紫菜"
+      },
+      {
+        "query": "冬粉",
+        "confidence": "exact",
+        "matched_item": "冬粉"
+      },
+      {
+        "query": "地瓜葉",
+        "confidence": "exact",
+        "matched_item": "甘藷葉"
+      }
+    ],
+    "expect_similar": [
+      {
+        "query": "炒蛋",
+        "confidence": "similar",
+        "matched_item": "炒蛋(加油3大匙)"
+      },
+      {
+        "query": "青花菜",
+        "confidence": "none",
+        "matched_item": null
+      },
+      {
+        "query": "水煮雞蛋",
+        "confidence": "similar",
+        "matched_item": "雞水煮蛋"
+      }
+    ],
+    "expect_none": [
+      {
+        "query": "小黃瓜片",
+        "confidence": "none",
+        "matched_item": null
+      },
+      {
+        "query": "高麗菜絲",
+        "confidence": "none",
+        "matched_item": null
+      },
+      {
+        "query": "糖醋排骨",
+        "confidence": "none",
+        "matched_item": null
+      },
+      {
+        "query": "炒青菜",
+        "confidence": "none",
+        "matched_item": null
+      },
+      {
+        "query": "炸雞腿",
+        "confidence": "none",
+        "matched_item": null
+      },
+      {
+        "query": "宮保雞丁",
+        "confidence": "none",
+        "matched_item": null
+      },
+      {
+        "query": "滷雞腿飯",
+        "confidence": "none",
+        "matched_item": null
+      },
+      {
+        "query": "腳踏車",
+        "confidence": "none",
+        "matched_item": null
+      },
+      {
+        "query": "asdfghjkl",
+        "confidence": "none",
+        "matched_item": null
+      }
+    ]
+  },
+  "real_b2_outputs": [
+    {
+      "query": "白飯",
+      "confidence": "exact",
+      "matched_item": "白飯",
+      "matched_kcal": "183.0"
+    },
+    {
+      "query": "炸雞腿",
+      "confidence": "none",
+      "matched_item": null,
+      "matched_kcal": null
+    },
+    {
+      "query": "玉米",
+      "confidence": "exact",
+      "matched_item": "甜玉米",
+      "matched_kcal": "107.0"
+    },
+    {
+      "query": "炒青菜",
+      "confidence": "none",
+      "matched_item": null,
+      "matched_kcal": null
+    },
+    {
+      "query": "水煮蛋",
+      "confidence": "similar",
+      "matched_item": "雞水煮蛋",
+      "matched_kcal": "144.0"
+    },
+    {
+      "query": "泡菜",
+      "confidence": "similar",
+      "matched_item": "韓式泡菜",
+      "matched_kcal": "35.0"
+    },
+    {
+      "query": "煮蛋",
+      "confidence": "none",
+      "matched_item": null,
+      "matched_kcal": null
+    },
+    {
+      "query": "糖醋排骨",
+      "confidence": "none",
+      "matched_item": null,
+      "matched_kcal": null
+    },
+    {
+      "query": "西蘭花",
+      "confidence": "none",
+      "matched_item": null,
+      "matched_kcal": null
+    },
+    {
+      "query": "花椰菜",
+      "confidence": "exact",
+      "matched_item": "花椰菜",
+      "matched_kcal": "23.0"
+    },
+    {
+      "query": "紅蘿蔔",
+      "confidence": "exact",
+      "matched_item": "胡蘿蔔平均值",
+      "matched_kcal": "39.0"
+    },
+    {
+      "query": "紫菜",
+      "confidence": "exact",
+      "matched_item": "紫菜",
+      "matched_kcal": "268.0"
+    },
+    {
+      "query": "豆腐",
+      "confidence": "none",
+      "matched_item": null,
+      "matched_kcal": null
+    },
+    {
+      "query": "火腿",
+      "confidence": "none",
+      "matched_item": null,
+      "matched_kcal": null
+    },
+    {
+      "query": "馬鈴薯",
+      "confidence": "exact",
+      "matched_item": "馬鈴薯",
+      "matched_kcal": "77.0"
+    },
+    {
+      "query": "炒米粉",
+      "confidence": "none",
+      "matched_item": null,
+      "matched_kcal": null
+    },
+    {
+      "query": "南瓜",
+      "confidence": "exact",
+      "matched_item": "南瓜平均值",
+      "matched_kcal": "74.0"
+    },
+    {
+      "query": "辣椒",
+      "confidence": "exact",
+      "matched_item": "青辣椒平均值",
+      "matched_kcal": "33.0"
+    },
+    {
+      "query": "土豆",
+      "confidence": "none",
+      "matched_item": null,
+      "matched_kcal": null
+    },
+    {
+      "query": "青菜",
+      "confidence": "exact",
+      "matched_item": "小白菜(土植)(4月取樣)",
+      "matched_kcal": "13.0"
+    },
+    {
+      "query": "胡蘿蔔絲",
+      "confidence": "none",
+      "matched_item": null,
+      "matched_kcal": null
+    },
+    {
+      "query": "彩椒",
+      "confidence": "none",
+      "matched_item": null,
+      "matched_kcal": null
+    },
+    {
+      "query": "四季豆",
+      "confidence": "exact",
+      "matched_item": "敏豆莢",
+      "matched_kcal": "30.0"
+    },
+    {
+      "query": "毛豆",
+      "confidence": "none",
+      "matched_item": null,
+      "matched_kcal": null
+    }
+  ]
+}

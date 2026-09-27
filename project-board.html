@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>熱量估算作戰板</title>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  :root{
+    --paper:#F1F0E7;
+    --surface:#FFFFFF;
+    --surface-2:#EAE8DC;
+    --ink:#20241F;
+    --ink-soft:#565F53;
+    --ink-faint:#8C9186;
+    --line:#DAD6C8;
+    --line-strong:#20241F;
+    --accent:#B8791E;
+    --accent-strong:#8F5C12;
+    --teal:#2B7566;
+    --teal-bg:#E4EEE9;
+    --clay:#A6462B;
+    --clay-bg:#F2E5DE;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#171A16;
+      --surface:#1F231D;
+      --surface-2:#262B20;
+      --ink:#ECEAE0;
+      --ink-soft:#A7AC9E;
+      --ink-faint:#727A6C;
+      --line:#333829;
+      --line-strong:#ECEAE0;
+      --accent:#D69A3F;
+      --accent-strong:#E8B563;
+      --teal:#5FB39F;
+      --teal-bg:#20332C;
+      --clay:#D97853;
+      --clay-bg:#3A2620;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#171A16;
+    --surface:#1F231D;
+    --surface-2:#262B20;
+    --ink:#ECEAE0;
+    --ink-soft:#A7AC9E;
+    --ink-faint:#727A6C;
+    --line:#333829;
+    --line-strong:#ECEAE0;
+    --accent:#D69A3F;
+    --accent-strong:#E8B563;
+    --teal:#5FB39F;
+    --teal-bg:#20332C;
+    --clay:#D97853;
+    --clay-bg:#3A2620;
+  }
+
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Work Sans", "Noto Sans TC", system-ui, sans-serif;
+    line-height:1.6;
+    padding-inline:16px;
+  }
+  img{max-width:100%;}
+  [hidden]{display:none!important;}
+  .wrap{
+    max-width:880px;
+    margin:0 auto;
+    padding-block:48px 80px;
+  }
+  h1,h2,h3{
+    font-family:"Archivo","Noto Sans TC",system-ui,sans-serif;
+    text-wrap:balance;
+    color:var(--ink);
+    margin:0;
+  }
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    font-variant-numeric:tabular-nums;
+  }
+  header.masthead{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    padding-bottom:28px;
+    border-bottom:4px solid var(--line-strong);
+  }
+  h1{
+    font-size:clamp(28px,4.5vw,42px);
+    font-weight:900;
+    letter-spacing:-.01em;
+  }
+  .subtitle{
+    font-size:16px;
+    color:var(--ink-soft);
+    max-width:60ch;
+  }
+  section{
+    margin-top:44px;
+  }
+  section > h2{
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--accent-strong);
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:4px;
+  }
+  section > h2 .num{
+    font-family:"IBM Plex Mono",monospace;
+    color:var(--ink-faint);
+    font-weight:500;
+  }
+  section > .lede{
+    color:var(--ink-soft);
+    max-width:65ch;
+    margin-top:6px;
+    margin-bottom:20px;
+    font-size:15px;
+  }
+  hr.thin{
+    border:none;
+    border-top:1px solid var(--line);
+    margin:44px 0 0;
+  }
+
+  /* callout panels */
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-left:4px solid var(--accent);
+    border-radius:2px;
+    padding:20px 22px;
+  }
+  .panel h3{
+    font-size:15px;
+    font-weight:800;
+    margin-bottom:10px;
+  }
+  .panel p, .panel li{
+    font-size:14.5px;
+    color:var(--ink-soft);
+  }
+  .panel ul{
+    margin:0;
+    padding-left:1.1em;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .panel + .panel{ margin-top:16px; }
+
+  .decision-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+  @media (min-width:620px){
+    .decision-grid{ grid-template-columns:1.1fr .9fr; }
+  }
+  .stack-badges{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
+  }
+  .badge{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:12px;
+    padding:3px 9px;
+    border-radius:2px;
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .badge.primary{
+    background:var(--teal-bg);
+    color:var(--teal);
+    border-color:transparent;
+    font-weight:600;
+  }
+  .badge.secondary{
+    background:var(--surface-2);
+    color:var(--ink-faint);
+  }
+
+  /* diagram */
+  .diagram-frame{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:18px;
+    overflow-x:auto;
+  }
+
+  /* board */
+  .board{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(258px,1fr));
+    gap:14px;
+  }
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:16px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    scroll-margin-top:20px;
+  }
+  .card-head{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .card-id{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:12px;
+    font-weight:600;
+    color:var(--accent-strong);
+    background:var(--surface-2);
+    padding:2px 7px;
+    border-radius:2px;
+  }
+  .card-title{
+    font-family:"Archivo",sans-serif;
+    font-weight:700;
+    font-size:15.5px;
+  }
+  .card-desc{
+    font-size:14px;
+    color:var(--ink-soft);
+    flex:1;
+  }
+  .card-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+  }
+  .tag{
+    font-size:11.5px;
+    font-weight:600;
+    padding:3px 8px;
+    border-radius:2px;
+    letter-spacing:.02em;
+    white-space:nowrap;
+  }
+  .tag-ai{ background:var(--teal-bg); color:var(--teal); }
+  .tag-human{ background:var(--clay-bg); color:var(--clay); }
+  .dep{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px;
+    color:var(--ink-faint);
+  }
+  .dep a{
+    color:var(--ink-soft);
+    text-decoration:underline;
+    text-decoration-color:var(--line);
+    text-underline-offset:2px;
+  }
+  .dep a:hover{ color:var(--accent-strong); }
+  .card-test{
+    font-size:13px;
+    color:var(--ink-soft);
+    border-top:1px solid var(--line);
+    padding-top:9px;
+  }
+  .card-test .label{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:10.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    display:block;
+    margin-bottom:3px;
+  }
+
+  /* acceptance checklist */
+  .checklist{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .checklist li{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    font-size:14.5px;
+    color:var(--ink);
+    padding:12px 14px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:2px;
+  }
+  .checklist li::before{
+    content:"";
+    width:16px;
+    height:16px;
+    flex:0 0 16px;
+    margin-top:2px;
+    border:1.5px solid var(--ink-faint);
+    border-radius:3px;
+  }
+
+  footer{
+    margin-top:56px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px;
+    color:var(--ink-faint);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  @media (max-width:400px){
+    h1{ font-size:26px; }
+  }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <span class="eyebrow">PROJECT PLAN · v1.3 · 2026-09-27</span>
+    <h1>拍照估算熱量 LINE 助手</h1>
+    <p class="subtitle">期末專題架構規劃與任務看板——把「拍照就能知道這餐多少熱量」拆成可以分工、可以驗收的工作項目。這份是本機備份,線上互動版見 <a href="https://claude.ai/artifact/RiQ3VeJZTvfUrjdXyVtKDq">Artifact 連結</a>。</p>
+  </header>
+
+  <section>
+    <h2><span class="num">00</span> 本次決策摘要</h2>
+    <div class="decision-grid">
+      <div class="panel">
+        <h3>份量資料來源：3 主 1 輔</h3>
+        <p>份量估算是整個專題最大的坑，決定用「人機協作」取代精確影像測量：模型先給份量假設，使用者用 LINE Quick Reply 一鍵修正。</p>
+        <div class="stack-badges">
+          <span class="badge primary">主｜衛福部食物份量代換手冊</span>
+          <span class="badge secondary">輔｜Nutrition5k（校準錨點）</span>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>延續的設計原則</h3>
+        <ul>
+          <li>熱量必須查資料庫得出，查無對應品項時誠實回覆「無法確定」</li>
+          <li>依對應精確度分三級信心標示</li>
+          <li>數值計算相關生成一律低溫度</li>
+          <li>明顯超出飲食範疇的提問（如醫療診斷）拒答並建議諮詢專業人士</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">01</span> 系統架構</h2>
+    <p class="lede">沿用你 llamaIndex 課程的 llama-index + Chroma + Ollama 技術棧，新增 LINE Webhook 層與份量確認迴圈。</p>
+    <div class="diagram-frame">
+<pre class="mermaid">
+flowchart LR
+  U["使用者<br/>LINE 傳照片"] --> WH["Webhook<br/>Flask / FastAPI"]
+  WH --> VM["視覺辨識<br/>Ollama 多模態模型"]
+  VM -- "食物名稱 + 粗略份量" --> R1["RAG 檢索<br/>熱量資料庫"]
+  VM -- "份量描述" --> R2["RAG 檢索<br/>份量對照表"]
+  R1 --> CALC["估算引擎<br/>信心分級"]
+  R2 --> CALC
+  CALC --> QR{"份量正確？"}
+  QR -- "使用者調整" --> CALC
+  QR -- "確認" --> REPLY["LINE 回覆<br/>熱量 + 依據 + 信心度"]
+</pre>
+    </div>
+  </section>
+
+  <section id="workstream-a">
+    <h2><span class="num">A</span> 知識庫</h2>
+    <p class="lede">清洗熱量資料、結構化份量對照表，是後面所有檢索的地基。</p>
+    <div class="board">
+      <article class="card" id="A1">
+        <div class="card-head"><span class="card-id">A1</span><span class="card-title">衛福部食品營養成分資料庫清洗匯入</span></div>
+        <p class="card-desc">下載衛福部食品營養成分資料庫，清洗品項名稱／熱量／三大營養素欄位，統一單位為 kcal/100g，轉成 Document 匯入 Chroma collection <code>nutrition_db</code>。<strong>結果：</strong>找到 data.gov.tw 上的官方開放資料匯出，清洗出 2,180 筆、涵蓋全部 18 大類，抽樣 10 筆對官網核對 10/10 完全吻合。</p>
+        <div class="card-meta"><span class="tag tag-ai">✅ 已完成</span><span class="dep">依賴：無</span></div>
+        <p class="card-test"><span class="label">測試方式</span>抽樣 10 筆對官網逐一核對，10/10 吻合；53 筆缺蛋白質/脂肪數據標成 null(未測量)非 0。檔案在 <code>data/nutrition_db/</code>。</p>
+      </article>
+      <article class="card" id="A2">
+        <div class="card-head"><span class="card-id">A2</span><span class="card-title">食物份量代換手冊結構化（主要來源）</span></div>
+        <p class="card-desc">拆解 2023 版《食物份量代換手冊》PDF，整理成「食物類別／份量描述／生活化比喻／對應公克數」表格，匯入獨立 collection <code>portion_reference</code>。<strong>結果：</strong>手冊是圖片排版，改用視覺逐頁核對，30 筆數字全部對到手冊原始頁碼。過程中發現並更正一個重要錯誤：水果並非固定「1份=100公克」，而是固定「醣15公克」，不同水果對應公克數差很大(芭蕉45g~小番茄220g)。</p>
+        <div class="card-meta"><span class="tag tag-ai">✅ 已完成</span><span class="dep">依賴：無</span></div>
+        <p class="card-test"><span class="label">測試方式</span>逐頁核對手冊原始頁碼，30 筆中 29 筆 confidence 為 high。細節與版本記錄見 <code>data/portion_reference/NOTES.md</code>。</p>
+      </article>
+      <article class="card" id="A3">
+        <div class="card-head"><span class="card-id">A3</span><span class="card-title">Nutrition5k 整餐校準錨點（架構升級，不再是輔助項目）</span></div>
+        <p class="card-desc"><strong>結論：完成，且找到一個「0 大卡」案例證明了它的價值。</strong>從 Nutrition5k 公開 bucket 直接用 HTTPS 抓俯視照片+metadata(不需要 gsutil)，下載 3,456 張、建成 CLIP(<code>clip-vit-base-patch32</code>) 相似度索引(3,444 道菜)。過程中踩到一個 transformers 版本 API 變更的 bug：<code>get_image_features()</code> 回傳格式跟舊版不同，要從 <code>.pooler_output</code> 才能拿到正確的 512 維向量，一開始拿錯導致維度對不上直接報錯。測試發現「images (6).jpg」這張照片已知品項加總是 <strong>0 大卡</strong>(全部查無資料)，靠校準錨點還能給「約 212 大卡(範圍 160~945)」的量級參考——這正是這個功能存在的意義：資料庫完全幫不上忙時，還有一個有真實資料依據的備案，而不是兩手空空。</p>
+        <div class="card-meta"><span class="tag tag-ai">✅ 已完成</span><span class="dep">依賴：無</span></div>
+        <p class="card-test"><span class="label">測試方式</span>10 張真實照片的最近鄰查詢，跟 C3 的已知品項加總並列比較，詳見 <code>data/nutrition5k/A3_REPORT.md</code>。</p>
+      </article>
+      <article class="card" id="A4">
+        <div class="card-head"><span class="card-id">A4</span><span class="card-title">補充知識庫：台大自助餐熱量表（2026/9/27 新增，實測驅動）</span></div>
+        <p class="card-desc"><strong>結論：完成，凌晨實機測試發現 8 項裡 7 項查無資料後緊急補上的。</strong>國立臺灣大學膳食協調委員會《熱量表【盤菜/自助餐類】》83 筆，直接補上 TFDA 缺的複合菜餚(糖醋排骨/炒青菜/炸豆腐等)。這份資料可信度比 TFDA 低(來源頁面自己寫「僅供參考」)，刻意做成獨立 collection，只有 TFDA 查無品項才退而求其次查這裡，信心度標成 <code>exact_secondary</code>／<code>similar_secondary</code>，回覆文字會註明「非官方送檢數據」。門檻另外校準(0.65，比 TFDA 的 0.70 寬鬆)，因為測出雜訊分數上限只有 0.59，安全間隔比 TFDA 當初的案例健康很多。拿實測真實失敗案例回測：8 項修好 4 項(糖醋排骨/炒青菜/炸豆腐/叉燒飯)。</p>
+        <div class="card-meta"><span class="tag tag-ai">✅ 已完成</span><span class="dep">依賴：<a href="#C1">C1</a></span></div>
+        <p class="card-test"><span class="label">測試方式</span>拿凌晨實測的真實失敗品項回測，8 項修好 4 項；另用雜訊詞校準門檻。詳見 <code>data/composite_dishes/A4_REPORT.md</code>。</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="workstream-b">
+    <h2><span class="num">B</span> 視覺辨識</h2>
+    <p class="lede">讓多模態模型吐出穩定、可解析的辨識結果，而不是自由發揮的一段話。</p>
+    <div class="board">
+      <article class="card" id="B1">
+        <div class="card-head"><span class="card-id">B1</span><span class="card-title">Ollama 多模態模型選型</span></div>
+        <p class="card-desc"><strong>結論：選用 minicpm-v。</strong>llama3.2-vision 因目前 Ollama 版本(0.33.3)不支援其 mllama 架構，模型載入直接失敗(10/10 HTTP 500)，已排除，與 prompt 無關。llava 內容偏籠統，且 10 張中 2 張陷入無限重複輸出(27~32 秒才被截斷)，改強制 JSON schema 後問題更嚴重。minicpm-v 辨識內容明顯更具體準確、速度最快(平均 3~4 秒)，10/10 無重複問題，列為主要模型；llava 留作備案。</p>
+        <div class="card-meta"><span class="tag tag-ai">✅ 已完成</span><span class="dep">依賴：無</span></div>
+        <p class="card-test"><span class="label">測試方式</span>10 張測試照片 × 3 模型完整比較，詳細數據見 <code>data/vision_benchmark/B1_REPORT.md</code></p>
+      </article>
+      <article class="card" id="B3">
+        <div class="card-head"><span class="card-id">B3</span><span class="card-title">雲端視覺方案評估：Gemini API</span></div>
+        <p class="card-desc">本地 minicpm-v 有套模板/幻覺問題(見 B1/B2)，考慮把「辨識」這一步換成 Gemini API，其餘(RAG 檢索、C1~C3 計算)完全不動——架構上只需替換 <code>src/food_recognition.py</code> 一個檔案。已釐清：消費版 Gemini Pro/Advanced 訂閱跟 API 是分開計費的兩件事，需另外在 Google AI Studio 申請 API key。2026/4 起 Pro 模型退出免費層，但 Flash／Flash-Lite 仍免費，額度對這個專題的用量綽綽有餘。<strong>背景研究(2026/9)補充：</strong>找到一篇用 Nutrition5k 資料集做的食物辨識+熱量估算 benchmark，顯示 <strong>Gemini 3.1 Flash Lite 性價比可能比 Flash 更好</strong>(準確度接近最高、食材辨識反而全場最強、成本最低)，值得兩個都測。另外確認 llama3.2-vision 在 Ollama 上的問題是官方已知未修復 bug(GitHub #16547)，不用等它自己修好。多找到一個本地候選 <code>qwen3-vl:8b</code>(中文原生訓練資料多)，可作為 Gemini 的免費對照組。</p>
+        <div class="card-meta"><span class="tag tag-human">👤 需申請 API key</span><span class="tag tag-ai">🤖 串接可執行</span><span class="dep">依賴：<a href="#B2">B2</a></span></div>
+        <p class="card-test"><span class="label">測試方式</span>拿到 API key 後，用同一組 10 張測試照片重跑，比較 Gemini Flash／Flash Lite／qwen3-vl 是否解決「套模板」問題，並跟 minicpm-v 並列比較。</p>
+      </article>
+      <article class="card" id="B2">
+        <div class="card-head"><span class="card-id">B2</span><span class="card-title">結構化辨識 Prompt 設計</span></div>
+        <p class="card-desc"><strong>格式問題已解決，但發現新的準確度問題。</strong>自由輸出+平衡括號擷取 JSON、OpenCC 簡轉繁，10/10 解析成功、0 簡體殘留(見 <code>src/food_recognition.py</code>)。但逐張核對辨識內容後發現 minicpm-v 對「台式便當」有明顯套模板傾向——10 張裡 6 張都寫「糖醋排骨」，即使實際是滷雞腿或炸豬排；還有一次幻覺出照片裡沒有的「南瓜」。格式工程完成 ≠ 辨識可靠，這兩件事要分開驗收，且此問題會直接影響 C1 的檢索設計。</p>
+        <div class="card-meta"><span class="tag tag-ai">✅ 已完成</span><span class="dep">依賴：<a href="#B1">B1</a></span></div>
+        <p class="card-test"><span class="label">測試方式</span>10 張測試照片：JSON 解析成功率 10/10、簡體殘留 0/10；另外逐張人工核對內容準確度，發現套模板/幻覺問題，詳見 <code>data/vision_benchmark/B2_REPORT.md</code>。</p>
+      </article>
+      <article class="card" id="B4">
+        <div class="card-head"><span class="card-id">B4</span><span class="card-title">多模型集合辨識與投票評分（新規劃）</span></div>
+        <p class="card-desc"><strong>結論：投票機制成功，但有延遲代價。</strong>本地 minicpm-v + qwen3-vl:8b 雙模型投票。過程中抓到一個關鍵 bug：qwen3-vl 預設「思考模式」會把整個 context 全部拿去內部推理，永遠生不出最終 JSON 答案(10張裡8張失敗)，加 <code>/no_think</code> 關閉思考模式後 10/10 正常。投票結果驗證了 B2 發現的問題是真的：minicpm-v 對 10 張裡 8 張都講「糖醋排骨」，但 qwen3-vl 給的答案完全不同(烤雞腿/溏心蛋/涼拌捲心菜等)，投票機制正確把這種分歧標成「單一模型」低信心，沒有照單全收。代價：辨識時間從單模型 3~4 秒變成集合 25~60 秒，正式接回 D2 時 LINE 同步回覆恐怕來不及，需要改用 push API。</p>
+        <div class="card-meta"><span class="tag tag-ai">✅ 已完成</span><span class="dep">依賴：<a href="#B2">B2</a></span></div>
+        <p class="card-test"><span class="label">測試方式</span>10 張測試照片雙模型投票，10/10 成功，字串相似度分群運作良好。詳見 <code>data/vision_benchmark/B4_REPORT.md</code>。</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="workstream-c">
+    <h2><span class="num">C</span> RAG 檢索與計算引擎</h2>
+    <p class="lede">把辨識結果換成有資料庫依據的熱量數字，並誠實標示信心程度。</p>
+    <div class="board">
+      <article class="card" id="C1">
+        <div class="card-head"><span class="card-id">C1</span><span class="card-title">食物名稱檢索與比對邏輯</span></div>
+        <p class="card-desc"><strong>結論：語意檢索門檻設 0.70(保守)。</strong>用 bge-m3 + Chroma 對 nutrition_db 建索引，精確比對(品項名稱/俗名)優先，其次語意檢索。校準時發現 bge-m3 對短食材詞常被字面重疊誤導(「小黃瓜片」最高分是「小黃魚」、「炸雞腿」最高分是「炸雞粉」)，門檻定太低會把錯誤類別包裝成「相近品項」，故保守定在 0.70。校準過程中還抓到一個真實 bug：「土豆」被精確比對到花生(553 kcal/100g)而非馬鈴薯(77 kcal/100g)，熱量差 7 倍，已修掉。拿 B2 真實辨識結果驗證：精確對應 42%、相近品項 8%、查無品項 50%——查無品項偏高是因為 TFDA 資料庫偏原始食材、B2 常給複合菜名，印證了 TODO.md 最初就列的「連鎖店/超商菜單」待辦缺口，非檢索邏輯有誤。<strong>2026/9/27 補充：</strong>曾嘗試借鏡 DietAI24 的「類別不相容門控」概念，用語意分數做通用的合理性檢查取代黑名單，但<strong>實測後放棄</strong>：已知有問題的「土豆」語意分數 0.6477，另一個完全合法的「地瓜葉」只有 0.6607，只差 0.013，找不到安全門檻能兩者兼顧。結論是保留逐案例維護的黑名單，已跑過完整驗證確認沒有回歸。</p>
+        <div class="card-meta"><span class="tag tag-ai">✅ 已完成</span><span class="dep">依賴：<a href="#A1">A1</a>、<a href="#B2">B2</a></span></div>
+        <p class="card-test"><span class="label">測試方式</span>混淆測試集(完全對應/模糊相近/完全不相關)校準門檻；B2 真實 24 個辨識品項端對端驗證。詳見 <code>data/nutrition_db/C1_REPORT.md</code>。</p>
+      </article>
+      <article class="card" id="C2">
+        <div class="card-head"><span class="card-id">C2</span><span class="card-title">份量描述轉換公克數邏輯</span></div>
+        <p class="card-desc"><strong>結論：先比對單位種類，單位不合寧可承認不確定。</strong>「半碗」跟手冊的「1份(兩湯匙)」是完全不同的單位系統，直接相乘會嚴重低估，所以先解析辨識詞的單位(碗/份/顆/根/片/湯匙/茶匙)，跟 portion_reference 比對，單位相容才換算，不合只給基準值當參考。另外發現 nutrition_db(TFDA 18類)跟 portion_reference(六大類)兩套分類系統對不上，用退回全表比對繞過。</p>
+        <div class="card-meta"><span class="tag tag-ai">✅ 已完成</span><span class="dep">依賴：<a href="#A2">A2</a>、<a href="#B2">B2</a></span></div>
+        <p class="card-test"><span class="label">測試方式</span>B2 真實 33 組(食物,份量)配對端對端測試：可信換算 15%、單位不合 24%、無法估算 61%。詳見 <code>data/portion_reference/C2_REPORT.md</code>。</p>
+      </article>
+      <article class="card" id="C3">
+        <div class="card-head"><span class="card-id">C3</span><span class="card-title">熱量估算與信心標示組裝</span></div>
+        <p class="card-desc"><strong>結論：格式跟信心標示都正確，但發現總熱量普遍嚴重低估。</strong>10 組真實案例測試，回覆格式(品項/份量假設/資料來源/信心標示/總熱量)全部正確，查無資料項目誠實排除且會提醒「未計入,實際熱量可能更高」。但總熱量全部落在 91.5~222.8 大卡，遠低於便當實際的 600~900 大卡——不是算錯，是主菜類幾乎都查無資料、白飯又卡在單位不合只能用最小基準值，兩個原因疊加的必然結果。這代表現在的總熱量數字還不能當作使用者信賴的最終答案，得在 D 層 UI 上把這件事講清楚，且指向「知識庫覆蓋率」才是真正瓶頸，不是這幾張卡片的邏輯問題。</p>
+        <div class="card-meta"><span class="tag tag-ai">✅ 已完成</span><span class="dep">依賴：<a href="#C1">C1</a>、<a href="#C2">C2</a></span></div>
+        <p class="card-test"><span class="label">測試方式</span>端對端跑 10 組真實案例，人工檢查回覆格式、信心標示、總熱量揭露語是否正確。詳見 <code>data/vision_benchmark/C3_REPORT.md</code> 與 <code>c3_sample_replies.txt</code>。</p>
+        <p class="card-desc" style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px;"><strong>2026/9/27 抓到並修好一個嚴重漏洞：</strong>接回 D2 時，把 B4 集合投票算出的「共識品項／單一模型」資訊直接捨棄了，導致 B4 最重要的防呆(偵測套模板幻覺)完全沒發揮作用。實機測試真的抓到「糖醋排骨」被 minicpm-v 單獨講出來、qwen3-vl 完全沒附和，資料庫(A4)剛好又查得到「糖醋排骨」的熱量，兩個問題疊加下差點把一個幻覺出來的菜當成有效資料算進總熱量。修法：新增「疑似誤判」信心等級，只要是「單一模型」講的品項，不管資料庫查不查得到，一律不計入總熱量，且獨立於「查無資料」顯示，讓使用者知道這是「模型可能認錯」而不是「資料庫沒收錄」。</p>
+      </article>
+      <article class="card" id="C4">
+        <div class="card-head"><span class="card-id">C4</span><span class="card-title">整合估算：已知品項加總 + 整餐校準錨點（新規劃）</span></div>
+        <p class="card-desc"><strong>結論：完成。</strong>最終回覆同時列出 C3 算出的「已知品項加總(下限)」+ A3 提供的「視覺最相近參考餐點的已知真實總熱量(校準區間)」，兩個數字都有真實資料依據。10 張測試照片平均下限約 127 大卡、錨點中位數約 380 大卡，兩者的落差誠實反映資料庫查不到的品項(通常是主菜)貢獻了多少熱量。<strong>刻意不採用</strong>「另一個模型綜合份量/食物內容/照片直接生成總熱量」的做法——那等於讓模型憑感覺補洞，違反 TODO.md「不能讓模型自己編熱量數字」的核心原則。</p>
+        <div class="card-meta"><span class="tag tag-ai">✅ 已完成</span><span class="dep">依賴：<a href="#A3">A3</a>、<a href="#C3">C3</a></span></div>
+        <p class="card-test"><span class="label">測試方式</span>10 張真實照片端對端測試，人工核對回覆文字是否清楚區分兩個數字的意義，詳見 <code>data/vision_benchmark/c4_sample_replies.txt</code>。</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="workstream-d">
+    <h2><span class="num">D</span> LINE Bot 串接</h2>
+    <p class="lede">把前面三塊接進使用者實際會用的介面，並加上份量確認的互動迴圈。</p>
+    <div class="board">
+      <article class="card" id="D1">
+        <div class="card-head"><span class="card-id">D1</span><span class="card-title">LINE Channel 建置與 Webhook 骨架</span></div>
+        <p class="card-desc">申請 LINE Developers Messaging API channel，建置 Flask webhook，用 cloudflared 免帳號 quick tunnel 做本地測試連通(ngrok 免費版需要註冊帳號，改用 cloudflared)。Channel Secret／Access Token 存在 <code>.env</code>，已加進 <code>.gitignore</code> 不會外流。</p>
+        <div class="card-meta"><span class="tag tag-human">👤 已申請</span><span class="tag tag-ai">✅ 已完成</span><span class="dep">依賴：無</span></div>
+        <p class="card-test"><span class="label">測試方式</span>傳送測試文字訊息，確認 webhook 能收到事件並成功回覆——已實機測試成功。</p>
+      </article>
+      <article class="card" id="D2">
+        <div class="card-head"><span class="card-id">D2</span><span class="card-title">主流程串接（收圖→辨識→檢索→回覆）</span></div>
+        <p class="card-desc"><strong>2026/9/26 改版：同步 → 非同步 push。</strong>因為 B4 集合辨識要 25~60 秒，同步 reply 來不及，改成：收到圖片先立刻用 reply API 回「處理中」訊息用掉 reply token，實際辨識(<code>recognize_food_ensemble()</code>)+整合估算(<code>estimate_with_anchor()</code>)丟到背景執行緒跑，跑完用 push API 送結果。串接 B4(不是原本的 B2 單模型)+ C4(不是原本的 C3 單純加總)。程式碼已通過語法/import 檢查，尚待實機重新測試(先前 D2 舊版已於 2026/9/24 測過同步版本)。</p>
+        <div class="card-meta"><span class="tag tag-ai">✅ 改版完成</span><span class="tag tag-human">👤 待實機測試</span><span class="dep">依賴：<a href="#B4">B4</a>、<a href="#C4">C4</a>、<a href="#D1">D1</a></span></div>
+        <p class="card-test"><span class="label">測試方式</span>實際傳照片測試，確認「處理中」訊息立即送達、25~60秒後 push 收到完整估算結果。尚未實機驗證非同步版本。</p>
+      </article>
+      <article class="card" id="D3">
+        <div class="card-head"><span class="card-id">D3</span><span class="card-title">Quick Reply 份量確認互動</span></div>
+        <p class="card-desc"><strong>結論：完成，用簡化的整體倍率調整，不是逐項重算。</strong>用 PostbackAction 做 Quick Reply(偏少/差不多/偏多)，避免按鈕文字污染對話紀錄。點擊後對「已知品項加總」套用一個粗略倍率(0.7/1.0/1.3)，回覆文字誠實講明「這是整體概略調整，不是重新逐項計算」，不假裝變得更精確。用記憶體內的 <code>pending_meals</code> 字典依 user_id 暫存最新估算結果，重啟服務會清空，對學期專題規模是合理簡化。<strong>2026/9/27 首次實機測試+更正：</strong>第一輪測試使用者反映訊息「看起來沒傳完」，一度誤判是 quick_reply 事後賦值沒被序列化的 bug，改成建構時傳入並合併成一次 push；但實測驗證兩種寫法序列化結果完全一樣，並非真正的技術 bug，較可能是 LINE 多則訊息複製成純文字時本來就不保留分隔、加上確認句故意用問號留白等按鈕接話所致——合併成一次 push 仍是保留的良好實踐，但診斷已誠實更正。另外套用了「Ryuzu」角色語氣（時鐘機關的愛麗絲，稱呼使用者「霽倫閣下」），僅套在對話包裝訊息，估算數據表本身維持原格式不變。</p>
+        <div class="card-meta"><span class="tag tag-ai">✅ 已完成</span><span class="tag tag-human">👤 待實機測試</span><span class="dep">依賴：<a href="#D2">D2</a></span></div>
+        <p class="card-test"><span class="label">測試方式</span>離線測試三種調整倍率輸出文字正確；已進行一輪實機測試（觸發了 A4 知識庫擴充），Quick Reply 按鈕實際顯示效果待下次測試截圖確認。</p>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">02</span> 整合驗收</h2>
+    <p class="lede">學期展示的最終驗收標準——全部通過才算 MVP 完成。</p>
+    <ul class="checklist">
+      <li>使用者傳一張真實餐點照片，10 秒內收到辨識＋估算回覆</li>
+      <li>回覆包含：食物名稱、份量假設、對應資料庫品項、信心程度</li>
+      <li>資料庫查無對應品項時，誠實回覆「無法確定」，不自行編造熱量</li>
+      <li>Quick Reply 份量修正後，熱量數字會對應更新</li>
+      <li>明顯超出範疇的提問（如醫療診斷）會被拒答並建議諮詢專業人士</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">03</span> 怎麼把任務交給其他 AI</h2>
+    <p class="lede">不需要 Claude Desktop——CLI 現在就有兩種分工方式，卡片上的 🤖／👤 標籤就是照這個邏輯標的。</p>
+    <div class="panel">
+      <h3>方法一・同一個 session 內開 subagent</h3>
+      <p>由這個對話直接開子代理平行處理範圍明確的任務（例如「拆解衛福部 PDF 轉成表格」），結果整理後回報給我，不會佔用你看到的對話 token。適合大多數標「🤖」的卡片。</p>
+    </div>
+    <div class="panel">
+      <h3>方法二・跨 session 的 teammate 訊息</h3>
+      <p>你電腦上其實已經有另一個閒置的 Claude Code session <code>pyrag-f5</code>，根目錄推測就是 <code>D:\pyRag</code>——正是這份課程教材所在的位置。可以直接把 A 系列（知識庫）工作透過訊息轉交給它，因為環境與資料都已經在那邊，不用重新設定。這就是「多 AI 協作」實際的運作方式：每個 terminal 開一個獨立 session，各自有自己的 context 與 token 額度，彼此用訊息交接任務。</p>
+    </div>
+    <div class="panel">
+      <h3>為什麼不需要 Desktop</h3>
+      <p>Desktop 版沒有 subagent／跨 session 訊息這套工具，對話是持續累積的長 context，缺少 CLI 這種工具化的自動壓縮機制——這也是你先前用 Desktop 問幾個問題就比較快燒 token 的原因，是產品定位不同，不是設定問題。</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>拍照估算熱量 LINE 助手 · 任務看板</span>
+    <span>下一步：B4→C3 漏洞已修好，等你再測一次確認「疑似誤判」正常顯示</span>
+  </footer>
+
+</div>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default'
+  });
+</script>
+</body>
+</html>

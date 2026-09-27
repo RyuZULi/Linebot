@@ -1,0 +1,92 @@
+[
+  {
+    "image": "8695271.png",
+    "known_sum": 91.5,
+    "anchor_median": 358.0,
+    "anchor_range": [
+      180.9,
+      457.6
+    ]
+  },
+  {
+    "image": "images (1).jpg",
+    "known_sum": 252.5,
+    "anchor_median": 103.2,
+    "anchor_range": [
+      28.0,
+      403.9
+    ]
+  },
+  {
+    "image": "images (2).jpg",
+    "known_sum": 91.5,
+    "anchor_median": 467.8,
+    "anchor_range": [
+      412.0,
+      503.6
+    ]
+  },
+  {
+    "image": "images (3).jpg",
+    "known_sum": 141.0,
+    "anchor_median": 462.8,
+    "anchor_range": [
+      103.2,
+      919.1
+    ]
+  },
+  {
+    "image": "images (4).jpg",
+    "known_sum": 187.5,
+    "anchor_median": 412.0,
+    "anchor_range": [
+      196.8,
+      945.7
+    ]
+  },
+  {
+    "image": "images (5).jpg",
+    "known_sum": 91.5,
+    "anchor_median": 455.5,
+    "anchor_range": [
+      160.8,
+      945.7
+    ]
+  },
+  {
+    "image": "images (6).jpg",
+    "known_sum": 0,
+    "anchor_median": 211.9,
+    "anchor_range": [
+      160.8,
+      945.7
+    ]
+  },
+  {
+    "image": "images (7).jpg",
+    "known_sum": 197.8,
+    "anchor_median": 560.8,
+    "anchor_range": [
+      150.5,
+      919.1
+    ]
+  },
+  {
+    "image": "images.jpg",
+    "known_sum": 128.5,
+    "anchor_median": 412.0,
+    "anchor_range": [
+      381.2,
+      523.4
+    ]
+  },
+  {
+    "image": "玫瑰油雞腿宮保豬肉會議便當-300x300.jpg",
+    "known_sum": 91.5,
+    "anchor_median": 358.0,
+    "anchor_range": [
+      89.9,
+      492.9
+    ]
+  }
+]

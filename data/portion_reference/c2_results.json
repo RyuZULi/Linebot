@@ -1,0 +1,332 @@
+[
+  {
+    "name": "白飯",
+    "portion": "半碗",
+    "category": "穀物類",
+    "c1_confidence": "exact",
+    "c2_confidence": "unit_mismatch",
+    "grams": 50.0,
+    "basis": "飯：1湯匙=50.0公克（手冊p.7）",
+    "note": "辨識出的單位「碗」跟手冊單位「湯匙」不同類型（例如「碗」不等於「湯匙」），無法直接換算，僅提供 1湯匙 的基準值，建議透過 Quick Reply 讓使用者確認實際份量。"
+  },
+  {
+    "name": "炸雞腿",
+    "portion": "一份",
+    "category": null,
+    "c1_confidence": "none",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「炸雞腿」，且「None」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "玉米",
+    "portion": "半碗",
+    "category": "穀物類",
+    "c1_confidence": "exact",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「玉米」，且「穀物類」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "炒青菜",
+    "portion": "一份",
+    "category": null,
+    "c1_confidence": "none",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「炒青菜」，且「None」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "水煮蛋",
+    "portion": "一顆",
+    "category": "蛋類",
+    "c1_confidence": "similar",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「水煮蛋」，且「蛋類」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "泡菜",
+    "portion": "半碗",
+    "category": "加工調理食品及其他類",
+    "c1_confidence": "similar",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「泡菜」，且「加工調理食品及其他類」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "煮蛋",
+    "portion": "一片",
+    "category": null,
+    "c1_confidence": "none",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「煮蛋」，且「None」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "糖醋排骨",
+    "portion": "一份",
+    "category": null,
+    "c1_confidence": "none",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「糖醋排骨」，且「None」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "西蘭花",
+    "portion": "一份",
+    "category": null,
+    "c1_confidence": "none",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「西蘭花」，且「None」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "花椰菜",
+    "portion": "一份",
+    "category": "蔬菜類",
+    "c1_confidence": "exact",
+    "c2_confidence": "matched",
+    "grams": 100.0,
+    "basis": "蔬菜類固定規則：1份=100公克",
+    "note": ""
+  },
+  {
+    "name": "紅蘿蔔",
+    "portion": "一份",
+    "category": "蔬菜類",
+    "c1_confidence": "exact",
+    "c2_confidence": "matched",
+    "grams": 100.0,
+    "basis": "蔬菜類固定規則：1份=100公克",
+    "note": ""
+  },
+  {
+    "name": "紫菜",
+    "portion": "一份",
+    "category": "藻類",
+    "c1_confidence": "exact",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「紫菜」，且「藻類」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "豆腐",
+    "portion": "一份",
+    "category": null,
+    "c1_confidence": "none",
+    "c2_confidence": "matched",
+    "grams": 80.0,
+    "basis": "傳統豆腐：1份=80.0公克（手冊p.6）",
+    "note": ""
+  },
+  {
+    "name": "玉米",
+    "portion": "一份",
+    "category": "穀物類",
+    "c1_confidence": "exact",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「玉米」，且「穀物類」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "火腿",
+    "portion": "一片",
+    "category": null,
+    "c1_confidence": "none",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「火腿」，且「None」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "馬鈴薯",
+    "portion": "一片",
+    "category": "澱粉類",
+    "c1_confidence": "exact",
+    "c2_confidence": "unit_mismatch",
+    "grams": 90.0,
+    "basis": "馬鈴薯：1份=90.0公克（手冊p.7）",
+    "note": "辨識出的單位「片」跟手冊單位「份」不同類型（例如「碗」不等於「份」），無法直接換算，僅提供 1份 的基準值，建議透過 Quick Reply 讓使用者確認實際份量。"
+  },
+  {
+    "name": "炒米粉",
+    "portion": "半碗",
+    "category": null,
+    "c1_confidence": "none",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「炒米粉」，且「None」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "炒青菜",
+    "portion": "半碗",
+    "category": null,
+    "c1_confidence": "none",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「炒青菜」，且「None」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "南瓜",
+    "portion": "一片",
+    "category": "蔬菜類",
+    "c1_confidence": "exact",
+    "c2_confidence": "unit_mismatch",
+    "grams": 100,
+    "basis": "蔬菜類固定規則：1份=100公克",
+    "note": "辨識出的單位「片」跟規則單位「份」不同類型，無法直接換算，僅提供 1份 的基準值作參考，建議由使用者確認實際份量。"
+  },
+  {
+    "name": "西蘭花",
+    "portion": "半碗",
+    "category": null,
+    "c1_confidence": "none",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「西蘭花」，且「None」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "胡蘿蔔",
+    "portion": "半碗",
+    "category": "蔬菜類",
+    "c1_confidence": "exact",
+    "c2_confidence": "matched",
+    "grams": 50.0,
+    "basis": "蔬菜類固定規則：1份=100公克",
+    "note": ""
+  },
+  {
+    "name": "辣椒",
+    "portion": "幾片",
+    "category": "蔬菜類",
+    "c1_confidence": "exact",
+    "c2_confidence": "unit_mismatch",
+    "grams": 100,
+    "basis": "蔬菜類固定規則：1份=100公克",
+    "note": "辨識出的單位「片」跟規則單位「份」不同類型，無法直接換算，僅提供 1份 的基準值作參考，建議由使用者確認實際份量。"
+  },
+  {
+    "name": "土豆",
+    "portion": "一顆",
+    "category": null,
+    "c1_confidence": "none",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「土豆」，且「None」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "辣椒",
+    "portion": "多片",
+    "category": "蔬菜類",
+    "c1_confidence": "exact",
+    "c2_confidence": "unit_mismatch",
+    "grams": 100,
+    "basis": "蔬菜類固定規則：1份=100公克",
+    "note": "辨識出的單位「片」跟規則單位「份」不同類型，無法直接換算，僅提供 1份 的基準值作參考，建議由使用者確認實際份量。"
+  },
+  {
+    "name": "胡蘿蔔",
+    "portion": "多片",
+    "category": "蔬菜類",
+    "c1_confidence": "exact",
+    "c2_confidence": "unit_mismatch",
+    "grams": 100,
+    "basis": "蔬菜類固定規則：1份=100公克",
+    "note": "辨識出的單位「片」跟規則單位「份」不同類型，無法直接換算，僅提供 1份 的基準值作參考，建議由使用者確認實際份量。"
+  },
+  {
+    "name": "馬鈴薯",
+    "portion": "多片",
+    "category": "澱粉類",
+    "c1_confidence": "exact",
+    "c2_confidence": "unit_mismatch",
+    "grams": 90.0,
+    "basis": "馬鈴薯：1份=90.0公克（手冊p.7）",
+    "note": "辨識出的單位「片」跟手冊單位「份」不同類型（例如「碗」不等於「份」），無法直接換算，僅提供 1份 的基準值，建議透過 Quick Reply 讓使用者確認實際份量。"
+  },
+  {
+    "name": "青菜",
+    "portion": "一片",
+    "category": "蔬菜類",
+    "c1_confidence": "exact",
+    "c2_confidence": "unit_mismatch",
+    "grams": 100,
+    "basis": "蔬菜類固定規則：1份=100公克",
+    "note": "辨識出的單位「片」跟規則單位「份」不同類型，無法直接換算，僅提供 1份 的基準值作參考，建議由使用者確認實際份量。"
+  },
+  {
+    "name": "玉米",
+    "portion": "一根",
+    "category": "穀物類",
+    "c1_confidence": "exact",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「玉米」，且「穀物類」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "胡蘿蔔絲",
+    "portion": "多條",
+    "category": null,
+    "c1_confidence": "none",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「胡蘿蔔絲」，且「None」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "彩椒",
+    "portion": "一份",
+    "category": null,
+    "c1_confidence": "none",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「彩椒」，且「None」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "胡蘿蔔",
+    "portion": "一份",
+    "category": "蔬菜類",
+    "c1_confidence": "exact",
+    "c2_confidence": "matched",
+    "grams": 100.0,
+    "basis": "蔬菜類固定規則：1份=100公克",
+    "note": ""
+  },
+  {
+    "name": "四季豆",
+    "portion": "半碗",
+    "category": "豆類",
+    "c1_confidence": "exact",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「四季豆」，且「豆類」不是有固定份量規則的類別，無法可靠估算公克數。"
+  },
+  {
+    "name": "毛豆",
+    "portion": "半碗",
+    "category": null,
+    "c1_confidence": "none",
+    "c2_confidence": "unknown",
+    "grams": null,
+    "basis": null,
+    "note": "份量對照表沒有「毛豆」，且「None」不是有固定份量規則的類別，無法可靠估算公克數。"
+  }
+]
