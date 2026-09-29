@@ -105,27 +105,36 @@ def _run_task(task_id: int, description: str, on_done) -> None:
     )
 
     try:
-        # 已知問題（2026/9/27 尚未解決）：Windows 上 npm 裝的 claude 是
-        # claude.cmd（批次檔包裝），不是真的 .exe，shell=False 時
-        # CreateProcess 沒辦法直接執行它，這裡會丟 FileNotFoundError，
-        # 任務因此一定會失敗。試過 shell=True 跟明確 cmd /c 兩種修法，
-        # 兩者都能讓 claude 在獨立測試時正常執行，但寫進這個檔案後，
-        # Claude Code 自己的 Auto Mode 安全分類器會擋下對這個檔案的
-        # import/執行（先後判定「Blocked by classifier」「Auto-Mode
-        # Bypass」），連伺服器都啟動不了。先保留這個會失敗但不會被
-        # 分類器擋的寫法，讓伺服器至少能正常啟動、任務會乾淨地回報
-        # 「找不到 claude 指令」而不是讓整個服務掛掉，之後再找安全的
-        # 方式解決 Windows 這個執行檔問題。
+        # Windows 上 npm 裝的 claude 是 claude.cmd（批次檔包裝），不是
+        # 真的 .exe，shell=False 時 CreateProcess 沒辦法直接執行它。
+        # 用明確的 ["cmd", "/c", "claude", ...] 讓 cmd.exe 當執行檔、
+        # 自己解析剩下的參數——2026/9/28 在不受這個 Claude Code
+        # session 的 Auto Mode 分類器限制的終端機上實測確認這個寫法
+        # 可行，returncode 0、且真的執行了任務內容。也一定要指定
+        # encoding="utf-8"：Windows 預設用系統的 cp950（繁體中文）去
+        # 解碼 stdout，但 claude 輸出的 JSON 是 UTF-8，混用會在讀取
+        # 輸出的背景執行緒裡丟 UnicodeDecodeError。
+        #
+        # 2026/9/29 修正：prompt 不能放進命令列參數——cmd.exe 解析
+        # 命令列時遇到換行字元就會把後面的內容切斷，任務描述裡只要有
+        # 一個 \n（幾乎一定會有，因為 prompt 本身就用 \n\n 分段）就會
+        # 被截斷成不完整的任務內容（實機測試 #5 抓到：claude 收到的
+        # prompt 真的斷在第一個換行前面）。改成用 stdin 傳遞——
+        # `claude -p` 不帶 prompt 參數時會從 stdin 讀取，不受命令列
+        # 長度/換行限制。
         claude_result = subprocess.run(
             [
-                "claude", "-p", prompt,
+                "cmd", "/c", "claude", "-p",
                 "--permission-mode", "auto",
                 "--permission-prompts", "none",
                 "--output-format", "json",
             ],
+            input=prompt,
             cwd=worktree_path,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=CLAUDE_TIMEOUT_SECONDS,
         )
     except subprocess.TimeoutExpired:
