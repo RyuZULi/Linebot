@@ -30,3 +30,5 @@ data/line_bot.db
 data/dev_tasks.db
 data/dev_owner.json
 data/user_provided/chroma_store/
+# PDF 統整/RAG：使用者上傳的文件、紀錄、向量索引
+data/pdf_docs/

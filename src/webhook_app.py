@@ -83,10 +83,12 @@ def callback_belfast():
 if __name__ == "__main__":
     import meal_db
     import nutrition_lookup
+    import pdf_rag
     import task_db
 
     # 預先載入 embedding 模型跟索引，避免第一個使用者請求要多等好幾秒
     nutrition_lookup._load()
     meal_db.init_db()
     task_db.init_db()
+    pdf_rag.init_db()
     app.run(host="0.0.0.0", port=5000)

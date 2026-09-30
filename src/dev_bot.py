@@ -18,6 +18,13 @@ Ryuzu：開發助手 bot，負責一般聊天 + 「任務：...」指令（修bu
     實際的隔離/合併/健檢邏輯都在 task_runner.py，這裡只負責 LINE
     互動（觸發、回報、按鈕）。
 
+2026/9/30 新增 PDF 統整 + RAG（邏輯在 pdf_rag.py，這裡只負責 LINE 互動）：
+  - owner 傳 PDF → 背景統整 → push 摘要 + 「加入資料庫/不用了」按鈕
+  - 一般聊天時自動判斷要不要查 PDF 資料庫（語意檢索門檻 + LLM 判斷
+    段落是否相關），不需要特殊指令
+  - 「PDF 清單」「刪除 PDF #3」「刪掉 xxx.pdf」之類的自然語句可以
+    列出/刪除文件，沒指定是哪份就跳按鈕讓 owner 選
+
 跟 belfast_bot.py 共用同一個 Flask process/port（見 webhook_app.py），
 用 register(handler, configuration) 掛到專屬於 Ryuzu channel 的
 WebhookHandler 上。
@@ -27,9 +34,13 @@ import json
 import os
 import re
 
+import threading
+import traceback
+
 from linebot.v3.messaging import (
     ApiClient,
     MessagingApi,
+    MessagingApiBlob,
     ReplyMessageRequest,
     PushMessageRequest,
     TextMessage,
@@ -37,11 +48,12 @@ from linebot.v3.messaging import (
     QuickReplyItem,
     PostbackAction,
 )
-from linebot.v3.webhooks import MessageEvent, TextMessageContent, PostbackEvent
+from linebot.v3.webhooks import MessageEvent, TextMessageContent, FileMessageContent, PostbackEvent
 
+import pdf_rag
 import task_db
 import task_runner
-from chat_persona import generate_chat_reply
+from chat_persona import PERSONAS, generate_chat_reply
 
 MAX_LINE_TEXT_LENGTH = 5000
 OWNER_FILE = r"D:\CalorieCalculation\data\dev_owner.json"
@@ -49,6 +61,11 @@ OWNER_FILE = r"D:\CalorieCalculation\data\dev_owner.json"
 TASK_TRIGGER_PREFIXES = ["任務", "修bug", "修 bug", "新功能", "加功能", "新增功能"]
 TASK_LIST_KEYWORDS = ["任務清單", "任務列表", "查任務"]
 TASK_DONE_PATTERN = re.compile(r"(?:任務)?完成(?:任務)?\s*#?(\d+)")
+
+PDF_KEYWORDS = ["pdf", "文件"]
+PDF_LIST_KEYWORDS = ["清單", "列表", "有哪些", "列出"]
+PDF_DELETE_KEYWORDS = ["刪除", "刪掉", "移除"]
+MAX_QUICK_REPLY_ITEMS = 13
 
 OWNER_BOUND_MESSAGE = (
     "……好，本大小姐記住您了，霽倫閣下，之後只有您傳的「任務：...」才會被當真。"
@@ -139,6 +156,126 @@ def _on_task_done(task_id: int) -> None:
         _push(task["requester_user_id"], f"任務 #{task_id} 失敗了：\n{task['result_summary']}")
 
 
+def _pdf_add_quick_reply(doc_id: int) -> QuickReply:
+    items = [
+        QuickReplyItem(action=PostbackAction(label="加入資料庫", data=f"pdf:add:{doc_id}", display_text="加入資料庫")),
+        QuickReplyItem(action=PostbackAction(label="不用了", data=f"pdf:skip:{doc_id}", display_text="不用了")),
+    ]
+    return QuickReply(items=items)
+
+
+def _pdf_delete_quick_reply(docs: list) -> QuickReply:
+    items = [
+        QuickReplyItem(
+            action=PostbackAction(
+                label=f"#{d['id']} {d['filename']}"[:20], data=f"pdf:delete:{d['id']}", display_text=f"刪除 #{d['id']}"
+            )
+        )
+        for d in docs[:MAX_QUICK_REPLY_ITEMS]
+    ]
+    return QuickReply(items=items)
+
+
+def _format_pdf_list(user_id: str) -> str:
+    docs = pdf_rag.list_docs(user_id)
+    if not docs:
+        return "資料庫裡一份 PDF 都沒有，霽倫閣下。直接把檔案丟過來，本大小姐幫您統整。"
+    status_label = {"in_rag": "已加入資料庫", "summarized": "只有統整"}
+    lines = ["【PDF 文件】"]
+    for d in docs:
+        lines.append(f"#{d['id']}　{d['filename']}　[{status_label.get(d['status'], d['status'])}]")
+    lines.append("\n想刪掉哪份，說「刪除 PDF #編號」就好。")
+    return "\n".join(lines)
+
+
+def _handle_pdf_command(reply_token: str, user_id: str, text: str) -> bool:
+    """處理 PDF 清單/刪除的自然語句，有處理回傳 True。"""
+    lowered = text.lower()
+    mentions_pdf = any(k in lowered for k in PDF_KEYWORDS)
+
+    if any(k in text for k in PDF_DELETE_KEYWORDS):
+        matched = pdf_rag.find_docs(user_id, text)
+        if not matched and not mentions_pdf:
+            return False
+        if len(matched) == 1:
+            doc = matched[0]
+            pdf_rag.delete_doc(doc["id"])
+            _reply(reply_token, f"「{doc['filename']}」(#{doc['id']}) 已經從資料庫刪乾淨了——才不會捨不得呢。")
+            return True
+        candidates = matched or pdf_rag.list_docs(user_id)
+        if not candidates:
+            _reply(reply_token, "資料庫裡沒有任何 PDF 可以刪，霽倫閣下。")
+            return True
+        _reply(reply_token, "要刪掉哪一份？選一個吧。", quick_reply=_pdf_delete_quick_reply(candidates))
+        return True
+
+    if mentions_pdf and any(k in text for k in PDF_LIST_KEYWORDS):
+        _reply(reply_token, _format_pdf_list(user_id))
+        return True
+
+    return False
+
+
+def _process_pdf_async(message_id: str, user_id: str, filename: str):
+    """背景執行緒：下載 PDF → 統整 → push 摘要並詢問要不要加入 RAG 資料庫。"""
+    doc_id = None
+    try:
+        with ApiClient(_configuration) as api_client:
+            content = MessagingApiBlob(api_client).get_message_content(message_id)
+        doc_id = pdf_rag.save_pdf(user_id, filename, content)
+        summary = pdf_rag.summarize_doc(doc_id)
+        _push(
+            user_id,
+            f"【{filename} 統整】\n{summary}\n\n要把這份加進資料庫嗎？加進去之後聊天問到相關內容，本大小姐會自己去翻。",
+            quick_reply=_pdf_add_quick_reply(doc_id),
+        )
+    except ValueError as e:
+        if doc_id is not None:
+            pdf_rag.delete_doc(doc_id)
+        _push(user_id, f"……這份沒辦法統整：{e}")
+    except Exception:
+        traceback.print_exc()
+        if doc_id is not None:
+            pdf_rag.delete_doc(doc_id)
+        _push(user_id, "統整 PDF 的時候出錯了，才不是本大小姐的問題……麻煩再傳一次。")
+
+
+def _add_pdf_to_rag_async(doc_id: int, user_id: str):
+    try:
+        count = pdf_rag.add_to_rag(doc_id)
+        doc = pdf_rag.get_doc(doc_id)
+        _push(user_id, f"「{doc['filename']}」加進資料庫了（{count} 個段落）。之後直接問就好，不用特別下指令。")
+    except Exception as e:
+        traceback.print_exc()
+        _push(user_id, f"加入資料庫失敗了：{e}")
+
+
+def on_file(event):
+    user_id = event.source.user_id
+    if user_id != _owner_user_id:
+        return
+    filename = event.message.file_name or "document.pdf"
+    if not filename.lower().endswith(".pdf"):
+        _reply(event.reply_token, "本大小姐目前只看得懂 PDF 檔，霽倫閣下。")
+        return
+    if (event.message.file_size or 0) > pdf_rag.MAX_PDF_BYTES:
+        _reply(event.reply_token, "這份 PDF 太大了（上限 20MB），拆小一點再給本大小姐。")
+        return
+    _reply(event.reply_token, f"收到「{filename}」，本大小姐這就讀完幫您統整，稍等一下。")
+    threading.Thread(target=_process_pdf_async, args=(event.message.id, user_id, filename), daemon=True).start()
+
+
+def _chat_reply(user_id: str, text: str) -> str:
+    """一般聊天：先自動判斷要不要查 PDF 資料庫，用不上才走普通聊天。"""
+    try:
+        rag_answer = pdf_rag.answer_with_rag(user_id, text, persona_prompt=PERSONAS["ryuzu"]["system_prompt"])
+        if rag_answer:
+            return rag_answer
+    except Exception:
+        traceback.print_exc()
+    return generate_chat_reply(text, persona="ryuzu")
+
+
 def on_text(event):
     global _owner_user_id
     user_id = event.source.user_id
@@ -171,16 +308,47 @@ def on_text(event):
             _create_and_run_task(event.reply_token, user_id, task_desc)
             return
 
+        if _handle_pdf_command(event.reply_token, user_id, text):
+            return
+
+        _reply(event.reply_token, _chat_reply(user_id, text))
+        return
+
     _reply(event.reply_token, generate_chat_reply(text, persona="ryuzu"))
+
+
+def _on_pdf_postback(reply_token: str, user_id: str, data: str):
+    _, action, doc_id_str = data.split(":")
+    doc_id = int(doc_id_str)
+    doc = pdf_rag.get_doc(doc_id)
+    if doc is None or doc["user_id"] != user_id:
+        _reply(reply_token, "找不到這份 PDF，可能已經刪掉了。")
+        return
+
+    if action == "add":
+        if doc["status"] == "in_rag":
+            _reply(reply_token, "這份早就在資料庫裡了，霽倫閣下。")
+            return
+        _reply(reply_token, "好，正在切段落存進資料庫，稍等。")
+        threading.Thread(target=_add_pdf_to_rag_async, args=(doc_id, user_id), daemon=True).start()
+    elif action == "skip":
+        pdf_rag.delete_doc(doc_id)
+        _reply(reply_token, "那就不留了，檔案也清掉了——才不是覺得可惜。")
+    elif action == "delete":
+        pdf_rag.delete_doc(doc_id)
+        _reply(reply_token, f"「{doc['filename']}」(#{doc_id}) 已經從資料庫刪掉了。")
 
 
 def on_postback(event):
     data = event.postback.data or ""
     user_id = event.source.user_id
 
-    if not data.startswith("task:"):
-        return
     if user_id != _owner_user_id:
+        return
+    if data.startswith("pdf:"):
+        _on_pdf_postback(event.reply_token, user_id, data)
+        return
+    if not data.startswith("task:"):
         return
 
     _, action, task_id_str = data.split(":")
@@ -201,4 +369,5 @@ def register(handler, configuration):
     _configuration = configuration
     _owner_user_id = _load_owner()
     handler.add(MessageEvent, message=TextMessageContent)(on_text)
+    handler.add(MessageEvent, message=FileMessageContent)(on_file)
     handler.add(PostbackEvent)(on_postback)
