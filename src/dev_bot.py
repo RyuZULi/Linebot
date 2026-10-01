@@ -25,6 +25,11 @@ Ryuzu：開發助手 bot，負責一般聊天 + 「任務：...」指令（修bu
   - 「PDF 清單」「刪除 PDF #3」「刪掉 xxx.pdf」之類的自然語句可以
     列出/刪除文件，沒指定是哪份就跳按鈕讓 owner 選
 
+2026/10/1 新增「開 Claude Code 對話窗」：owner 傳「開一個 claude code 對話窗」
+之類的句子（同時提到 claude 跟 開/對話窗/視窗/終端機），就在這台電腦上
+開一個新的命令列視窗跑互動式 claude，工作目錄是專案根目錄。只開視窗、
+不帶任何 prompt 也不加權限參數，後續操作都由人在視窗裡自己決定。
+
 跟 belfast_bot.py 共用同一個 Flask process/port（見 webhook_app.py），
 用 register(handler, configuration) 掛到專屬於 Ryuzu channel 的
 WebhookHandler 上。
@@ -34,6 +39,7 @@ import json
 import os
 import re
 
+import subprocess
 import threading
 import traceback
 
@@ -66,6 +72,8 @@ PDF_KEYWORDS = ["pdf", "文件"]
 PDF_LIST_KEYWORDS = ["清單", "列表", "有哪些", "列出"]
 PDF_DELETE_KEYWORDS = ["刪除", "刪掉", "移除"]
 MAX_QUICK_REPLY_ITEMS = 13
+
+CLAUDE_WINDOW_KEYWORDS = ["開", "對話窗", "視窗", "終端機", "terminal"]
 
 OWNER_BOUND_MESSAGE = (
     "……好，本大小姐記住您了，霽倫閣下，之後只有您傳的「任務：...」才會被當真。"
@@ -124,6 +132,19 @@ def _parse_task_command(text: str):
             if rest:
                 return rest
     return None
+
+
+def _is_open_claude_command(text: str) -> bool:
+    lowered = text.lower()
+    return "claude" in lowered and any(k in lowered for k in CLAUDE_WINDOW_KEYWORDS)
+
+
+def _open_claude_window() -> None:
+    """在這台電腦上開一個新的命令列視窗跑互動式 claude（claude 是 npm 裝的 claude.cmd，要透過 cmd 呼叫）。"""
+    subprocess.Popen(
+        ["cmd", "/c", "start", "Claude Code", "cmd", "/k", "claude"],
+        cwd=task_runner.REPO_ROOT,
+    )
 
 
 def _format_task_list() -> str:
@@ -306,6 +327,15 @@ def on_text(event):
         task_desc = _parse_task_command(text)
         if task_desc:
             _create_and_run_task(event.reply_token, user_id, task_desc)
+            return
+
+        if _is_open_claude_command(text):
+            try:
+                _open_claude_window()
+                _reply(event.reply_token, f"Claude Code 的對話窗開好了，在電腦上找找看吧，工作目錄是 {task_runner.REPO_ROOT}。")
+            except Exception as e:
+                traceback.print_exc()
+                _reply(event.reply_token, f"開 Claude Code 對話窗失敗了：{e}")
             return
 
         if _handle_pdf_command(event.reply_token, user_id, text):
