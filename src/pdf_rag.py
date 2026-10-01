@@ -209,8 +209,13 @@ def save_pdf(user_id: str, filename: str, content: bytes) -> int:
 
 
 def _run_mineru(args: list, timeout: int) -> subprocess.CompletedProcess:
+    # 固定工作目錄：MinerU 背景服務會用「啟動時所在目錄」的相對路徑寫 blobs/
+    # 快取，不固定的話會散落到 repo 根目錄或桌面（webhook 從哪啟動就寫到哪）。
+    work_dir = os.path.dirname(DB_PATH)
+    os.makedirs(work_dir, exist_ok=True)
     return subprocess.run(
-        [MINERU_EXE] + args, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout
+        [MINERU_EXE] + args, cwd=work_dir, capture_output=True, text=True,
+        encoding="utf-8", errors="replace", timeout=timeout,
     )
 
 
