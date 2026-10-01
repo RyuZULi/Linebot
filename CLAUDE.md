@@ -29,6 +29,8 @@ RAG 課程期末專題。兩個 LINE bot 共用一個 Flask process：
   這個判斷**必須放在最前面**，否則其他分支會先 return 讓它失效。
 - 數值估算用低溫度生成；數據表格式（`format_final_reply` 等）不參雜角色扮演語氣，
   人設只套在對話包裝文字。
+- **PDF RAG 回答（`pdf_rag.answer_with_rag`）不可以套人設**，要用嚴格提示詞 + 溫度 0。
+  實測加上 Ryuzu 人設後，文件沒有的題目 6/6 編造，還把編的數字掛上真實文件當出處。
 - 相似度門檻都是用測試資料校準出來的，不是隨便定的：
   TFDA `SIMILAR_THRESHOLD=0.70`、台大表 `0.65`。改門檻前先看對應的 `*_REPORT.md`。
 - 「土豆」在 TFDA 被列為花生俗名，會把馬鈴薯算成 7 倍熱量 → `AMBIGUOUS_ALIASES` 黑名單。
@@ -56,9 +58,19 @@ Ryuzu 收到「任務：...」→ 開 `worktrees/task-N` 隔離分支 → 無頭
 - 不需要自己 git commit，外面的流程會處理。
 - 專案沒有自動化測試套件，驗證方式是寫小腳本直接呼叫函式、用真實或暫存資料跑。
 
+## PDF 文字抽取（MinerU）
+
+- MinerU 裝在**獨立 venv** `D:\venvs\mineru`（CUDA 版 torch，跟主環境的 CPU 版分開，不要裝進主環境）。
+- `pdf_rag.extract_pages` 先用 MinerU（OCR + 表格），失敗才退回 pypdf；結果快取在 `*.pages.json`。
+- **只能本地解析，不要加 `--remote`**（會把文件上傳到 mineru.net）。已關閉 MinerU 遙測。
+- 本地解析要 `parse_server.local.mode=managed`（已設定），且 MinerU 背景服務要在跑
+  （`extract_pages` 會自動 `mineru server start`）。
+- 刪除文件時要 `mineru forget <path> --no-dry-run` 清掉 MinerU 自己的快取（`delete_doc` 已處理）。
+
 ## 已知限制
 
-- PDF 只能抽文字層；掃描檔/圖片表格抽不到（例：`source_manual_2023.pdf` 16 頁只抽得出約 2300 字），沒有 OCR。
+- 純照片頁面（例：食物照片）MinerU 也讀不出文字；直排表頭會被打亂（「蛋(公白克質)」）。
 - PDF RAG 門檻 `RAG_THRESHOLD=0.55` / `0.40` 只用一份文件初步驗證過。
+- 嚴格提示詞偏保守：偶爾會只列品項而沒回答數值（例：問低脂乳品熱量只回品項），寧可少答不亂答。
 - 兩個 bot 共用一個 process，重啟會同時影響兩邊。
 - cloudflared 用 quick tunnel，重啟後網址會變，要去 LINE Developers Console 重填 Webhook URL。

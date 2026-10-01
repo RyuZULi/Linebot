@@ -59,7 +59,7 @@ from linebot.v3.webhooks import MessageEvent, TextMessageContent, FileMessageCon
 import pdf_rag
 import task_db
 import task_runner
-from chat_persona import PERSONAS, generate_chat_reply
+from chat_persona import generate_chat_reply
 
 MAX_LINE_TEXT_LENGTH = 5000
 OWNER_FILE = r"D:\CalorieCalculation\data\dev_owner.json"
@@ -289,7 +289,7 @@ def on_file(event):
 def _chat_reply(user_id: str, text: str) -> str:
     """一般聊天：先自動判斷要不要查 PDF 資料庫，用不上才走普通聊天。"""
     try:
-        rag_answer = pdf_rag.answer_with_rag(user_id, text, persona_prompt=PERSONAS["ryuzu"]["system_prompt"])
+        rag_answer = pdf_rag.answer_with_rag(user_id, text)
         if rag_answer:
             return rag_answer
     except Exception:
