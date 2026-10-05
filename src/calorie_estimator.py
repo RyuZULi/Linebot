@@ -17,8 +17,46 @@ from portion_lookup import estimate_grams
 from typical_portion import typical_grams
 
 
+UNCERTAIN_MAIN_GRAMS = 150  # 陽明交大自助餐 7 道主菜份量中位數，見 typical_bento_portions.csv
+
+
+def _density(name: str):
+    """回傳 (kcal/100g, 對應到的品項名稱)；使用者回報的是整份總熱量、不是密度，不採用。"""
+    c1 = nutrition_lookup(name)
+    if c1["confidence"] in ("none", "exact_user", "similar_user") or not c1["matched"]:
+        return None
+    return float(c1["matched"]["熱量_kcal_per_100g"]), c1["matched"]["品項名稱"]
+
+
+def _estimate_uncertain_main(name: str, portion_size: str, candidates: list) -> dict:
+    """模型都說有肉類主菜、但連肉的種類都對不上：取候選菜名熱量密度的中位數。
+    中位數而不是平均：避免被猜得最誇張的那個（例如炸物）拉高。"""
+    found = [(n, *d) for n in candidates if (d := _density(n)) is not None]
+    listed = "／".join(candidates)
+    if not found:
+        return {
+            "name": name, "portion_size": portion_size, "tier": "查無資料", "calories": None,
+            "detail": f"主菜種類無法確定（模型分別認為是：{listed}），而且這幾道都查不到熱量資料，不予估算。",
+        }
+    densities = sorted(kcal for _, kcal, _ in found)
+    mid = len(densities) // 2
+    median = densities[mid] if len(densities) % 2 else (densities[mid - 1] + densities[mid]) / 2
+    calories = round(median * UNCERTAIN_MAIN_GRAMS / 100, 1)
+    basis = "、".join(f"{n}→{matched} {kcal:g}" for n, kcal, matched in found)
+    return {
+        "name": name, "portion_size": portion_size, "tier": "相近估算", "calories": calories,
+        "grams": UNCERTAIN_MAIN_GRAMS, "kcal_per_100g": median,
+        "detail": (
+            f"主菜種類無法確定（模型分別認為是：{listed}），用這幾道菜熱量密度的中位數 {median:g} kcal/100g"
+            f"（{basis}）× 一般主菜份量 {UNCERTAIN_MAIN_GRAMS} 公克估算。"
+        ),
+    }
+
+
 def _estimate_item(name: str, portion_size: str, ensemble_confidence: str = None, ensemble_score: float = None,
-                   agree_count: int = None) -> dict:
+                   agree_count: int = None, main_candidates: list = None) -> dict:
+    if main_candidates:
+        return _estimate_uncertain_main(name, portion_size, main_candidates)
     """ensemble_confidence：B4 集合辨識的投票結果（"共識品項"/"單一模型"），
     只有一個模型講、另一個模型沒有附和的品項最可能是幻覺（B2/B4 報告記錄
     的套模板問題），這裡要把這個警訊帶進最終信心標示，不能算完 B4 的投票
@@ -144,7 +182,7 @@ def assemble_meal_estimate(items: list) -> dict:
     results = [
         _estimate_item(
             it["name"], it["portion_size"], it.get("ensemble_confidence"),
-            it.get("ensemble_score"), it.get("agree_count"),
+            it.get("ensemble_score"), it.get("agree_count"), it.get("main_candidates"),
         )
         for it in items
     ]

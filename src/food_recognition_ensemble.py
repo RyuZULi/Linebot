@@ -96,6 +96,46 @@ def _pick_name(cluster: dict, models: list) -> str:
     return max(support, key=lambda n: (round(support[n][0], 6), -support[n][1]))
 
 
+UNCERTAIN_MAIN_NAME = "主菜（種類未定）"
+
+
+def _merge_uncertain_main(items: list, clusters: list, models: list) -> list:
+    """沒有任何肉類主菜達到共識、但至少兩個模型都說有肉類主菜（只是連肉的
+    種類都不同）時，把這些意見合併成一道「種類未定」的主菜。
+
+    「有主菜」本身是共識，只是不知道是什麼——整道丟掉的話總熱量會嚴重偏低。
+    熱量由 C3 取候選菜名熱量密度的中位數估算（見 calorie_estimator）。
+    已經有共識主菜時不做這件事：剩下的零散主菜意見多半是 minicpm-v 套模板
+    的「糖醋排骨」，再多算一道會重複計算。
+    """
+    if any(it["ensemble_confidence"] == "共識品項" and _meat_type(it["name"]) for it in items):
+        return items
+
+    best_per_model = {}  # model -> (信心, 菜名)：每個模型只取它最有把握的那道主菜
+    for c in clusters:
+        if c["meat"] is None:
+            continue
+        for name, model, conf in c["votes"]:
+            if _meat_type(name) and conf > best_per_model.get(model, (0.0, ""))[0]:
+                best_per_model[model] = (conf, name)
+    if len(best_per_model) < 2:
+        return items
+
+    candidates = [name for _, name in sorted(best_per_model.values(), reverse=True)]
+    score = round(sum(conf for conf, _ in best_per_model.values()) / len(models), 3)
+    kept = [it for it in items if not (_meat_type(it["name"]) and it["name"] in candidates)]
+    kept.append({
+        "name": UNCERTAIN_MAIN_NAME,
+        "portion_size": "一份",
+        "ensemble_confidence": "共識品項",
+        "ensemble_score": score,
+        "agree_count": len(best_per_model),
+        "seen_names": sorted(set(candidates)),
+        "main_candidates": list(dict.fromkeys(candidates)),
+    })
+    return kept
+
+
 def recognize_food_ensemble(image_path: str, models: list = None) -> dict:
     """回傳 {"items", "dropped_items", "per_model_raw", "per_model_ok"}。
 
@@ -153,6 +193,8 @@ def recognize_food_ensemble(image_path: str, models: list = None) -> dict:
                 "seen_names": sorted(set(c["names"])),
             }
         )
+
+    final_items = _merge_uncertain_main(final_items, clusters, models)
 
     return {
         "items": final_items,

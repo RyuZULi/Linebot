@@ -450,6 +450,7 @@ def _process_image_async(message_id: str, user_id: str):
                 "ensemble_confidence": it.get("ensemble_confidence"),
                 "ensemble_score": it.get("ensemble_score"),
                 "agree_count": it.get("agree_count"),
+                "main_candidates": it.get("main_candidates"),
             }
             for it in recognition["items"]
         ]
