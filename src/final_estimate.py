@@ -63,49 +63,41 @@ def format_final_reply(result: dict) -> str:
     return "\n".join(lines)
 
 
-def format_summary_reply(result: dict) -> str:
-    """2026/9/27 新增：預設只回總熱量，不逐項列出——霽倫閣下的要求，
-    使用者不需要每次都看到品項明細，想看再打「細節」叫出來
-    （見 format_final_reply，那個存進資料庫的 detail 欄位）。"""
+def estimate_options(result: dict) -> dict:
+    """兩種估計各自的數字，算不出來的是 None。
+
+    刻意不替使用者挑、也不把兩個數字平均：兩者的誤差來源完全不同（逐項
+    加總是漏算品項，外觀參考是西式參考餐點跟台菜的外觀落差），由使用者
+    選比較準的那個（或自己輸入），選擇結果連同兩個數字一起存起來，累積
+    夠多筆之後再分析哪種估計在什麼情況下比較準。"""
     meal = result["meal"]
-    lines = [f"總熱量估算：約 {meal['total_calories']} 大卡（信心程度：{meal['overall_tier']}）"]
-    if meal["uncounted_count"] > 0:
-        lines.append(f"（有 {meal['uncounted_count']} 項無法確定或疑似誤判，未計入，實際熱量可能更高）")
-
     anchor = result["anchor"]
-    if anchor:
-        lines.append(f"整餐視覺校準參考：約 {anchor['min']}～{anchor['max']} 大卡（僅供大概量級參考）")
+    return {
+        "items": meal["total_calories"] if meal["total_calories"] > 0 else None,
+        "anchor": anchor["median"] if anchor else None,
+    }
 
-    lines.append("")
-    lines.append("想看每一項的詳細估算，跟本大小姐說「細節」就會給你看。")
+
+def format_summary_reply(result: dict) -> str:
+    """同時列出兩種估計，細節（逐項明細）要使用者另外叫出來。
+    這裡是數據本身，不帶任何角色語氣，人設文字由各個 bot 自己包。"""
+    meal = result["meal"]
+    anchor = result["anchor"]
+    opts = estimate_options(result)
+    n_items = len(meal["items"])
+    uncounted = meal["uncounted_count"]
+
+    lines = ["這餐的熱量估算："]
+    if opts["items"] is not None:
+        note = f"，有 {uncounted}/{n_items} 項算不到，可能偏低" if uncounted else ""
+        lines.append(f"① 逐項加總：約 {opts['items']:g} 大卡（{meal['overall_tier']}{note}）")
+    else:
+        lines.append("① 逐項加總：算不出來（辨識出的品項都查不到熱量或疑似誤判）")
+    if opts["anchor"] is not None:
+        lines.append(f"② 外觀參考：約 {opts['anchor']:g} 大卡（外觀相似的參考餐點，範圍 {anchor['min']:g}～{anchor['max']:g}）")
+    else:
+        lines.append("② 外觀參考：找不到相似的參考餐點")
     return "\n".join(lines)
-
-
-PORTION_ADJUST_MULTIPLIERS = {"less": 0.7, "same": 1.0, "more": 1.3}
-PORTION_ADJUST_LABELS = {"less": "偏少", "same": "差不多", "more": "偏多"}
-
-
-def format_adjusted_reply(result: dict, adjust_key: str) -> str:
-    """D3：使用者用 Quick Reply 回報「跟估計比起來份量偏少/差不多/偏多」後，
-    對「已知品項加總」套一個粗略的整體倍率重新估算。
-
-    這是刻意簡化過的設計：不重新逐項計算份量，而是誠實地說「這是一個
-    概略調整」，不假裝變得更精確——真正要精確，需要使用者重新拍照或
-    指名哪個品項份量不對，那是更大的功能，這裡先用最小可行的方式讓
-    使用者能夠回饋修正。
-    """
-    multiplier = PORTION_ADJUST_MULTIPLIERS[adjust_key]
-    label = PORTION_ADJUST_LABELS[adjust_key]
-    base = result["meal"]["total_calories"]
-    adjusted = round(base * multiplier, 1)
-
-    if adjust_key == "same":
-        return f"了解，維持原本估計：已知品項加總約 {base} 大卡（信心程度：{result['meal']['overall_tier']}）。"
-
-    return (
-        f"明白了，份量比原先估計的{label}。已知品項加總概略調整為約 {adjusted} 大卡"
-        f"（原估計 {base} 大卡 × {multiplier}，這是粗略整體調整，不是重新逐項計算，僅供參考）。"
-    )
 
 
 if __name__ == "__main__":

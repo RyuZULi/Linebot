@@ -79,6 +79,20 @@ def get_latest(user_id: str) -> dict:
     return rows[0] if rows else None
 
 
+def daily_totals(user_id: str, start_date, end_date) -> list:
+    """回傳 [{"date": "YYYY-MM-DD", "total": float, "count": int}, ...]，
+    只包含期間內有紀錄的日子（start_date、end_date 都含，型別是 date）。"""
+    conn = _connect()
+    rows = conn.execute(
+        "SELECT substr(created_at, 1, 10) AS day, SUM(total_calories) AS total, COUNT(*) AS cnt "
+        "FROM meal_records WHERE user_id = ? AND total_calories IS NOT NULL "
+        "AND substr(created_at, 1, 10) BETWEEN ? AND ? GROUP BY day ORDER BY day",
+        (user_id, start_date.isoformat(), end_date.isoformat()),
+    ).fetchall()
+    conn.close()
+    return [{"date": r["day"], "total": round(r["total"], 1), "count": r["cnt"]} for r in rows]
+
+
 def delete_records(user_id: str, date_filter: str = "today", time_of_day: str = None) -> int:
     """date_filter: "today" 或 "yesterday"；time_of_day: "morning"/"afternoon"/"evening"/None(整天)。
     回傳刪除的筆數。"""

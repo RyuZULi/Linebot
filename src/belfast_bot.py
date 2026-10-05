@@ -20,9 +20,12 @@ Belfast channel 的 WebhookHandler 上，不自己開 Flask app。
 """
 
 import os
+import re
+import shutil
 import tempfile
 import threading
 import traceback
+from datetime import datetime
 
 from linebot.v3.messaging import (
     ApiClient,
@@ -38,10 +41,10 @@ from linebot.v3.messaging import (
 from linebot.v3.webhooks import MessageEvent, ImageMessageContent, TextMessageContent, PostbackEvent
 
 from food_recognition_ensemble import recognize_food_ensemble
-from final_estimate import estimate_with_anchor, format_final_reply, format_summary_reply, format_adjusted_reply
+from final_estimate import estimate_with_anchor, format_final_reply, format_summary_reply, estimate_options
 import nutrition_lookup
 import meal_db
-from intent_router import classify_intent, parse_delete_filter
+from intent_router import classify_intent, parse_delete_filter, parse_stats_period
 from chat_persona import generate_chat_reply
 from parse_calorie_report import parse as parse_calorie_report
 
@@ -51,6 +54,7 @@ GUIDE_MESSAGE = (
     "主人，想知道熱量的話，把照片交給我就好，我會先問問您是想讓我親自"
     "估算，還是您自己已經有數，跟我說一聲就好。\n"
     "想回顧之前的紀錄，說聲「紀錄」；想看上次的品項細節，說「細節」；"
+    "想知道一段時間吃了多少，問我「這週平均每天攝取多少」就好；"
     "不想留下這次的紀錄，跟我說「刪除」（可以加上「今天早上」之類的"
     "時間，我會明白的）。\n"
     "除此之外，不管想聊什麼，我都很樂意陪您聊聊。"
@@ -66,7 +70,21 @@ REPORT_PARSE_FAIL_TEXT = "抱歉，主人，我沒能從中聽出熱量的數字
 
 CANCEL_TEXT = "好的，這一餐我們就不記錄了。不過主人，也別忘了好好照顧自己，這是我在意的事。"
 
-PORTION_CONFIRM_TEXT = "這次估算的份量，跟您實際吃的比起來如何呢？"
+MEAL_CONFIRM_TEXT = (
+    "主人覺得哪一個比較接近呢？選一個，我就幫您記下來；"
+    "如果您知道實際的熱量，直接告訴我會更準確。\n"
+    "想看每一項是怎麼算的，跟我說「細節」就好。"
+)
+
+MEAL_UNKNOWN_CONFIRM_TEXT = (
+    "這一餐我實在估不出來，真是抱歉，主人。\n"
+    "如果您知道大概的熱量，告訴我，我就照您說的記下來。"
+)
+
+CORRECTION_PROMPT_TEXT = (
+    "好的，請告訴我這一餐大約多少大卡，直接打數字就可以（例如「500」）。\n"
+    "如果順便告訴我菜名（例如「炒麵 500大卡」），下次遇到同樣的菜，我就能直接查到了。"
+)
 
 NO_FOOD_MESSAGE = "真是抱歉，主人，這張照片我看不太出來是什麼食物。方便的話，可以麻煩您重新拍一張清楚一點的嗎？"
 
@@ -80,9 +98,20 @@ TIME_OF_DAY_LABELS = {"morning": "早上", "afternoon": "下午", "evening": "�
 
 _configuration = None
 
-# D3：暫存每個使用者最新一次的估算結果，供「份量偏少/差不多/偏多」
-# 調整用。純記憶體暫存，重啟會清空——真正的歷史紀錄存在 meal_db。
+# 算好但「還沒確認」的估算：{"result", "options", "photo_path"}。使用者選了
+# 「逐項加總」/「外觀參考」/「我知道熱量」/「不記錄」之後才寫進 meal_db
+# （2026/10/5 改：之前一算完就直接存，0 大卡這種明顯錯的估計也被存進去）。
+# 純記憶體暫存，服務重啟就沒了，使用者重傳照片即可。
 pending_meals = {}
+
+# 有記錄的餐點照片留著，跟兩種估計值、使用者的選擇一起存，累積夠多之後
+# 用來分析哪種估計比較準（或當評估資料集）。已在 .gitignore。
+PHOTO_DIR = r"D:\CalorieCalculation\data\meal_photos"
+
+# 使用者在估算後按了「我知道熱量」，等下一則文字訊息當修正數字。
+pending_corrections = {}
+
+BARE_NUMBER_PATTERN = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*$")
 
 # D5：收到照片後，先問使用者要「算熱量」/「我來說熱量」/「不用了」，
 # 暫存這張照片的 LINE message_id，選了「算熱量」才會真的下載處理。
@@ -92,12 +121,16 @@ pending_images = {}
 pending_reports = {}
 
 
-def _portion_quick_reply() -> QuickReply:
-    items = [
-        QuickReplyItem(action=PostbackAction(label="偏少", data="adjust:less", display_text="偏少")),
-        QuickReplyItem(action=PostbackAction(label="差不多", data="adjust:same", display_text="差不多")),
-        QuickReplyItem(action=PostbackAction(label="偏多", data="adjust:more", display_text="偏多")),
-    ]
+def _meal_confirm_quick_reply(options: dict) -> QuickReply:
+    items = []
+    if options["items"] is not None:
+        label = f"逐項 {options['items']:g} 大卡"
+        items.append(QuickReplyItem(action=PostbackAction(label=label, data="meal:items", display_text=label)))
+    if options["anchor"] is not None:
+        label = f"外觀 {options['anchor']:g} 大卡"
+        items.append(QuickReplyItem(action=PostbackAction(label=label, data="meal:anchor", display_text=label)))
+    items.append(QuickReplyItem(action=PostbackAction(label="我知道熱量", data="meal:correct", display_text="我知道熱量")))
+    items.append(QuickReplyItem(action=PostbackAction(label="不記錄", data="meal:skip", display_text="不記錄")))
     return QuickReply(items=items)
 
 
@@ -133,12 +166,17 @@ def on_image(event):
     user_id = event.source.user_id
     pending_images[user_id] = event.message.id
     pending_reports.pop(user_id, None)
+    pending_corrections.pop(user_id, None)
     _reply(event.reply_token, PHOTO_INTENT_TEXT, quick_reply=_photo_intent_quick_reply())
 
 
 def on_text(event):
     user_id = event.source.user_id
     text = (event.message.text or "").strip()
+
+    if pending_corrections.get(user_id):
+        _handle_correction_text(event.reply_token, user_id, text)
+        return
 
     if pending_reports.get(user_id):
         _handle_report_text(event.reply_token, user_id, text)
@@ -147,6 +185,8 @@ def on_text(event):
     intent = classify_intent(text)
     if intent == "HELP":
         _reply(event.reply_token, GUIDE_MESSAGE)
+    elif intent == "STATS":
+        _reply(event.reply_token, _format_stats(user_id, text))
     elif intent == "HISTORY":
         _reply(event.reply_token, _format_history(user_id))
     elif intent == "DETAIL":
@@ -161,13 +201,30 @@ def on_postback(event):
     data = event.postback.data or ""
     user_id = event.source.user_id
 
-    if data.startswith("adjust:"):
-        adjust_key = data.split(":", 1)[1]
-        result = pending_meals.get(user_id)
-        if result is None:
+    if data.startswith("meal:"):
+        action = data.split(":", 1)[1]
+        pending = pending_meals.get(user_id)
+        if pending is None:
             _reply(event.reply_token, NO_PENDING_MEAL_MESSAGE)
             return
-        _reply(event.reply_token, format_adjusted_reply(result, adjust_key))
+
+        if action in ("items", "anchor"):
+            kcal = pending["options"][action]
+            if kcal is None:
+                _reply(event.reply_token, MEAL_UNKNOWN_CONFIRM_TEXT, quick_reply=_meal_confirm_quick_reply(pending["options"]))
+                return
+            pending_meals.pop(user_id)
+            pending_corrections.pop(user_id, None)
+            _save_estimate(user_id, pending, kcal, choice=action)
+            _reply(event.reply_token, f"好的，已經幫您記錄為約 {_kcal(kcal)} 大卡，主人。")
+
+        elif action == "correct":
+            pending_corrections[user_id] = True
+            _reply(event.reply_token, CORRECTION_PROMPT_TEXT)
+
+        elif action == "skip":
+            _discard_pending(user_id)
+            _reply(event.reply_token, CANCEL_TEXT)
         return
 
     if data.startswith("photo:"):
@@ -216,6 +273,101 @@ def _handle_report_text(reply_token: str, user_id: str, text: str):
     )
 
 
+def _kcal(value: float) -> str:
+    """500.0 → "500"、560.8 → "560.8"。"""
+    return f"{value:g}"
+
+
+CHOICE_LABELS = {"items": "逐項加總", "anchor": "外觀參考", "user": "主人輸入"}
+
+
+def _discard_pending(user_id: str):
+    """放棄還沒確認的估算，連同暫存的照片一起刪掉（不記錄就不留照片）。"""
+    pending_corrections.pop(user_id, None)
+    pending = pending_meals.pop(user_id, None)
+    if pending and pending.get("photo_path") and os.path.exists(pending["photo_path"]):
+        os.remove(pending["photo_path"])
+
+
+def _save_estimate(user_id: str, pending: dict, kcal: float, choice: str, food_name: str = None):
+    """把確認過的估算寫進 meal_db。raw 裡同時保留兩種估計值、逐項明細、
+    照片路徑、使用者最後選哪個（或自己輸入多少）——累積夠多筆之後，才能
+    用真實資料分析哪種估計在什麼情況下比較準，而不是靠猜。"""
+    result, options = pending["result"], pending["options"]
+    anchor = result["anchor"]
+    label = food_name or "這餐"
+    summary = f"{label}約 {_kcal(kcal)} 大卡（{CHOICE_LABELS[choice]}）"
+    meal_db.save_record(
+        user_id,
+        source="estimated_corrected" if choice == "user" else "estimated",
+        summary=summary,
+        detail=format_final_reply(result),
+        total_calories=kcal,
+        raw={
+            "choice": choice,
+            "user_kcal": kcal if choice == "user" else None,
+            "items_total": options["items"],
+            "items_uncounted": result["meal"]["uncounted_count"],
+            "items_count": len(result["meal"]["items"]),
+            "items": [
+                {"name": it["name"], "portion_size": it["portion_size"], "tier": it["tier"], "calories": it["calories"]}
+                for it in result["meal"]["items"]
+            ],
+            "anchor_median": options["anchor"],
+            "anchor_range": [anchor["min"], anchor["max"]] if anchor else None,
+            "photo_path": pending.get("photo_path"),
+        },
+    )
+
+
+def _handle_correction_text(reply_token: str, user_id: str, text: str):
+    pending = pending_meals.get(user_id)
+    if pending is None:
+        pending_corrections.pop(user_id, None)
+        _reply(reply_token, NO_PENDING_MEAL_MESSAGE)
+        return
+
+    parsed = parse_calorie_report(text)
+    if not parsed:
+        m = BARE_NUMBER_PATTERN.match(text)
+        parsed = {"food_name": "這餐", "kcal": float(m.group(1))} if m else None
+    if not parsed:
+        _reply(reply_token, REPORT_PARSE_FAIL_TEXT)
+        return
+
+    pending_corrections.pop(user_id, None)
+    pending_meals.pop(user_id)
+    kcal = parsed["kcal"]
+    food_name = parsed["food_name"] if parsed["food_name"] != "這餐" else None
+    _save_estimate(user_id, pending, kcal, choice="user", food_name=food_name)
+
+    reply = f"了解，已經照您說的記錄為 {_kcal(kcal)} 大卡，主人。"
+    if food_name:
+        nutrition_lookup.add_user_food(food_name, kcal, source="主人修正估算")
+        reply += f"「{food_name}」我也記住了，下次就能直接查到。"
+    _reply(reply_token, reply)
+
+
+def _format_stats(user_id: str, text: str) -> str:
+    start, end, label = parse_stats_period(text)
+    days = meal_db.daily_totals(user_id, start, end)
+    period = f"{start.month}/{start.day}" if start == end else f"{start.month}/{start.day}～{end.month}/{end.day}"
+    if not days:
+        return f"{label}（{period}）還沒有任何紀錄喔，主人。"
+
+    total = round(sum(d["total"] for d in days), 1)
+    lines = [f"【{label}的熱量攝取】（{period}）", f"總共：約 {_kcal(total)} 大卡"]
+    if start != end:
+        avg = round(total / len(days), 1)
+        lines.append(f"平均每天：約 {_kcal(avg)} 大卡（以有紀錄的 {len(days)} 天計算）")
+        lines.append("")
+        for d in days:
+            lines.append(f"{d['date'][5:].replace('-', '/')}：{_kcal(d['total'])} 大卡（{d['count']} 筆）")
+        lines.append("")
+        lines.append("沒有紀錄的日子不算進平均；如果有幾餐忘了記，實際的平均會更高一些，主人。")
+    return "\n".join(lines)
+
+
 def _format_history(user_id: str) -> str:
     rows = meal_db.get_recent(user_id, limit=10)
     if not rows:
@@ -227,6 +379,9 @@ def _format_history(user_id: str) -> str:
 
 
 def _format_detail(user_id: str) -> str:
+    pending = pending_meals.get(user_id)
+    if pending:
+        return format_final_reply(pending["result"])
     row = meal_db.get_latest(user_id)
     if not row:
         return NO_PENDING_MEAL_MESSAGE
@@ -245,8 +400,7 @@ def _handle_delete(user_id: str, text: str) -> str:
 
 def _process_image_async(message_id: str, user_id: str):
     """在背景執行緒跑：下載圖片 → 集合辨識(B4) → 整合估算(C1~C4)
-    → 存進 meal_db → push 總熱量摘要（明細存資料庫，要另外用
-    「細節」指令叫出來）。"""
+    → push 主要估計 + 確認按鈕。這裡不寫資料庫，使用者確認後才存。"""
     tmp_path = None
     try:
         with ApiClient(_configuration) as api_client:
@@ -271,21 +425,23 @@ def _process_image_async(message_id: str, user_id: str):
             for it in recognition["items"]
         ]
         result = estimate_with_anchor(tmp_path, items)
-        pending_meals[user_id] = result
+        options = estimate_options(result)
 
-        meal_db.save_record(
-            user_id,
-            source="estimated",
-            summary=f"總熱量約 {result['meal']['total_calories']} 大卡（信心程度：{result['meal']['overall_tier']}）",
-            detail=format_final_reply(result),
-            total_calories=result["meal"]["total_calories"],
-        )
+        _discard_pending(user_id)
+        os.makedirs(PHOTO_DIR, exist_ok=True)
+        photo_path = os.path.join(PHOTO_DIR, f"{user_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg")
+        shutil.copyfile(tmp_path, photo_path)
+        pending_meals[user_id] = {"result": result, "options": options, "photo_path": photo_path}
 
+        has_estimate = options["items"] is not None or options["anchor"] is not None
         _push_multi(
             user_id,
             [
                 TextMessage(text=format_summary_reply(result)[:MAX_LINE_TEXT_LENGTH]),
-                TextMessage(text=PORTION_CONFIRM_TEXT, quick_reply=_portion_quick_reply()),
+                TextMessage(
+                    text=MEAL_CONFIRM_TEXT if has_estimate else MEAL_UNKNOWN_CONFIRM_TEXT,
+                    quick_reply=_meal_confirm_quick_reply(options),
+                ),
             ],
         )
 
