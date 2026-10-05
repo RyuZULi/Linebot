@@ -34,3 +34,7 @@ data/user_provided/chroma_store/
 data/pdf_docs/
 # 有記錄的餐點照片（跟兩種估計值一起存，之後分析用）
 data/meal_photos/
+
+# CEC 建築 API 問答的知識庫：公司內部資料（同仁姓名、內部 Notion 連結），不進版控
+data/CEC_Revit API/
+data/cec_rag/

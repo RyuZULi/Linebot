@@ -1,0 +1,130 @@
+"""
+CEC_API助手：公司同仁在 LINE 上查 CEC 建築 Revit API 的操作與錯誤（邏輯在 cec_rag.py）。
+
+跟 Ryuzu、Belfast 是三個獨立的 LINE channel，共用 webhook_app.py 的 Flask process
+（路徑 /callback/cec）。這個 bot 對所有人開放，口氣中性專業、不套角色人設——
+回答內容是查資料得來的操作步驟與錯誤原因，套人設會增加編造的風險（見 CLAUDE.md
+PDF RAG 的實測），同仁也不需要角色扮演。
+"""
+
+import traceback
+
+from linebot.v3.messaging import (
+    ApiClient,
+    MessagingApi,
+    PostbackAction,
+    QuickReply,
+    QuickReplyItem,
+    ReplyMessageRequest,
+    ShowLoadingAnimationRequest,
+    TextMessage,
+)
+from linebot.v3.webhooks import FollowEvent, MessageEvent, PostbackEvent, TextMessageContent
+
+import cec_rag
+
+MAX_LINE_TEXT_LENGTH = 5000
+MAX_QUICK_REPLY_ITEMS = 13
+
+WELCOME = (
+    "您好，我是 CEC 建築 API 助手，可以回答「CEC 建築 Revit API」按鈕的操作方式和錯誤訊息。\n\n"
+    "可以這樣問：\n"
+    "・建立切割樓板怎麼用\n"
+    "・單線轉樑按不了\n"
+    "・有沒有可以算磁磚的功能\n"
+    "・直接貼上跳出來的錯誤訊息\n\n"
+    "機電、土木 API 或 Autodesk 帳號問題不在我的範圍，我會告訴您該找誰。"
+)
+HELP_WORDS = {"help", "說明", "怎麼用", "使用說明", "你好", "您好", "hi", "hello"}
+NON_TEXT_REPLY = "目前只能回答文字問題。如果是錯誤訊息，請直接複製視窗上的文字貼過來，或打出按鈕名稱跟遇到的狀況。"
+ERROR_REPLY = "抱歉，查詢時出了問題，請稍後再試一次。急的話請直接聯絡建築 API 負責人。"
+NO_PENDING_REPLY = "剛才的問題我這邊已經沒有保留了，麻煩再問一次。"
+
+_configuration = None
+
+# 回問「是哪個功能」時，暫存使用者原本的問題，等他選完按鈕再回答
+pending_questions = {}
+
+
+def _reply(reply_token: str, text: str, quick_reply: QuickReply = None):
+    with ApiClient(_configuration) as client:
+        MessagingApi(client).reply_message(
+            ReplyMessageRequest(reply_token=reply_token,
+                                messages=[TextMessage(text=text[:MAX_LINE_TEXT_LENGTH], quick_reply=quick_reply)])
+        )
+
+
+def _show_loading(user_id: str):
+    """LLM 回答要好幾秒，先讓對方看到「輸入中」的動畫。失敗也不影響回答。"""
+    try:
+        with ApiClient(_configuration) as client:
+            MessagingApi(client).show_loading_animation(ShowLoadingAnimationRequest(chat_id=user_id, loading_seconds=30))
+    except Exception:
+        traceback.print_exc()
+
+
+def _choices_quick_reply(choices: list) -> QuickReply:
+    items = [
+        QuickReplyItem(action=PostbackAction(label=zh[:20], data=f"cec:pick:{api}", display_text=zh))
+        for api, zh in choices[:MAX_QUICK_REPLY_ITEMS - 1]
+    ]
+    items.append(QuickReplyItem(action=PostbackAction(label="不確定，全部找找看", data="cec:all", display_text="不確定，全部找找看")))
+    return QuickReply(items=items)
+
+
+def _respond(reply_token: str, user_id: str, question: str, **kwargs):
+    _show_loading(user_id)
+    try:
+        result = cec_rag.answer(question, user_id=user_id, **kwargs)
+    except Exception:
+        traceback.print_exc()
+        _reply(reply_token, ERROR_REPLY)
+        return
+    if result["type"] == "ask":
+        pending_questions[user_id] = question
+        _reply(reply_token, result["text"], quick_reply=_choices_quick_reply(result["choices"]))
+    else:
+        _reply(reply_token, result["text"])
+
+
+def on_text(event):
+    user_id = event.source.user_id
+    text = (event.message.text or "").strip()
+    if not text:
+        return
+    if text.lower() in HELP_WORDS:
+        _reply(event.reply_token, WELCOME)
+        return
+    _respond(event.reply_token, user_id, text)
+
+
+def on_postback(event):
+    data = event.postback.data or ""
+    if not data.startswith("cec:"):
+        return
+    user_id = event.source.user_id
+    question = pending_questions.pop(user_id, None)
+    if question is None:
+        _reply(event.reply_token, NO_PENDING_REPLY)
+        return
+    if data == "cec:all":
+        _respond(event.reply_token, user_id, question, search_all=True)
+    elif data.startswith("cec:pick:"):
+        _respond(event.reply_token, user_id, question, forced_api=data.split(":", 2)[2])
+
+
+def on_follow(event):
+    _reply(event.reply_token, WELCOME)
+
+
+def on_other_message(event):
+    _reply(event.reply_token, NON_TEXT_REPLY)
+
+
+def register(handler, configuration):
+    global _configuration
+    _configuration = configuration
+    handler.add(MessageEvent, message=TextMessageContent)(on_text)
+    handler.add(MessageEvent)(on_other_message)
+    handler.add(PostbackEvent)(on_postback)
+    handler.add(FollowEvent)(on_follow)

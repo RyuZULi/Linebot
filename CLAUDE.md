@@ -1,11 +1,12 @@
 # 拍照估算熱量 LINE 助手
 
-RAG 課程期末專題。兩個 LINE bot 共用一個 Flask process：
+RAG 課程期末專題。三個 LINE bot 共用一個 Flask process：
 
 - **Belfast**（秘書）：拍照估算熱量、飲食紀錄、一般聊天 → `src/belfast_bot.py`
 - **Ryuzu**（開發助手）：一般聊天、「任務：」自動開發、PDF 統整/RAG → `src/dev_bot.py`
+- **CEC_API助手**：公司同仁查 CEC 建築 Revit API 的操作與錯誤 → `src/cec_bot.py`、`src/cec_rag.py`
 
-入口是 `src/webhook_app.py`（port 5000），路徑分流 `/callback/belfast`、`/callback/dev`。
+入口是 `src/webhook_app.py`（port 5000），路徑分流 `/callback/belfast`、`/callback/dev`、`/callback/cec`。
 回覆使用者的文字一律用**繁體中文**。
 
 ## 架構
@@ -80,3 +81,15 @@ Ryuzu 收到「任務：...」→ 開 `worktrees/task-N` 隔離分支 → 無頭
 - 嚴格提示詞偏保守：偶爾會只列品項而沒回答數值（例：問低脂乳品熱量只回品項），寧可少答不亂答。
 - 兩個 bot 共用一個 process，重啟會同時影響兩邊。
 - cloudflared 用 quick tunnel，重啟後網址會變，要去 LINE Developers Console 重填 Webhook URL。
+
+## CEC_API助手（`cec_rag.py`，規格：`data/CEC_Revit API/AIRAGUse.md`）
+
+- 知識庫是公司內部資料（同仁姓名、內部 Notion），`data/CEC_Revit API/`、`data/cec_rag/` 都在 `.gitignore`，不要提交。
+- 照規格書流程：非本庫範圍直接轉介 → 目錄比對（容錯梁/樑、驅/軀、版/板；模糊比對只容許同長度錯一個字）
+  → 錯誤訊息字串比對（只比「錯誤訊息對照」與非按鈕名稱的「」）→ 向量檢索 → LLM。判斷與比對都用程式，不讓小模型猜。
+- 回答模型用 `qwen3:8b`（`think: false`）。實測 12 個情境：llama3.2 有 4 題把資料裡有的答案回成「沒有資料」，不要換回去。
+- 提示詞的規則放在參考資料**後面**：放前面時 qwen3 會把相鄰兩條拼湊成假建議（「不支援斜板」+ 下一行
+  「Deck 樓板請改用…」→ 回答「斜板請改用 Deck」）。網址由程式附上，模型寫的網址行會被刪掉。
+- 通用問題依關鍵字直接指定 `_通用問題` 段落（`GENERAL_SECTION_RULES`），不靠向量檢索排序。
+- 不套任何角色人設（同 PDF RAG 的理由）。問答記錄在 `data/cec_rag/qa_log.jsonl`，可用來找出同仁常問但資料沒有的題目。
+- 已知限制：偶爾會在正確答案後面多補幾點延伸說明，少數解法是模型自己補的。

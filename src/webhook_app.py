@@ -6,6 +6,7 @@ D2/D5：LINE webhook 共用入口。
 tunnel——用不同的 URL 路徑區分兩個 channel 的 webhook：
   /callback/dev      → Ryuzu（開發助手：聊天 + 任務指令）
   /callback/belfast  → Belfast（秘書：熱量估算 + 飲食紀錄 + 聊天）
+  /callback/cec      → CEC_API助手（公司同仁查 CEC 建築 Revit API，2026/10/5 新增）
 
 在 LINE Developers Console 裡，兩個 channel 的 Webhook URL 要分別設成
 這兩個路徑（同一個 tunnel 網域，路徑不同），不能兩個都設成同一個
@@ -37,6 +38,8 @@ DEV_TOKEN = _require_env("DEV_LINE_CHANNEL_ACCESS_TOKEN")
 DEV_SECRET = _require_env("DEV_LINE_CHANNEL_SECRET")
 BELFAST_TOKEN = _require_env("BELFAST_LINE_CHANNEL_ACCESS_TOKEN")
 BELFAST_SECRET = _require_env("BELFAST_LINE_CHANNEL_SECRET")
+CEC_TOKEN = _require_env("CEC_LINE_CHANNEL_ACCESS_TOKEN")
+CEC_SECRET = _require_env("CEC_LINE_CHANNEL_SECRET")
 
 dev_configuration = Configuration(access_token=DEV_TOKEN)
 dev_handler = WebhookHandler(DEV_SECRET)
@@ -44,13 +47,18 @@ dev_handler = WebhookHandler(DEV_SECRET)
 belfast_configuration = Configuration(access_token=BELFAST_TOKEN)
 belfast_handler = WebhookHandler(BELFAST_SECRET)
 
+cec_configuration = Configuration(access_token=CEC_TOKEN)
+cec_handler = WebhookHandler(CEC_SECRET)
+
 app = Flask(__name__)
 
 import dev_bot
 import belfast_bot
+import cec_bot
 
 dev_bot.register(dev_handler, dev_configuration)
 belfast_bot.register(belfast_handler, belfast_configuration)
+cec_bot.register(cec_handler, cec_configuration)
 
 
 @app.route("/health", methods=["GET"])
@@ -80,7 +88,19 @@ def callback_belfast():
     return "OK", 200
 
 
+@app.route("/callback/cec", methods=["POST"])
+def callback_cec():
+    signature = request.headers.get("X-Line-Signature", "")
+    body = request.get_data(as_text=True)
+    try:
+        cec_handler.handle(body, signature)
+    except InvalidSignatureError:
+        abort(400)
+    return "OK", 200
+
+
 if __name__ == "__main__":
+    import cec_rag
     import meal_db
     import nutrition_lookup
     import pdf_rag
@@ -91,4 +111,5 @@ if __name__ == "__main__":
     meal_db.init_db()
     task_db.init_db()
     pdf_rag.init_db()
+    print("CEC 知識庫：", cec_rag.ensure_ingested())  # 只重新匯入有變動的卡片
     app.run(host="0.0.0.0", port=5000)
