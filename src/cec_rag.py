@@ -24,8 +24,13 @@ import urllib.request
 from datetime import datetime
 
 import chromadb
+from opencc import OpenCC
 
 import nutrition_lookup
+
+# qwen3 偶爾會混出簡體字（「没有」）。只做逐字轉換（s2tw），不做詞彙替換（s2twp），
+# 避免按鈕名稱、錯誤訊息原文被改寫。
+_to_traditional = OpenCC("s2tw").convert
 
 KB_DIR = r"D:\CalorieCalculation\data\CEC_Revit API"
 STORE_DIR = r"D:\CalorieCalculation\data\cec_rag"
@@ -411,10 +416,17 @@ def _general_hits(question: str) -> list:
     return _sections_text([(GENERAL, s) for s in sections])
 
 
-def _compose(question: str, hits: list) -> str:
+def _compose(question: str, hits: list, history: list = None) -> str:
     hits = _dedupe(hits)
     context = "\n\n".join(h["text"] for h in hits)
-    answer = _llm(SYSTEM_PROMPT.format(contacts=_contacts_text(), context=context, question=question))
+    prompt = SYSTEM_PROMPT.format(contacts=_contacts_text(), context=context, question=question)
+    if history:
+        # 追問常用「清單」「那個」之類的指代，附上前幾輪問答讓模型知道在講什麼
+        turns = "\n\n".join(f"問：{q}\n答：{a[:400]}" for q, a in history[-HISTORY_TURNS:])
+        prompt = prompt.replace(
+            "【使用者問題】", f"【先前對話】（同一位同仁剛才問過的，供理解追問用）\n{turns}\n\n【使用者問題】", 1
+        )
+    answer = _to_traditional(_llm(prompt))
     # 網址一律由程式附上（模型抄網址容易抄錯），模型自己寫的網址行拿掉
     answer = "\n".join(l for l in answer.splitlines() if "http" not in l and "網址" not in l).strip()
     answer = re.sub(r"^回答[:：]\s*", "", answer)
@@ -445,22 +457,63 @@ def candidate_choices(question: str, n: int = 3) -> list:
     return seen
 
 
+# ---------- 對話狀態：記住目前在聊哪個按鈕 ----------
+#
+# 2026/10/5 實測：同仁選了「建立切割樓板」之後接著追問「我已經建立好柱樑了，但是切割失敗」
+# 「執行後的清單是什麼」，這些追問沒有按鈕名稱，每句都被當成全新的問題——一句跑去全庫
+# 檢索混進 Deck 版的資料，一句直接回問「是哪個功能」。改成記住目前的話題（按鈕），
+# 沒提到其他按鈕的追問就延續同一個話題；提到別的按鈕或錯誤訊息就換話題；閒置太久就忘掉。
+
+SESSION_TTL_SECONDS = 15 * 60
+HISTORY_TURNS = 2
+RESET_WORDS = ["新問題", "換個問題", "換問題", "重新開始", "問別的"]
+
+_sessions = {}  # user_id -> {"api": str|None, "history": [(問, 答)], "time": datetime}
+
+
+def _session(user_id: str) -> dict:
+    s = _sessions.get(user_id)
+    if s and (datetime.now() - s["time"]).total_seconds() > SESSION_TTL_SECONDS:
+        s = None
+    if s is None:
+        s = {"api": None, "history": [], "time": datetime.now()}
+        _sessions[user_id] = s
+    return s
+
+
+def reset_session(user_id: str):
+    _sessions.pop(user_id, None)
+
+
 def answer(question: str, user_id: str = "", forced_api: str = None, search_all: bool = False) -> dict:
-    """回傳 {"type": "answer"|"ask"|"refer", "text", "choices": [(api, 中文名)], "route"}。"""
+    """回傳 {"type": "answer"|"ask"|"refer"|"reset", "text", "choices": [(api, 中文名)], "route"}。"""
     cards = _load_cards()
     q_lower = question.lower()
     general = any(k.lower() in q_lower for k in GENERAL_KEYWORDS)
+    session = _session(user_id)
+    session["time"] = datetime.now()
 
-    def done(result: dict) -> dict:
+    def done(result: dict, topic: str = None) -> dict:
+        if topic is not None:
+            session["api"] = topic
+        if result["type"] == "answer":
+            session["history"] = (session["history"] + [(question, result["text"])])[-HISTORY_TURNS:]
         _log({"user": user_id, "question": question, "route": result.get("route"), "type": result["type"],
-              "choices": result.get("choices"), "answer": result.get("text", "")[:2000]})
+              "topic": session["api"], "choices": result.get("choices"), "answer": result.get("text", "")[:2000]})
         return result
+
+    def compose(hits: list) -> str:
+        return _compose(question, hits, session["history"])
+
+    if any(w in question for w in RESET_WORDS) and len(question) <= 10:
+        reset_session(user_id)
+        return {"type": "reset", "route": "重設話題", "text": "好的，請問新的問題是？可以直接講按鈕名稱，或貼上錯誤訊息。"}
 
     if forced_api:
         hits = _retrieve(question, apis=[forced_api, GENERAL]) + _general_hits(question)
-        return done({"type": "answer", "text": _compose(question, hits), "route": f"使用者選擇:{forced_api}"})
+        return done({"type": "answer", "text": compose(hits), "route": f"使用者選擇:{forced_api}"}, topic=forced_api)
     if search_all:
-        return done({"type": "answer", "text": _compose(question, _retrieve(question)), "route": "全庫檢索"})
+        return done({"type": "answer", "text": compose(_retrieve(question)), "route": "全庫檢索"})
 
     catalog_hits = match_catalog(question)
 
@@ -474,32 +527,53 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
     if len(catalog_hits) == 1:
         api = catalog_hits[0][0]
         hits = _retrieve(question, apis=[api, GENERAL]) + _general_hits(question)
-        return done({"type": "answer", "text": _compose(question, hits), "route": f"目錄比對:{api}"})
+        return done({"type": "answer", "text": compose(hits), "route": f"目錄比對:{api}"}, topic=api)
 
     if len(catalog_hits) > 1:
+        # 正在聊的按鈕剛好是候選之一（例：選過 RC 版後又說「切割樓板…」），就不再回問
+        if session["api"] in [api for api, _ in catalog_hits]:
+            api = session["api"]
+            hits = _retrieve(question, apis=[api, GENERAL]) + _general_hits(question)
+            return done({"type": "answer", "text": compose(hits) + _topic_note(api), "route": f"延續話題:{api}"})
         choices = [(api, cards[api]["zh"]) for api, _ in catalog_hits]
         return done({"type": "ask", "route": "目錄比對多個", "choices": choices,
                      "text": "找到好幾個相關的功能，請問是哪一個？"})
 
     errors = match_errors(question)
     if errors:
+        if session["api"] in {a for a, _ in errors}:
+            errors = [(a, sec) for a, sec in errors if a == session["api"]]
         hits = _sections_text(errors) + _retrieve(question, apis=[GENERAL], k=1)
-        return done({"type": "answer", "text": _compose(question, hits),
-                     "route": "錯誤訊息比對:" + ",".join(sorted({a for a, _ in errors}))})
+        apis = sorted({a for a, _ in errors})
+        return done({"type": "answer", "text": compose(hits), "route": "錯誤訊息比對:" + ",".join(apis)},
+                    topic=apis[0] if len(apis) == 1 else None)
+
+    if session["api"] and not (any(k in question for k in FEATURE_SEARCH_KEYWORDS) and ("功能" in question or "按鈕" in question)):
+        # 沒提到任何按鈕、也不是在找新功能 → 當成正在聊的按鈕的追問。
+        # 檢索時把前一個問題也帶上，「清單是什麼」這種短追問才查得到對的段落。
+        api = session["api"]
+        prev = session["history"][-1][0] if session["history"] else ""
+        hits = _retrieve(f"{prev} {question}", apis=[api, GENERAL]) + _general_hits(question)
+        return done({"type": "answer", "text": compose(hits) + _topic_note(api), "route": f"延續話題:{api}"})
 
     if general:
         hits = _general_hits(question) + _retrieve(question, apis=[GENERAL], k=2)
-        return done({"type": "answer", "text": _compose(question, hits), "route": "通用問題"})
+        return done({"type": "answer", "text": compose(hits), "route": "通用問題"})
 
     if any(k in question for k in FEATURE_SEARCH_KEYWORDS):
         hits = _retrieve(question, apis=[CATALOG], k=2) + _retrieve(question, k=3)
-        return done({"type": "answer", "text": _compose(question, hits), "route": "功能目錄"})
+        return done({"type": "answer", "text": compose(hits), "route": "功能目錄"})
 
     if any(w in q_lower for w in ERROR_HINT_WORDS) and len(question) >= 15:
-        return done({"type": "answer", "text": _compose(question, _retrieve(question)), "route": "錯誤訊息未命中→全庫檢索"})
+        return done({"type": "answer", "text": compose(_retrieve(question)), "route": "錯誤訊息未命中→全庫檢索"})
 
     return done({"type": "ask", "route": "比對不到→回問", "choices": candidate_choices(question),
                  "text": "請問是哪個功能的問題呢？下面是幾個可能的功能，或直接告訴我按鈕名稱。"})
+
+
+def _topic_note(api: str) -> str:
+    zh = _load_cards()[api]["zh"]
+    return f"\n\n（延續「{zh}」的問題。要問別的功能，直接講按鈕名稱；或說「新問題」重新開始）"
 
 
 if __name__ == "__main__":
