@@ -28,7 +28,22 @@ import difflib
 
 from food_recognition import recognize_food
 
-ENSEMBLE_MODELS = ["minicpm-v", "qwen3-vl:8b", "gemma3:12b"]
+# 順序 = 可信度優先順序（B5 單模型正確率：gemma3 71.4% > qwen3-vl 61.7% > minicpm-v 53.8%），
+# 越前面的模型先建立分群、菜名平手時也採用它的說法。minicpm-v 墊底：它有「套模板」
+# 的毛病，B5 測試 10 張裡有 8 張都說有「糖醋排骨」。
+ENSEMBLE_MODELS = ["gemma3:12b", "qwen3-vl:8b", "minicpm-v"]
+
+# 主菜用「肉的種類」做第二層分群：三個模型常常都看到同一道肉類主菜，但菜名各說各話
+# （B5 images (3) 白斬雞：糖醋排骨 / 烤鴨 / 滷雞肉），字面比對完全歸不在一起，每道都只有
+# 1 票被當成幻覺丟掉——「有一道主菜」這件事本身是共識，反而被丟了。
+MEAT_TYPES = [
+    ("禽肉", ["雞", "鴨", "鵝"]),
+    ("牛羊肉", ["牛", "羊"]),
+    ("魚海鮮", ["魚", "鮭", "鯖", "鯛", "鱈", "蝦", "花枝", "魷", "透抽", "蚵", "蟹"]),
+    ("豬肉", ["豬", "排骨", "控肉", "爌肉", "焢肉", "五花", "里肌", "叉燒", "香腸", "培根", "火腿", "肉"]),
+]
+# 這些雖然有肉類字眼，但不是主菜（蛋、肉燥這種配料），不做肉類分群
+NOT_MAIN_WORDS = ["蛋", "肉燥", "肉鬆", "肉絲炒", "高湯"]
 
 CONSENSUS_THRESHOLD = 0.4
 
@@ -48,6 +63,39 @@ def _is_small_portion(portion_size: str) -> bool:
     return any(w in (portion_size or "") for w in SMALL_PORTION_WORDS)
 
 
+def _meat_type(name: str):
+    if any(w in name for w in NOT_MAIN_WORDS):
+        return None
+    for meat, words in MEAT_TYPES:
+        if any(w in name for w in words):
+            return meat
+    return None
+
+
+def _find_cluster(clusters: list, name: str, model: str):
+    # 第一層：菜名字面相似（同一個模型講兩次相近的名字，例如「青菜」「炒青菜」，也歸同一群）
+    for c in clusters:
+        if any(_similar(name, n) >= NAME_SIMILARITY_THRESHOLD for n in c["names"]):
+            return c
+    # 第二層：肉類主菜看肉的種類；但同一個模型講的兩道菜不合併（「炸豬排」+「香腸」是兩道）
+    meat = _meat_type(name)
+    if meat is None:
+        return None
+    for c in clusters:
+        if c["meat"] == meat and model not in c["conf"]:
+            return c
+    return None
+
+
+def _pick_name(cluster: dict, models: list) -> str:
+    """信心加總最高的菜名；平手時採用可信度順序較前面的模型的說法。"""
+    support = {}
+    for name, model, conf in cluster["votes"]:
+        s, rank = support.get(name, (0.0, len(models)))
+        support[name] = (s + conf, min(rank, models.index(model)))
+    return max(support, key=lambda n: (round(support[n][0], 6), -support[n][1]))
+
+
 def recognize_food_ensemble(image_path: str, models: list = None) -> dict:
     """回傳 {"items", "dropped_items", "per_model_raw", "per_model_ok"}。
 
@@ -63,28 +111,28 @@ def recognize_food_ensemble(image_path: str, models: list = None) -> dict:
         except Exception as e:
             per_model_results[model] = {"ok": False, "raw": str(e), "items": []}
 
-    clusters = []  # {"names": [...], "portions": [...], "conf": {model: 最高信心}}
-    for model, result in per_model_results.items():
+    # {"names", "portions", "conf": {model: 最高信心}, "votes": [(name, model, conf)], "meat"}
+    clusters = []
+    for model in models:  # 依可信度順序，讓較可信的模型先建立分群
+        result = per_model_results[model]
         if not result.get("ok"):
             continue
         for item in result["items"]:
             name = item["name"]
-            target = next(
-                (c for c in clusters if any(_similar(name, n) >= NAME_SIMILARITY_THRESHOLD for n in c["names"])),
-                None,
-            )
+            target = _find_cluster(clusters, name, model)
             if target is None:
-                target = {"names": [], "portions": [], "conf": {}}
+                target = {"names": [], "portions": [], "conf": {}, "votes": [], "meat": _meat_type(name)}
                 clusters.append(target)
             target["names"].append(name)
             target["portions"].append(item["portion_size"])
+            target["votes"].append((name, model, item["confidence"]))
             # 同一個模型對同一群講了兩次（例如「青菜」「炒青菜」），只算一次、取較高信心
             target["conf"][model] = max(item["confidence"], target["conf"].get(model, 0.0))
 
     final_items = []
     dropped_items = []
     for c in clusters:
-        name = max(set(c["names"]), key=c["names"].count)
+        name = _pick_name(c, models)
         portion = max(set(c["portions"]), key=c["portions"].count)
         score = round(sum(c["conf"].values()) / len(models), 3)
         consensus = score >= CONSENSUS_THRESHOLD
