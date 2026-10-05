@@ -99,7 +99,7 @@ TIME_OF_DAY_LABELS = {"morning": "早上", "afternoon": "下午", "evening": "�
 _configuration = None
 
 # 算好但「還沒確認」的估算：{"result", "options", "photo_path"}。使用者選了
-# 「逐項加總」/「外觀參考」/「我知道熱量」/「不記錄」之後才寫進 meal_db
+# 「逐項加總」/「外觀參考」/「手動輸入」/「不記錄」之後才寫進 meal_db
 # （2026/10/5 改：之前一算完就直接存，0 大卡這種明顯錯的估計也被存進去）。
 # 純記憶體暫存，服務重啟就沒了，使用者重傳照片即可。
 pending_meals = {}
@@ -108,7 +108,7 @@ pending_meals = {}
 # 用來分析哪種估計比較準（或當評估資料集）。已在 .gitignore。
 PHOTO_DIR = r"D:\CalorieCalculation\data\meal_photos"
 
-# 使用者在估算後按了「我知道熱量」，等下一則文字訊息當修正數字。
+# 使用者在估算後按了「手動輸入」，等下一則文字訊息當修正數字。
 pending_corrections = {}
 
 BARE_NUMBER_PATTERN = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*$")
@@ -129,7 +129,7 @@ def _meal_confirm_quick_reply(options: dict) -> QuickReply:
     if options["anchor"] is not None:
         label = f"外觀 {options['anchor']:g} 大卡"
         items.append(QuickReplyItem(action=PostbackAction(label=label, data="meal:anchor", display_text=label)))
-    items.append(QuickReplyItem(action=PostbackAction(label="我知道熱量", data="meal:correct", display_text="我知道熱量")))
+    items.append(QuickReplyItem(action=PostbackAction(label="手動輸入", data="meal:correct", display_text="手動輸入")))
     items.append(QuickReplyItem(action=PostbackAction(label="不記錄", data="meal:skip", display_text="不記錄")))
     return QuickReply(items=items)
 
@@ -239,8 +239,9 @@ def on_postback(event):
             threading.Thread(target=_process_image_async, args=(message_id, user_id), daemon=True).start()
 
         elif action == "report":
-            pending_images.pop(user_id, None)
-            pending_reports[user_id] = True
+            # 留著 message_id：收到熱量後要下載照片一起存（照片 + 主人給的
+            # 正確熱量，是之後評估估算準不準最有價值的資料）。
+            pending_reports[user_id] = pending_images.pop(user_id, None) or "no_photo"
             _reply(event.reply_token, REPORT_PROMPT_TEXT)
 
         elif action == "cancel":
@@ -250,27 +251,56 @@ def on_postback(event):
         return
 
 
-def _handle_report_text(reply_token: str, user_id: str, text: str):
+def _parse_kcal_text(text: str):
+    """「炒麵 500大卡」→ {"food_name": "炒麵", ...}；只打「500」也接受（菜名為「這餐」）。"""
     parsed = parse_calorie_report(text)
+    if parsed:
+        return parsed
+    m = BARE_NUMBER_PATTERN.match(text)
+    return {"food_name": "這餐", "kcal": float(m.group(1))} if m else None
+
+
+def _download_photo(message_id: str, user_id: str):
+    """把 LINE 上的照片存到 PHOTO_DIR，失敗就回傳 None（不影響記錄熱量本身）。"""
+    try:
+        with ApiClient(_configuration) as api_client:
+            content = MessagingApiBlob(api_client).get_message_content(message_id)
+        os.makedirs(PHOTO_DIR, exist_ok=True)
+        path = os.path.join(PHOTO_DIR, f"{user_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg")
+        with open(path, "wb") as f:
+            f.write(content)
+        return path
+    except Exception:
+        traceback.print_exc()
+        return None
+
+
+def _handle_report_text(reply_token: str, user_id: str, text: str):
+    parsed = _parse_kcal_text(text)
     if not parsed:
         _reply(reply_token, REPORT_PARSE_FAIL_TEXT)
         return
 
-    pending_reports.pop(user_id, None)
-    food_name, kcal = parsed["food_name"], parsed["kcal"]
+    message_id = pending_reports.pop(user_id, None)
+    photo_path = _download_photo(message_id, user_id) if message_id and message_id != "no_photo" else None
+    kcal = parsed["kcal"]
+    food_name = parsed["food_name"] if parsed["food_name"] != "這餐" else None
+    label = food_name or "這餐"
 
-    nutrition_lookup.add_user_food(food_name, kcal, source="使用者回報")
     meal_db.save_record(
         user_id,
         source="user_reported",
-        summary=f"{food_name} 約 {kcal} 大卡（使用者回報）",
-        detail=f"「{food_name}」由主人親自回報，約 {kcal} 大卡，已存入個人資料庫，之後估算也查得到這筆資料。",
+        summary=f"{label}約 {_kcal(kcal)} 大卡（主人輸入）",
+        detail=f"「{label}」由主人親自回報，約 {_kcal(kcal)} 大卡。",
         total_calories=kcal,
+        raw={"choice": "user", "user_kcal": kcal, "photo_path": photo_path},
     )
-    _reply(
-        reply_token,
-        f"記下了，主人。「{food_name}」大約 {kcal} 大卡，我已經放進您的紀錄裡，之後也查得到這筆資料。",
-    )
+    reply = f"記下了，主人。這餐大約 {_kcal(kcal)} 大卡，已經放進您的紀錄裡。"
+    # 沒講菜名就不加進知識庫：「這餐 = 146 大卡」這種資料對之後的查詢沒有意義，只會污染。
+    if food_name:
+        nutrition_lookup.add_user_food(food_name, kcal, source="使用者回報")
+        reply = f"記下了，主人。「{food_name}」大約 {_kcal(kcal)} 大卡，已經放進您的紀錄，下次也查得到這道菜。"
+    _reply(reply_token, reply)
 
 
 def _kcal(value: float) -> str:
@@ -327,10 +357,7 @@ def _handle_correction_text(reply_token: str, user_id: str, text: str):
         _reply(reply_token, NO_PENDING_MEAL_MESSAGE)
         return
 
-    parsed = parse_calorie_report(text)
-    if not parsed:
-        m = BARE_NUMBER_PATTERN.match(text)
-        parsed = {"food_name": "這餐", "kcal": float(m.group(1))} if m else None
+    parsed = _parse_kcal_text(text)
     if not parsed:
         _reply(reply_token, REPORT_PARSE_FAIL_TEXT)
         return
