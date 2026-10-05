@@ -493,9 +493,14 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
     session = _session(user_id)
     session["time"] = datetime.now()
 
-    def done(result: dict, topic: str = None) -> dict:
-        if topic is not None:
-            session["api"] = topic
+    def switch_topic(api):
+        """換了話題就先清掉舊話題的問答紀錄，再組提示詞——不然新問題的回答會被上一個
+        按鈕的對話干擾（例：剛聊完切割樓板就問單線轉樑，模型還看得到切割樓板的問答）。"""
+        if api != session["api"]:
+            session["history"] = []
+        session["api"] = api
+
+    def done(result: dict) -> dict:
         if result["type"] == "answer":
             session["history"] = (session["history"] + [(question, result["text"])])[-HISTORY_TURNS:]
         _log({"user": user_id, "question": question, "route": result.get("route"), "type": result["type"],
@@ -510,9 +515,11 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
         return {"type": "reset", "route": "重設話題", "text": "好的，請問新的問題是？可以直接講按鈕名稱，或貼上錯誤訊息。"}
 
     if forced_api:
+        switch_topic(forced_api)
         hits = _retrieve(question, apis=[forced_api, GENERAL]) + _general_hits(question)
-        return done({"type": "answer", "text": compose(hits), "route": f"使用者選擇:{forced_api}"}, topic=forced_api)
+        return done({"type": "answer", "text": compose(hits), "route": f"使用者選擇:{forced_api}"})
     if search_all:
+        switch_topic(None)
         return done({"type": "answer", "text": compose(_retrieve(question)), "route": "全庫檢索"})
 
     catalog_hits = match_catalog(question)
@@ -526,8 +533,9 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
 
     if len(catalog_hits) == 1:
         api = catalog_hits[0][0]
+        switch_topic(api)
         hits = _retrieve(question, apis=[api, GENERAL]) + _general_hits(question)
-        return done({"type": "answer", "text": compose(hits), "route": f"目錄比對:{api}"}, topic=api)
+        return done({"type": "answer", "text": compose(hits), "route": f"目錄比對:{api}"})
 
     if len(catalog_hits) > 1:
         # 正在聊的按鈕剛好是候選之一（例：選過 RC 版後又說「切割樓板…」），就不再回問
@@ -543,10 +551,10 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
     if errors:
         if session["api"] in {a for a, _ in errors}:
             errors = [(a, sec) for a, sec in errors if a == session["api"]]
-        hits = _sections_text(errors) + _retrieve(question, apis=[GENERAL], k=1)
         apis = sorted({a for a, _ in errors})
-        return done({"type": "answer", "text": compose(hits), "route": "錯誤訊息比對:" + ",".join(apis)},
-                    topic=apis[0] if len(apis) == 1 else None)
+        switch_topic(apis[0] if len(apis) == 1 else None)
+        hits = _sections_text(errors) + _retrieve(question, apis=[GENERAL], k=1)
+        return done({"type": "answer", "text": compose(hits), "route": "錯誤訊息比對:" + ",".join(apis)})
 
     if session["api"] and not (any(k in question for k in FEATURE_SEARCH_KEYWORDS) and ("功能" in question or "按鈕" in question)):
         # 沒提到任何按鈕、也不是在找新功能 → 當成正在聊的按鈕的追問。
