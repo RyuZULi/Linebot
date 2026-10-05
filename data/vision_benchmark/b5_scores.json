@@ -1,0 +1,294 @@
+{
+ "ok_counts": {
+  "minicpm-v|A_specific": 10,
+  "minicpm-v|B_dish_level": 10,
+  "qwen3-vl:8b|A_specific": 10,
+  "qwen3-vl:8b|B_dish_level": 8,
+  "gemma3:12b|A_specific": 10,
+  "gemma3:12b|B_dish_level": 10
+ },
+ "methods": [
+  [
+   "A_specific",
+   "舊方法：2模型都講到",
+   {
+    "recall": 0.443,
+    "precision": 0.867,
+    "kept": 30
+   }
+  ],
+  [
+   "A_specific",
+   "3模型信心分數 ≥0.3",
+   {
+    "recall": 0.738,
+    "precision": 0.56,
+    "kept": 84
+   }
+  ],
+  [
+   "A_specific",
+   "3模型信心分數 ≥0.4",
+   {
+    "recall": 0.705,
+    "precision": 0.857,
+    "kept": 49
+   }
+  ],
+  [
+   "A_specific",
+   "3模型信心分數 ≥0.5",
+   {
+    "recall": 0.705,
+    "precision": 0.857,
+    "kept": 49
+   }
+  ],
+  [
+   "B_dish_level",
+   "舊方法：2模型都講到",
+   {
+    "recall": 0.361,
+    "precision": 0.905,
+    "kept": 21
+   }
+  ],
+  [
+   "B_dish_level",
+   "3模型信心分數 ≥0.3",
+   {
+    "recall": 0.787,
+    "precision": 0.605,
+    "kept": 76
+   }
+  ],
+  [
+   "B_dish_level",
+   "3模型信心分數 ≥0.4",
+   {
+    "recall": 0.656,
+    "precision": 0.833,
+    "kept": 42
+   }
+  ],
+  [
+   "B_dish_level",
+   "3模型信心分數 ≥0.5",
+   {
+    "recall": 0.656,
+    "precision": 0.833,
+    "kept": 42
+   }
+  ]
+ ],
+ "single_model": {
+  "A_specific|minicpm-v": {
+   "recall": 0.623,
+   "precision": 0.538,
+   "kept": 65
+  },
+  "A_specific|qwen3-vl:8b": {
+   "recall": 0.656,
+   "precision": 0.617,
+   "kept": 60
+  },
+  "A_specific|gemma3:12b": {
+   "recall": 0.77,
+   "precision": 0.714,
+   "kept": 63
+  },
+  "B_dish_level|minicpm-v": {
+   "recall": 0.689,
+   "precision": 0.597,
+   "kept": 62
+  },
+  "B_dish_level|qwen3-vl:8b": {
+   "recall": 0.541,
+   "precision": 0.769,
+   "kept": 39
+  },
+  "B_dish_level|gemma3:12b": {
+   "recall": 0.721,
+   "precision": 0.656,
+   "kept": 61
+  }
+ },
+ "confidence_stats": {
+  "minicpm-v": {
+   "n": 139,
+   "distinct": [
+    0.85,
+    0.9,
+    0.95
+   ],
+   "mean": 0.91
+  },
+  "qwen3-vl:8b": {
+   "n": 106,
+   "distinct": [
+    0.6,
+    0.7,
+    0.8,
+    0.85,
+    0.9,
+    0.95
+   ],
+   "mean": 0.89
+  },
+  "gemma3:12b": {
+   "n": 129,
+   "distinct": [
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95,
+    0.98
+   ],
+   "mean": 0.82
+  }
+ },
+ "avg_seconds": {
+  "minicpm-v": 4.0,
+  "qwen3-vl:8b": 38.5,
+  "gemma3:12b": 7.4
+ },
+ "accepted_B_0.4": {
+  "8695271.png": [
+   "炸豬排",
+   "白飯",
+   "炒玉米粒",
+   "炒高麗菜",
+   "滷蛋"
+  ],
+  "images (1).jpg": [
+   "白飯",
+   "炒青花菜",
+   "炸豬排",
+   "滷蛋"
+  ],
+  "images (2).jpg": [
+   "白飯",
+   "炸雞腿",
+   "炒麵",
+   "炒青菜",
+   "煎豆腐"
+  ],
+  "images (3).jpg": [
+   "白飯",
+   "滷雞肉",
+   "炒菠菜"
+  ],
+  "images (4).jpg": [
+   "白飯",
+   "炒玉米",
+   "炸豬排",
+   "滷白蘿蔔"
+  ],
+  "images (5).jpg": [
+   "炸豬排",
+   "高麗菜",
+   "白飯",
+   "滷蛋"
+  ],
+  "images (6).jpg": [
+   "炒高麗菜",
+   "紅辣椒",
+   "滷蛋",
+   "炸豬排"
+  ],
+  "images (7).jpg": [
+   "白飯",
+   "紅燒肉",
+   "紅蘿蔔絲",
+   "滷肉",
+   "青江菜"
+  ],
+  "images.jpg": [
+   "白飯",
+   "炸雞腿",
+   "炒花椰菜",
+   "炒黃椒"
+  ],
+  "玫瑰油雞腿宮保豬肉會議便當-300x300.jpg": [
+   "白飯",
+   "炸雞腿",
+   "毛豆",
+   "高麗菜"
+  ]
+ },
+ "accepted_A_0.4": {
+  "8695271.png": [
+   "白飯",
+   "玉米",
+   "涼拌蔬菜",
+   "炒菠菜",
+   "水煮蛋",
+   "炸豬排"
+  ],
+  "images (1).jpg": [
+   "白飯",
+   "炒花椰菜",
+   "蒸蛋",
+   "烤豆腐",
+   "紅甜椒",
+   "黃瓜",
+   "火腿片",
+   "炸豬排"
+  ],
+  "images (2).jpg": [
+   "白飯",
+   "炒青菜",
+   "炸豆腐",
+   "雞腿"
+  ],
+  "images (3).jpg": [
+   "白飯",
+   "炒青菜",
+   "涼拌番茄黃瓜"
+  ],
+  "images (4).jpg": [
+   "白飯",
+   "炸雞腿",
+   "炒青菜",
+   "玉米",
+   "紅辣椒"
+  ],
+  "images (5).jpg": [
+   "糖醋排骨",
+   "炒青菜",
+   "炸雞腿",
+   "白飯",
+   "小白菜"
+  ],
+  "images (6).jpg": [
+   "糖醋排骨",
+   "炒青菜",
+   "滷蛋"
+  ],
+  "images (7).jpg": [
+   "白飯",
+   "炒胡蘿蔔絲",
+   "木耳",
+   "青江菜",
+   "滷肉"
+  ],
+  "images.jpg": [
+   "白飯",
+   "炒青菜",
+   "紅椒",
+   "炸雞腿"
+  ],
+  "玫瑰油雞腿宮保豬肉會議便當-300x300.jpg": [
+   "白飯",
+   "炸雞腿",
+   "糖醋排骨",
+   "炒青菜",
+   "毛豆",
+   "涼拌豆芽菜"
+  ]
+ }
+}

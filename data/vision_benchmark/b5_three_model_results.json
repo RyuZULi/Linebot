@@ -1,0 +1,2290 @@
+{
+ "minicpm-v|A_specific|8695271.png": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "玉米",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "綠葉蔬菜",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炒花椰菜",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "糖醋排骨",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "水煮蛋",
+    "portion": "一顆",
+    "conf": 0.95
+   }
+  ],
+  "sec": 12.0,
+  "raw_tail": ""
+ },
+ "minicpm-v|A_specific|images (1).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炸雞腿",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒花椰菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒青菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "紅燒肉",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "糖醋排骨",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "蒸蛋",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "水煮蛋",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "紫菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "豆腐",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "紅甜椒",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "黃瓜",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "玉米",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "火腿",
+    "portion": "一片",
+    "conf": 0.9
+   }
+  ],
+  "sec": 4.3,
+  "raw_tail": ""
+ },
+ "minicpm-v|A_specific|images (2).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "糖醋排骨",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒青菜",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "炸竹筍",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "香菇",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "炸豆腐",
+    "portion": "半碗",
+    "conf": 0.9
+   }
+  ],
+  "sec": 3.5,
+  "raw_tail": ""
+ },
+ "minicpm-v|A_specific|images (3).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "糖醋排骨",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒青菜",
+    "portion": "半碗",
+    "conf": 0.85
+   },
+   {
+    "name": "西蘭花",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "紅甜椒",
+    "portion": "半碗",
+    "conf": 0.85
+   }
+  ],
+  "sec": 3.3,
+  "raw_tail": ""
+ },
+ "minicpm-v|A_specific|images (4).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炸雞腿",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒青菜",
+    "portion": "半碗",
+    "conf": 0.85
+   },
+   {
+    "name": "玉米",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "紅辣椒",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "黃色蔬菜",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "炸豆腐",
+    "portion": "一片",
+    "conf": 0.9
+   }
+  ],
+  "sec": 3.7,
+  "raw_tail": ""
+ },
+ "minicpm-v|A_specific|images (5).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "糖醋排骨",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒青菜",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "炸雞腿",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "酸菜",
+    "portion": "半碗",
+    "conf": 0.9
+   }
+  ],
+  "sec": 3.3,
+  "raw_tail": ""
+ },
+ "minicpm-v|A_specific|images (6).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "糖醋排骨",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒青菜",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "芒果",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "南瓜",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "土豆",
+    "portion": "一顆",
+    "conf": 0.9
+   }
+  ],
+  "sec": 3.3,
+  "raw_tail": ""
+ },
+ "minicpm-v|A_specific|images (7).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "糖醋排骨",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "胡蘿蔔",
+    "portion": "多塊",
+    "conf": 0.9
+   },
+   {
+    "name": "馬蹄",
+    "portion": "多塊",
+    "conf": 0.9
+   },
+   {
+    "name": "木耳",
+    "portion": "多塊",
+    "conf": 0.9
+   },
+   {
+    "name": "玉米",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "炒青菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "胡蘿蔔絲",
+    "portion": "多塊",
+    "conf": 0.9
+   }
+  ],
+  "sec": 3.8,
+  "raw_tail": ""
+ },
+ "minicpm-v|A_specific|images.jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "糖醋排骨",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒青菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "黃椒",
+    "portion": "多顆",
+    "conf": 0.9
+   },
+   {
+    "name": "紅椒",
+    "portion": "多顆",
+    "conf": 0.9
+   },
+   {
+    "name": "胡蘿蔔",
+    "portion": "多片",
+    "conf": 0.9
+   }
+  ],
+  "sec": 3.5,
+  "raw_tail": ""
+ },
+ "minicpm-v|A_specific|玫瑰油雞腿宮保豬肉會議便當-300x300.jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炸雞腿",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "糖醋排骨",
+    "portion": "一份",
+    "conf": 0.85
+   },
+   {
+    "name": "炒青菜",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "四季豆",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "毛豆",
+    "portion": "半碗",
+    "conf": 0.9
+   }
+  ],
+  "sec": 3.4,
+  "raw_tail": ""
+ },
+ "minicpm-v|B_dish_level|8695271.png": {
+  "ok": true,
+  "items": [
+   {
+    "name": "炸豬排",
+    "portion": "一片",
+    "conf": 0.95
+   },
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "玉米",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "炒菠菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒高麗菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "白煮蛋",
+    "portion": "一片",
+    "conf": 0.95
+   },
+   {
+    "name": "酸菜",
+    "portion": "半碗",
+    "conf": 0.9
+   }
+  ],
+  "sec": 3.7,
+  "raw_tail": ""
+ },
+ "minicpm-v|B_dish_level|images (1).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炒高麗菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炸豬排",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "滷蛋",
+    "portion": "一片",
+    "conf": 0.95
+   },
+   {
+    "name": "炒豆乾",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "花椰菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "紅甜椒",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "玉米",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "黃瓜",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "紫菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "紅豆",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "玉米",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "黃瓜",
+    "portion": "一片",
+    "conf": 0.9
+   }
+  ],
+  "sec": 4.1,
+  "raw_tail": ""
+ },
+ "minicpm-v|B_dish_level|images (2).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炸雞腿",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒麵",
+    "portion": "半碗",
+    "conf": 0.85
+   },
+   {
+    "name": "菠菜",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "西蘭花",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "炸香蕉",
+    "portion": "半碗",
+    "conf": 0.85
+   },
+   {
+    "name": "炸芋頭",
+    "portion": "半碗",
+    "conf": 0.85
+   }
+  ],
+  "sec": 3.5,
+  "raw_tail": ""
+ },
+ "minicpm-v|B_dish_level|images (3).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "雞肉",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "花椰菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "紅甜椒",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "菠菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "青蔥",
+    "portion": "一片",
+    "conf": 0.9
+   }
+  ],
+  "sec": 3.3,
+  "raw_tail": ""
+ },
+ "minicpm-v|B_dish_level|images (4).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "炸雞腿",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炒四季豆",
+    "portion": "一份",
+    "conf": 0.85
+   },
+   {
+    "name": "炒玉米",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒蛋",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炸豆腐",
+    "portion": "一片",
+    "conf": 0.9
+   }
+  ],
+  "sec": 3.3,
+  "raw_tail": ""
+ },
+ "minicpm-v|B_dish_level|images (5).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "炸雞排",
+    "portion": "一片",
+    "conf": 0.95
+   },
+   {
+    "name": "炒高麗菜",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炒豆芽",
+    "portion": "半碗",
+    "conf": 0.9
+   }
+  ],
+  "sec": 2.9,
+  "raw_tail": ""
+ },
+ "minicpm-v|B_dish_level|images (6).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "排骨",
+    "portion": "一片",
+    "conf": 0.95
+   },
+   {
+    "name": "炒高麗菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "紅辣椒",
+    "portion": "數片",
+    "conf": 0.85
+   },
+   {
+    "name": "黃瓜",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "南瓜",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "滷蛋",
+    "portion": "一片",
+    "conf": 0.9
+   }
+  ],
+  "sec": 3.4,
+  "raw_tail": ""
+ },
+ "minicpm-v|B_dish_level|images (7).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炒高麗菜",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "炸豬排",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "紅燒肉",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "胡蘿蔔",
+    "portion": "多塊",
+    "conf": 0.95
+   },
+   {
+    "name": "馬蹄",
+    "portion": "多塊",
+    "conf": 0.95
+   },
+   {
+    "name": "香菇",
+    "portion": "多塊",
+    "conf": 0.95
+   },
+   {
+    "name": "玉米",
+    "portion": "一根",
+    "conf": 0.95
+   },
+   {
+    "name": "胡蘿蔔絲",
+    "portion": "多條",
+    "conf": 0.95
+   }
+  ],
+  "sec": 3.9,
+  "raw_tail": ""
+ },
+ "minicpm-v|B_dish_level|images.jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炸雞腿",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炸鷄胸",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒花椰菜",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "炒紅椒",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "炒黃椒",
+    "portion": "半碗",
+    "conf": 0.9
+   }
+  ],
+  "sec": 3.4,
+  "raw_tail": ""
+ },
+ "minicpm-v|B_dish_level|玫瑰油雞腿宮保豬肉會議便當-300x300.jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炸雞腿",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炸雞翅",
+    "portion": "半碗",
+    "conf": 0.85
+   },
+   {
+    "name": "炒四季豆",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "炒毛豆",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "炒高麗菜",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "炸雞",
+    "portion": "半碗",
+    "conf": 0.85
+   }
+  ],
+  "sec": 3.7,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|A_specific|8695271.png": {
+  "ok": true,
+  "items": [
+   {
+    "name": "涼拌蔬菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "玉米",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炒青菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "煮蛋",
+    "portion": "一個",
+    "conf": 0.95
+   },
+   {
+    "name": "炸豬排",
+    "portion": "兩片",
+    "conf": 0.9
+   }
+  ],
+  "sec": 36.6,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|A_specific|images (1).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炸豬排",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "火腿片",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "溏心蛋",
+    "portion": "半顆",
+    "conf": 0.95
+   },
+   {
+    "name": "烤豆腐",
+    "portion": "幾塊",
+    "conf": 0.9
+   },
+   {
+    "name": "紅辣椒片",
+    "portion": "幾片",
+    "conf": 0.8
+   },
+   {
+    "name": "綠豆",
+    "portion": "幾顆",
+    "conf": 0.8
+   },
+   {
+    "name": "烤洋蔥",
+    "portion": "幾片",
+    "conf": 0.9
+   },
+   {
+    "name": "西蘭花",
+    "portion": "幾朵",
+    "conf": 0.9
+   },
+   {
+    "name": "紅甜椒",
+    "portion": "一片",
+    "conf": 0.9
+   },
+   {
+    "name": "捲心菜",
+    "portion": "幾片",
+    "conf": 0.9
+   },
+   {
+    "name": "南瓜塊",
+    "portion": "幾塊",
+    "conf": 0.8
+   }
+  ],
+  "sec": 37.5,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|A_specific|images (2).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "雞腿",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炒青菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒麵線",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "豆腐塊",
+    "portion": "幾塊",
+    "conf": 0.9
+   }
+  ],
+  "sec": 35.0,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|A_specific|images (3).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "烤鴨",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒菠菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "涼拌番茄黃瓜",
+    "portion": "一小份",
+    "conf": 0.8
+   },
+   {
+    "name": "炒莧菜",
+    "portion": "幾根",
+    "conf": 0.8
+   }
+  ],
+  "sec": 35.5,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|A_specific|images (4).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炸雞腿",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "玉米炒蛋",
+    "portion": "一小份",
+    "conf": 0.85
+   },
+   {
+    "name": "炒芹菜",
+    "portion": "幾根",
+    "conf": 0.8
+   },
+   {
+    "name": "洋蔥片",
+    "portion": "幾片",
+    "conf": 0.7
+   }
+  ],
+  "sec": 33.4,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|A_specific|images (5).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炸雞塊",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "糖醋雞肉",
+    "portion": "兩塊",
+    "conf": 0.9
+   },
+   {
+    "name": "小白菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "洋蔥絲",
+    "portion": "一份",
+    "conf": 0.9
+   }
+  ],
+  "sec": 26.1,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|A_specific|images (6).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "炸豬排",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "煮蛋",
+    "portion": "一個",
+    "conf": 0.9
+   },
+   {
+    "name": "玉米",
+    "portion": "兩段",
+    "conf": 0.8
+   },
+   {
+    "name": "烤肉",
+    "portion": "一份",
+    "conf": 0.8
+   },
+   {
+    "name": "青菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "紅辣椒",
+    "portion": "幾片",
+    "conf": 0.9
+   }
+  ],
+  "sec": 39.5,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|A_specific|images (7).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "蛋絲",
+    "portion": "一小撮",
+    "conf": 0.85
+   },
+   {
+    "name": "滷肉",
+    "portion": "幾塊",
+    "conf": 0.9
+   },
+   {
+    "name": "紅蘿蔔塊",
+    "portion": "兩塊",
+    "conf": 0.9
+   },
+   {
+    "name": "青江菜",
+    "portion": "一根",
+    "conf": 0.9
+   },
+   {
+    "name": "香菇",
+    "portion": "兩朵",
+    "conf": 0.8
+   },
+   {
+    "name": "筍子",
+    "portion": "兩條",
+    "conf": 0.8
+   }
+  ],
+  "sec": 43.7,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|A_specific|images.jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "烤雞腿",
+    "portion": "一塊",
+    "conf": 0.9
+   },
+   {
+    "name": "烤雞胸肉",
+    "portion": "兩塊",
+    "conf": 0.9
+   },
+   {
+    "name": "烤黃椒",
+    "portion": "三顆",
+    "conf": 0.85
+   },
+   {
+    "name": "烤紅椒",
+    "portion": "一顆",
+    "conf": 0.8
+   },
+   {
+    "name": "生菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "白菜",
+    "portion": "一份",
+    "conf": 0.9
+   }
+  ],
+  "sec": 42.7,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|A_specific|玫瑰油雞腿宮保豬肉會議便當-300x300.jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "烤雞腿",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炒青菜",
+    "portion": "幾片",
+    "conf": 0.8
+   },
+   {
+    "name": "炸雞塊",
+    "portion": "幾塊",
+    "conf": 0.8
+   },
+   {
+    "name": "涼拌豆芽",
+    "portion": "一份",
+    "conf": 0.7
+   },
+   {
+    "name": "煮綠豆",
+    "portion": "一小碗",
+    "conf": 0.8
+   },
+   {
+    "name": "炒雞肉",
+    "portion": "一小塊",
+    "conf": 0.6
+   }
+  ],
+  "sec": 29.1,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|B_dish_level|8695271.png": {
+  "ok": true,
+  "items": [
+   {
+    "name": "涼拌高麗菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "甜玉米",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "蒜炒菠菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炸豬排",
+    "portion": "兩片",
+    "conf": 0.9
+   },
+   {
+    "name": "滷蛋",
+    "portion": "一顆",
+    "conf": 0.9
+   }
+  ],
+  "sec": 33.1,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|B_dish_level|images (1).jpg": {
+  "ok": false,
+  "items": [],
+  "sec": 58.1,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|B_dish_level|images (2).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "烤雞腿",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒麵",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒高麗菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "煎豆腐",
+    "portion": "一份",
+    "conf": 0.9
+   }
+  ],
+  "sec": 36.5,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|B_dish_level|images (3).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "滷肉飯",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒高麗菜",
+    "portion": "一小份",
+    "conf": 0.8
+   },
+   {
+    "name": "炒菠菜",
+    "portion": "一份",
+    "conf": 0.8
+   }
+  ],
+  "sec": 56.6,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|B_dish_level|images (4).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炸豬排",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒玉米",
+    "portion": "半碗",
+    "conf": 0.9
+   },
+   {
+    "name": "炒芹菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "白蘿蔔",
+    "portion": "幾條",
+    "conf": 0.9
+   }
+  ],
+  "sec": 28.4,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|B_dish_level|images (5).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炸豬排",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "滷肉",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "高麗菜",
+    "portion": "幾片",
+    "conf": 0.9
+   },
+   {
+    "name": "白蘿蔔絲",
+    "portion": "幾絲",
+    "conf": 0.9
+   }
+  ],
+  "sec": 24.2,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|B_dish_level|images (6).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "炸豬排",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "滷蛋",
+    "portion": "一個",
+    "conf": 0.9
+   },
+   {
+    "name": "玉米",
+    "portion": "一段",
+    "conf": 0.9
+   },
+   {
+    "name": "滷肉",
+    "portion": "一塊",
+    "conf": 0.9
+   },
+   {
+    "name": "炒高麗菜",
+    "portion": "一份",
+    "conf": 0.9
+   }
+  ],
+  "sec": 25.5,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|B_dish_level|images (7).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "滷肉",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "青江菜",
+    "portion": "一株",
+    "conf": 0.9
+   },
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "蛋絲",
+    "portion": "少許",
+    "conf": 0.9
+   }
+  ],
+  "sec": 50.5,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|B_dish_level|images.jpg": {
+  "ok": false,
+  "items": [],
+  "sec": 58.5,
+  "raw_tail": ""
+ },
+ "qwen3-vl:8b|B_dish_level|玫瑰油雞腿宮保豬肉會議便當-300x300.jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "雞腿",
+    "portion": "一個",
+    "conf": 0.9
+   },
+   {
+    "name": "炸雞塊",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "高麗菜",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "涼拌豆芽",
+    "portion": "一份",
+    "conf": 0.85
+   },
+   {
+    "name": "毛豆",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒雞丁",
+    "portion": "一份",
+    "conf": 0.9
+   }
+  ],
+  "sec": 39.5,
+  "raw_tail": ""
+ },
+ "gemma3:12b|A_specific|8695271.png": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炸豬排",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "涼拌高麗菜絲",
+    "portion": "一份",
+    "conf": 0.85
+   },
+   {
+    "name": "炒玉米粒",
+    "portion": "半碗",
+    "conf": 0.8
+   },
+   {
+    "name": "炒菠菜",
+    "portion": "半碗",
+    "conf": 0.75
+   },
+   {
+    "name": "水煮蛋",
+    "portion": "一顆",
+    "conf": 0.9
+   }
+  ],
+  "sec": 31.6,
+  "raw_tail": ""
+ },
+ "gemma3:12b|A_specific|images (1).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炸豬排",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "滷蛋",
+    "portion": "一顆",
+    "conf": 0.9
+   },
+   {
+    "name": "香腸",
+    "portion": "一根",
+    "conf": 0.85
+   },
+   {
+    "name": "炒花椰菜",
+    "portion": "一份",
+    "conf": 0.8
+   },
+   {
+    "name": "炒青花菜",
+    "portion": "一份",
+    "conf": 0.8
+   },
+   {
+    "name": "紅蘿蔔塊",
+    "portion": "一份",
+    "conf": 0.75
+   },
+   {
+    "name": "茄子塊",
+    "portion": "一份",
+    "conf": 0.7
+   },
+   {
+    "name": "薑黃南瓜塊",
+    "portion": "一份",
+    "conf": 0.7
+   },
+   {
+    "name": "黃豆",
+    "portion": "一份",
+    "conf": 0.6
+   }
+  ],
+  "sec": 7.7,
+  "raw_tail": ""
+ },
+ "gemma3:12b|A_specific|images (2).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "滷雞腿",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒空心菜",
+    "portion": "一份",
+    "conf": 0.85
+   },
+   {
+    "name": "油麵",
+    "portion": "一份",
+    "conf": 0.8
+   },
+   {
+    "name": "滷豆腐",
+    "portion": "半份",
+    "conf": 0.75
+   },
+   {
+    "name": "滷蛋",
+    "portion": "兩顆",
+    "conf": 0.7
+   }
+  ],
+  "sec": 5.9,
+  "raw_tail": ""
+ },
+ "gemma3:12b|A_specific|images (3).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "滷雞肉",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒青菜",
+    "portion": "一份",
+    "conf": 0.85
+   },
+   {
+    "name": "番茄",
+    "portion": "幾片",
+    "conf": 0.7
+   },
+   {
+    "name": "蛋黃",
+    "portion": "一顆",
+    "conf": 0.6
+   }
+  ],
+  "sec": 5.3,
+  "raw_tail": ""
+ },
+ "gemma3:12b|A_specific|images (4).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炸雞排",
+    "portion": "一份",
+    "conf": 0.98
+   },
+   {
+    "name": "白蘿蔔塊",
+    "portion": "半份",
+    "conf": 0.8
+   },
+   {
+    "name": "玉米粒",
+    "portion": "半碗",
+    "conf": 0.75
+   },
+   {
+    "name": "炒青蔥",
+    "portion": "一份",
+    "conf": 0.7
+   },
+   {
+    "name": "辣椒",
+    "portion": "一小段",
+    "conf": 0.6
+   }
+  ],
+  "sec": 5.8,
+  "raw_tail": ""
+ },
+ "gemma3:12b|A_specific|images (5).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "糖醋排骨",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒青菜",
+    "portion": "一份",
+    "conf": 0.85
+   },
+   {
+    "name": "木耳",
+    "portion": "少量",
+    "conf": 0.7
+   },
+   {
+    "name": "白菜絲",
+    "portion": "半碗",
+    "conf": 0.8
+   },
+   {
+    "name": "炸物",
+    "portion": "一份",
+    "conf": 0.8
+   }
+  ],
+  "sec": 5.9,
+  "raw_tail": ""
+ },
+ "gemma3:12b|A_specific|images (6).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "糖醋排骨",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炒青菜",
+    "portion": "一份",
+    "conf": 0.85
+   },
+   {
+    "name": "滷蛋",
+    "portion": "一顆",
+    "conf": 0.8
+   },
+   {
+    "name": "油炸豆腐",
+    "portion": "半塊",
+    "conf": 0.75
+   },
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.7
+   }
+  ],
+  "sec": 5.4,
+  "raw_tail": ""
+ },
+ "gemma3:12b|A_specific|images (7).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "滷肉",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "紅燒豆腐",
+    "portion": "一份",
+    "conf": 0.85
+   },
+   {
+    "name": "甜不辣",
+    "portion": "兩塊",
+    "conf": 0.8
+   },
+   {
+    "name": "油豆腐",
+    "portion": "半塊",
+    "conf": 0.75
+   },
+   {
+    "name": "木耳",
+    "portion": "半碗",
+    "conf": 0.7
+   },
+   {
+    "name": "炒胡蘿蔔絲",
+    "portion": "半碗",
+    "conf": 0.7
+   },
+   {
+    "name": "青江菜",
+    "portion": "一片",
+    "conf": 0.65
+   }
+  ],
+  "sec": 6.7,
+  "raw_tail": ""
+ },
+ "gemma3:12b|A_specific|images.jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.98
+   },
+   {
+    "name": "炸雞腿",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炒青菜",
+    "portion": "一份",
+    "conf": 0.85
+   },
+   {
+    "name": "彩椒塊",
+    "portion": "少量",
+    "conf": 0.75
+   },
+   {
+    "name": "白菜絲",
+    "portion": "一份",
+    "conf": 0.8
+   }
+  ],
+  "sec": 5.4,
+  "raw_tail": ""
+ },
+ "gemma3:12b|A_specific|玫瑰油雞腿宮保豬肉會議便當-300x300.jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炸雞腿",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "糖醋排骨",
+    "portion": "一份",
+    "conf": 0.85
+   },
+   {
+    "name": "涼拌豆芽菜",
+    "portion": "半碗",
+    "conf": 0.8
+   },
+   {
+    "name": "玉米粒",
+    "portion": "半碗",
+    "conf": 0.8
+   },
+   {
+    "name": "毛豆",
+    "portion": "半碗",
+    "conf": 0.8
+   },
+   {
+    "name": "炒青菜",
+    "portion": "一份",
+    "conf": 0.75
+   },
+   {
+    "name": "滷蛋",
+    "portion": "一顆",
+    "conf": 0.7
+   }
+  ],
+  "sec": 6.9,
+  "raw_tail": ""
+ },
+ "gemma3:12b|B_dish_level|8695271.png": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炸豬排",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炒高麗菜",
+    "portion": "半份",
+    "conf": 0.85
+   },
+   {
+    "name": "炒玉米粒",
+    "portion": "半碗",
+    "conf": 0.8
+   },
+   {
+    "name": "炒青江菜",
+    "portion": "半份",
+    "conf": 0.75
+   },
+   {
+    "name": "滷蛋",
+    "portion": "一顆",
+    "conf": 0.9
+   }
+  ],
+  "sec": 5.8,
+  "raw_tail": ""
+ },
+ "gemma3:12b|B_dish_level|images (1).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炸豬排",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "滷蛋",
+    "portion": "一顆",
+    "conf": 0.9
+   },
+   {
+    "name": "紅香腸",
+    "portion": "半條",
+    "conf": 0.85
+   },
+   {
+    "name": "炒青花菜",
+    "portion": "一份",
+    "conf": 0.8
+   },
+   {
+    "name": "涼拌茄子",
+    "portion": "一份",
+    "conf": 0.8
+   },
+   {
+    "name": "什錦蔬菜",
+    "portion": "一份",
+    "conf": 0.75
+   },
+   {
+    "name": "烤地瓜",
+    "portion": "兩塊",
+    "conf": 0.7
+   },
+   {
+    "name": "黃色小方塊",
+    "portion": "少許",
+    "conf": 0.6
+   }
+  ],
+  "sec": 7.7,
+  "raw_tail": ""
+ },
+ "gemma3:12b|B_dish_level|images (2).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "滷肉",
+    "portion": "一份",
+    "conf": 0.85
+   },
+   {
+    "name": "炒青菜",
+    "portion": "半份",
+    "conf": 0.8
+   },
+   {
+    "name": "油麵",
+    "portion": "半份",
+    "conf": 0.75
+   },
+   {
+    "name": "滷豆腐",
+    "portion": "半份",
+    "conf": 0.7
+   },
+   {
+    "name": "滷蛋",
+    "portion": "兩顆",
+    "conf": 0.65
+   }
+  ],
+  "sec": 5.9,
+  "raw_tail": ""
+ },
+ "gemma3:12b|B_dish_level|images (3).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "滷雞肉",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒青菜",
+    "portion": "半份",
+    "conf": 0.85
+   },
+   {
+    "name": "番茄",
+    "portion": "幾片",
+    "conf": 0.7
+   },
+   {
+    "name": "黃色蔬菜",
+    "portion": "一小塊",
+    "conf": 0.6
+   }
+  ],
+  "sec": 5.5,
+  "raw_tail": ""
+ },
+ "gemma3:12b|B_dish_level|images (4).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炸豬排",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "滷白蘿蔔",
+    "portion": "半份",
+    "conf": 0.8
+   },
+   {
+    "name": "炒玉米粒",
+    "portion": "半碗",
+    "conf": 0.8
+   },
+   {
+    "name": "炒青蔥",
+    "portion": "半份",
+    "conf": 0.75
+   },
+   {
+    "name": "辣椒",
+    "portion": "一小串",
+    "conf": 0.6
+   }
+  ],
+  "sec": 5.8,
+  "raw_tail": ""
+ },
+ "gemma3:12b|B_dish_level|images (5).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炒青菜",
+    "portion": "半碗",
+    "conf": 0.85
+   },
+   {
+    "name": "滷蛋",
+    "portion": "一顆",
+    "conf": 0.8
+   },
+   {
+    "name": "紅燒肉",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炸豬排",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "木耳",
+    "portion": "少許",
+    "conf": 0.7
+   }
+  ],
+  "sec": 5.6,
+  "raw_tail": ""
+ },
+ "gemma3:12b|B_dish_level|images (6).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "炸豬排",
+    "portion": "一份",
+    "conf": 0.98
+   },
+   {
+    "name": "滷蛋",
+    "portion": "一顆",
+    "conf": 0.85
+   },
+   {
+    "name": "炒青菜",
+    "portion": "半碗",
+    "conf": 0.8
+   },
+   {
+    "name": "紅辣椒",
+    "portion": "少許",
+    "conf": 0.7
+   },
+   {
+    "name": "番茄",
+    "portion": "少許",
+    "conf": 0.6
+   }
+  ],
+  "sec": 5.6,
+  "raw_tail": ""
+ },
+ "gemma3:12b|B_dish_level|images (7).jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "半碗",
+    "conf": 0.95
+   },
+   {
+    "name": "滷肉",
+    "portion": "一份",
+    "conf": 0.85
+   },
+   {
+    "name": "紅燒豆腐",
+    "portion": "半碗",
+    "conf": 0.8
+   },
+   {
+    "name": "甜不辣",
+    "portion": "一份",
+    "conf": 0.75
+   },
+   {
+    "name": "油豆腐",
+    "portion": "半碗",
+    "conf": 0.7
+   },
+   {
+    "name": "炒絲瓜",
+    "portion": "半碗",
+    "conf": 0.7
+   },
+   {
+    "name": "青江菜",
+    "portion": "一片",
+    "conf": 0.85
+   },
+   {
+    "name": "紅蘿蔔絲",
+    "portion": "半碗",
+    "conf": 0.7
+   }
+  ],
+  "sec": 6.7,
+  "raw_tail": ""
+ },
+ "gemma3:12b|B_dish_level|images.jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炸雞腿",
+    "portion": "一份",
+    "conf": 0.9
+   },
+   {
+    "name": "炒青花菜",
+    "portion": "一份",
+    "conf": 0.85
+   },
+   {
+    "name": "炒甜椒",
+    "portion": "一份",
+    "conf": 0.8
+   },
+   {
+    "name": "涼拌絲瓜",
+    "portion": "一份",
+    "conf": 0.75
+   }
+  ],
+  "sec": 5.4,
+  "raw_tail": ""
+ },
+ "gemma3:12b|B_dish_level|玫瑰油雞腿宮保豬肉會議便當-300x300.jpg": {
+  "ok": true,
+  "items": [
+   {
+    "name": "白飯",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炸雞腿",
+    "portion": "一份",
+    "conf": 0.95
+   },
+   {
+    "name": "炒青花",
+    "portion": "半份",
+    "conf": 0.8
+   },
+   {
+    "name": "紅椒炸物",
+    "portion": "半份",
+    "conf": 0.75
+   },
+   {
+    "name": "海鮮蔬菜沙拉",
+    "portion": "半份",
+    "conf": 0.85
+   },
+   {
+    "name": "毛豆",
+    "portion": "半碗",
+    "conf": 0.8
+   },
+   {
+    "name": "滷蛋",
+    "portion": "一顆",
+    "conf": 0.8
+   }
+  ],
+  "sec": 6.5,
+  "raw_tail": ""
+ }
+}

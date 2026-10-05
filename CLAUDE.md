@@ -10,7 +10,8 @@ RAG 課程期末專題。兩個 LINE bot 共用一個 Flask process：
 
 ## 架構
 
-熱量估算流程：`food_recognition_ensemble`（B4，minicpm-v + qwen3-vl 雙模型投票）
+熱量估算流程：`food_recognition_ensemble`（B5，minicpm-v + qwen3-vl + gemma3 三模型信心分數投票，
+門檻 0.4，見 `data/vision_benchmark/B5_REPORT.md`；不要把門檻調低到 0.3，正確率會從 86% 掉到 56%）
 → `nutrition_lookup`（C1，TFDA → 使用者回報 → 台大自助餐表，逐層 fallback）
 → `portion_lookup`（C2，份量換公克）→ `calorie_estimator`（C3，信心分級）
 → `final_estimate`（C4，加上 Nutrition5k 視覺相似校準錨點）。
@@ -25,8 +26,11 @@ RAG 課程期末專題。兩個 LINE bot 共用一個 Flask process：
 
 - **避免幻覺**：熱量數字必須來自真實資料庫，查不到就老實回「無法確定」，不要硬湊。
 - **信心分級**：精確對應 / 相近估算 / 查無資料 / 疑似誤判。
-  `calorie_estimator._estimate_item` 裡「單一模型才講到的品項 → 疑似誤判、不計入總熱量」
+  `calorie_estimator._estimate_item` 裡「共識分數未達門檻（低共識）→ 疑似誤判、不計入總熱量」
   這個判斷**必須放在最前面**，否則其他分支會先 return 讓它失效。
+- Belfast 估算後同時列出「逐項加總」與「外觀參考」兩個數字，由使用者選或手動輸入，**選完才寫入紀錄**。
+  不要改回自動挑選或把兩個數字平均；`meal_records.raw_json` 存兩種估計值、逐項明細、照片路徑、
+  使用者的選擇，是之後分析哪種估計比較準的資料。
 - 數值估算用低溫度生成；數據表格式（`format_final_reply` 等）不參雜角色扮演語氣，
   人設只套在對話包裝文字。
 - **PDF RAG 回答（`pdf_rag.answer_with_rag`）不可以套人設**，要用嚴格提示詞 + 溫度 0。

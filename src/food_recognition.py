@@ -25,12 +25,18 @@ PROMPT = """這是一張便當或餐點照片。請仔細觀察後，列出照�
 1. 只寫照片中真的看得到的東西，不要猜測或想像沒看到的食物。
 2. 份量只用粗略描述（例如：一份、半碗、一片、兩顆），不要給出精確公克數。
 3. 品項名稱請盡量具體（例如「糖醋排骨」優於「肉」，「炒青菜」優於「蔬菜」）。
-4. 回覆文字最後請附上一段 JSON，格式與下面範例完全一致：
+4. 每個品項附上 confidence（0 到 1）：你有多確定照片裡真的有這個東西。看得很清楚給 0.8 以上；
+   看不太清楚、只是覺得可能有的給 0.5 以下。不要每個都給一樣的分數。
+5. 品項名稱用繁體中文。
+6. 回覆最後附上一段 JSON，格式與範例完全一致：
 
 ```json
-{"items": [{"name": "白飯", "portion_size": "半碗"}, {"name": "炸雞腿", "portion_size": "一份"}]}
+{"items": [{"name": "白飯", "portion_size": "半碗", "confidence": 0.95}, {"name": "炸雞腿", "portion_size": "一份", "confidence": 0.9}]}
 ```
 """
+
+# 模型沒給 confidence（或給了非數字）時的預設值
+DEFAULT_CONFIDENCE = 0.7
 
 
 def extract_json_object(text: str):
@@ -106,8 +112,10 @@ def recognize_food(image_path: str, temperature: float = 0.1, model: str = None)
     for it in parsed.get("items", []):
         name = to_traditional(str(it.get("name", "")).strip())
         portion = to_traditional(str(it.get("portion_size", "")).strip())
+        conf = it.get("confidence")
+        conf = min(max(float(conf), 0.0), 1.0) if isinstance(conf, (int, float)) else DEFAULT_CONFIDENCE
         if name:
-            items.append({"name": name, "portion_size": portion})
+            items.append({"name": name, "portion_size": portion, "confidence": conf})
 
     return {"ok": True, "raw": raw, "items": items}
 

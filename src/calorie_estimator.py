@@ -16,7 +16,8 @@ from nutrition_lookup import lookup as nutrition_lookup
 from portion_lookup import estimate_grams
 
 
-def _estimate_item(name: str, portion_size: str, ensemble_confidence: str = None) -> dict:
+def _estimate_item(name: str, portion_size: str, ensemble_confidence: str = None, ensemble_score: float = None,
+                   agree_count: int = None) -> dict:
     """ensemble_confidence：B4 集合辨識的投票結果（"共識品項"/"單一模型"），
     只有一個模型講、另一個模型沒有附和的品項最可能是幻覺（B2/B4 報告記錄
     的套模板問題），這裡要把這個警訊帶進最終信心標示，不能算完 B4 的投票
@@ -25,7 +26,9 @@ def _estimate_item(name: str, portion_size: str, ensemble_confidence: str = None
     c1 = nutrition_lookup(name)
     category = (c1["matched"] or {}).get("食品分類") if c1["matched"] else None
     c2 = estimate_grams(name, portion_size, category)
-    single_model = ensemble_confidence == "單一模型"
+    # 2026/10/5：投票改成 3 模型 + 信心分數，低於門檻的標「低共識」
+    # （舊版 2 模型時叫「單一模型」，保留相容）。
+    single_model = ensemble_confidence in ("低共識", "單一模型")
 
     # B4 集合投票的安全網放在最前面、優先於資料庫查得到查不到——就算
     # 資料庫查得到品項、份量也換算得出來，只要「只有一個辨識模型講到
@@ -35,15 +38,17 @@ def _estimate_item(name: str, portion_size: str, ensemble_confidence: str = None
     # 像「份量換算不出來」這種分支會搶先 return，這個防呆永遠輪不到。
     if single_model:
         matched_note = f"（資料庫查得到「{c1['matched']['品項名稱']}」的熱量，但不採用）" if c1["matched"] else ""
+        vote_note = (
+            f"3 個辨識模型中只有 {agree_count} 個講到「{name}」（共識分數 {ensemble_score}，未達門檻）"
+            if agree_count is not None and ensemble_score is not None
+            else f"辨識模型對「{name}」的意見不一致"
+        )
         return {
             "name": name,
             "portion_size": portion_size,
             "tier": "疑似誤判",
             "calories": None,
-            "detail": (
-                f"只有一個辨識模型講到「{name}」，另一個模型給出不同答案，"
-                f"可能是辨識錯誤{matched_note}，為求保守不計入總熱量。"
-            ),
+            "detail": f"{vote_note}，可能是辨識錯誤{matched_note}，為求保守不計入總熱量。",
         }
 
     if c1["confidence"] == "none":
@@ -124,7 +129,10 @@ def assemble_meal_estimate(items: list) -> dict:
     就不套用這層防呆，行為跟以前一樣。
     """
     results = [
-        _estimate_item(it["name"], it["portion_size"], it.get("ensemble_confidence"))
+        _estimate_item(
+            it["name"], it["portion_size"], it.get("ensemble_confidence"),
+            it.get("ensemble_score"), it.get("agree_count"),
+        )
         for it in items
     ]
 
