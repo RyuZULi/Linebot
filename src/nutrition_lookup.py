@@ -152,7 +152,27 @@ def _normalize_composite_row(row: dict) -> dict:
     }
 
 
-def _lookup_composite(name: str, top_k: int) -> dict:
+# 乾貨、粉類的熱量密度跟新鮮/煮熟的同種食物差好幾倍（花椰菜乾 291 vs 新鮮
+# 花椰菜約 30 kcal/100g），語意檢索分不出這個差別。2026/10/5 實測「炒花椰菜」
+# 被比對成「花椰菜乾」，一格配菜算成 291 大卡。查詢名稱本身沒提到這些字時，
+# 就跳過帶有這些字的候選（「炒麵」也就不會比對成「麵粉」）。
+_PRESERVED_FORM_MARKERS = ("乾", "粉")
+
+
+def _form_compatible(query: str, candidate_name: str) -> bool:
+    return not any(m in candidate_name and m not in query for m in _PRESERVED_FORM_MARKERS)
+
+
+def _first_acceptable(candidates: list, query: str, threshold: float, name_key: str):
+    for c in candidates:
+        if c["score"] < threshold:
+            return None  # 依分數排序，後面只會更低
+        if _form_compatible(query, c.get(name_key) or ""):
+            return c
+    return None
+
+
+def _lookup_composite(name: str, top_k: int, allow_similar: bool = True) -> dict:
     """TFDA 查無品項時的第二層查詢，回傳的 confidence 一律帶 _secondary
     後綴，讓下游知道這不是官方送檢數據。查不到就回傳 None。"""
     if name in _composite_alias_lookup:
@@ -161,14 +181,17 @@ def _lookup_composite(name: str, top_k: int) -> dict:
         # 目前資料裡沒有真的重複，取第一筆即可。
         row = _normalize_composite_row(_composite_alias_lookup[name][0])
         return {"confidence": "exact_secondary", "matched": row, "candidates": []}
+    if not allow_similar:
+        return None
 
     retriever = _composite_index.as_retriever(similarity_top_k=top_k)
     nodes = retriever.retrieve(name)
     candidates = [{"score": round(n.score, 4), **n.node.metadata} for n in nodes]
-    if candidates and candidates[0]["score"] >= COMPOSITE_SIMILAR_THRESHOLD:
+    best = _first_acceptable(candidates, name, COMPOSITE_SIMILAR_THRESHOLD, "food_item")
+    if best is not None:
         return {
             "confidence": "similar_secondary",
-            "matched": _normalize_composite_row(candidates[0]),
+            "matched": _normalize_composite_row(best),
             "candidates": candidates,
         }
     return None
@@ -188,11 +211,11 @@ def add_user_food(food_name: str, fixed_kcal: float, source: str) -> None:
     _user_alias_lookup[food_name] = metadata
 
 
-def _lookup_user_food(name: str, top_k: int) -> dict:
+def _lookup_user_food(name: str, top_k: int, allow_similar: bool = True) -> dict:
     if name in _user_alias_lookup:
         return {"confidence": "exact_user", "matched": _user_alias_lookup[name], "candidates": []}
 
-    if not _user_alias_lookup:
+    if not allow_similar or not _user_alias_lookup:
         return None  # 索引是空的，語意檢索也不用跑了
 
     retriever = _user_index.as_retriever(similarity_top_k=top_k)
@@ -200,8 +223,9 @@ def _lookup_user_food(name: str, top_k: int) -> dict:
     candidates = [{"score": round(n.score, 4), **n.node.metadata} for n in nodes]
     # 沿用 TFDA 校準出的保守門檻——使用者自建資料筆數少，還沒辦法像
     # composite_dishes 那樣另外做雜訊校準，寧可保守一點。
-    if candidates and candidates[0]["score"] >= SIMILAR_THRESHOLD:
-        return {"confidence": "similar_user", "matched": candidates[0], "candidates": candidates}
+    best = _first_acceptable(candidates, name, SIMILAR_THRESHOLD, "food_name")
+    if best is not None:
+        return {"confidence": "similar_user", "matched": best, "candidates": candidates}
     return None
 
 
@@ -236,27 +260,28 @@ def lookup(food_name: str, top_k: int = 3) -> dict:
         {"score": round(n.score, 4), **n.node.metadata} for n in nodes
     ]
 
-    if candidates and candidates[0]["score"] >= SIMILAR_THRESHOLD:
+    best = _first_acceptable(candidates, name, SIMILAR_THRESHOLD, "品項名稱")
+    if best is not None:
         return {
             "query": name,
             "confidence": "similar",
-            "matched": candidates[0],
+            "matched": best,
             "candidates": candidates,
         }
 
-    # 3) TFDA 查無品項，先查使用者自己回報過的資料——這不是查表猜的，
-    # 是本人講的（通常來自包裝標示），可信度排在 TFDA 之後、公用參考表
-    # (composite_dishes)之前。
-    user_result = _lookup_user_food(name, top_k)
-    if user_result is not None:
-        return {"query": name, "candidates": candidates, **user_result}
-
-    # 4) 使用者資料也沒有，退而求其次查補充知識庫(台大自助餐熱量表)——
-    # 這一步刻意放在最後才做，且回傳的信心度會帶 _secondary，不會被
-    # 誤認成官方數據等級的比對結果。
-    composite_result = _lookup_composite(name, top_k)
-    if composite_result is not None:
-        return {"query": name, "candidates": candidates, **composite_result}
+    # 3) TFDA 查無品項，接著查使用者自己回報過的資料跟補充知識庫（台大自助餐
+    # 熱量表）。兩邊都先只看「菜名完全相同」，都沒有才看「相近菜名」：
+    # 2026/10/5 實測「炸豬排」被相近比對到使用者回報的「炸豬排便當」（整個
+    # 便當的熱量），排在台大表裡完全相同的「炸豬排」前面，等於把白飯、配菜
+    # 又算一次。使用者資料本身可信度仍排在台大表前面（本人講的），只是
+    # 「完全相同」一律優先於「相近」。
+    for allow_similar in (False, True):
+        user_result = _lookup_user_food(name, top_k, allow_similar)
+        if user_result is not None:
+            return {"query": name, "candidates": candidates, **user_result}
+        composite_result = _lookup_composite(name, top_k, allow_similar)
+        if composite_result is not None:
+            return {"query": name, "candidates": candidates, **composite_result}
 
     # 5) 三個知識庫都查無品項
     return {

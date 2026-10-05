@@ -13,7 +13,7 @@ RAG 課程期末專題。兩個 LINE bot 共用一個 Flask process：
 熱量估算流程：`food_recognition_ensemble`（B5，minicpm-v + qwen3-vl + gemma3 三模型信心分數投票，
 門檻 0.4，見 `data/vision_benchmark/B5_REPORT.md`；不要把門檻調低到 0.3，正確率會從 86% 掉到 56%）
 → `nutrition_lookup`（C1，TFDA → 使用者回報 → 台大自助餐表，逐層 fallback）
-→ `portion_lookup`（C2，份量換公克）→ `calorie_estimator`（C3，信心分級）
+→ `portion_lookup`（C2，份量換公克；換算不了時用 `typical_portion` 典型便當份量，每個數字都有出處，見 `data/portion_reference/NOTES.md`）→ `calorie_estimator`（C3，信心分級）
 → `final_estimate`（C4，加上 Nutrition5k 視覺相似校準錨點）。
 
 本地模型都走 Ollama（`localhost:11434`）；embedding 是 BAAI/bge-m3，
@@ -37,6 +37,8 @@ RAG 課程期末專題。兩個 LINE bot 共用一個 Flask process：
   實測加上 Ryuzu 人設後，文件沒有的題目 6/6 編造，還把編的數字掛上真實文件當出處。
 - 相似度門檻都是用測試資料校準出來的，不是隨便定的：
   TFDA `SIMILAR_THRESHOLD=0.70`、台大表 `0.65`。改門檻前先看對應的 `*_REPORT.md`。
+- C1 比對：查詢名稱沒有「乾」「粉」時，跳過名稱有這些字的候選（花椰菜乾 291 vs 新鮮約 30 kcal/100g）；
+  TFDA 之後的來源一律「完全相同菜名」優先於「相近菜名」（避免「炸豬排」比對到使用者回報的整個「炸豬排便當」）。
 - 「土豆」在 TFDA 被列為花生俗名，會把馬鈴薯算成 7 倍熱量 → `AMBIGUOUS_ALIASES` 黑名單。
   曾試過用語意分數通用化取代黑名單，失敗（好壞案例只差 0.013），不要再走這條路。
 

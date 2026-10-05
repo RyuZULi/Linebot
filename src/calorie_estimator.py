@@ -14,6 +14,7 @@ C3：熱量估算與信心標示組裝。
 
 from nutrition_lookup import lookup as nutrition_lookup
 from portion_lookup import estimate_grams
+from typical_portion import typical_grams
 
 
 def _estimate_item(name: str, portion_size: str, ensemble_confidence: str = None, ensemble_score: float = None,
@@ -37,7 +38,9 @@ def _estimate_item(name: str, portion_size: str, ensemble_confidence: str = None
     # 排骨」正是這種案例）。這段一定要放在其他分支的 return 之前，不然
     # 像「份量換算不出來」這種分支會搶先 return，這個防呆永遠輪不到。
     if single_model:
-        matched_note = f"（資料庫查得到「{c1['matched']['品項名稱']}」的熱量，但不採用）" if c1["matched"] else ""
+        # 使用者回報的資料欄位叫 food_name，不是 TFDA 的「品項名稱」
+        matched_name = (c1["matched"] or {}).get("品項名稱") or (c1["matched"] or {}).get("food_name")
+        matched_note = f"（資料庫查得到「{matched_name}」的熱量，但不採用）" if matched_name else ""
         vote_note = (
             f"3 個辨識模型中只有 {agree_count} 個講到「{name}」（共識分數 {ensemble_score}，未達門檻）"
             if agree_count is not None and ensemble_score is not None
@@ -79,6 +82,14 @@ def _estimate_item(name: str, portion_size: str, ensemble_confidence: str = None
     matched_item = c1["matched"]["品項名稱"]
     kcal_per_100g = float(c1["matched"]["熱量_kcal_per_100g"])
 
+    # C2 單位對得上（matched）就用手冊換算，最可靠；對不上或查不到時，
+    # C2 只能給一個明知不對的基準值（例如「半碗飯」被算成 1 湯匙 50 公克），
+    # 改用有出處的典型便當份量（見 typical_portion.py），結果標相近估算。
+    if c2["confidence"] != "matched":
+        typical = typical_grams(name, portion_size)
+        if typical is not None:
+            c2 = {"confidence": "typical", "grams": typical["grams"], "basis": typical["basis"], "note": ""}
+
     if c2["grams"] is None:
         return {
             "name": name,
@@ -108,6 +119,8 @@ def _estimate_item(name: str, portion_size: str, ensemble_confidence: str = None
         )
     if c2["confidence"] == "unit_mismatch":
         reasons.append(c2["note"])
+    if c2["confidence"] == "typical":
+        reasons.append(f"約 {c2['grams']:g} 公克，{c2['basis']}")
 
     return {
         "name": name,
