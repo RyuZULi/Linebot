@@ -39,6 +39,8 @@ HELP_WORDS = {"help", "說明", "怎麼用", "使用說明", "你好", "您好",
 NON_TEXT_REPLY = "目前只能回答文字問題。如果是錯誤訊息，請直接複製視窗上的文字貼過來，或打出按鈕名稱跟遇到的狀況。"
 ERROR_REPLY = "抱歉，查詢時出了問題，請稍後再試一次。急的話請直接聯絡建築 API 負責人。"
 NO_PENDING_REPLY = "剛才的問題我這邊已經沒有保留了，麻煩再問一次。"
+PASTE_ERROR_REPLY = "好的，請把錯誤視窗上的文字直接複製貼過來（不用截圖，打字或複製都可以）。"
+DESCRIBE_REPLY = "好的，請描述一下：做到哪一步、畫面出現什麼、跟預期哪裡不一樣。"
 
 _configuration = None
 
@@ -72,6 +74,17 @@ def _choices_quick_reply(choices: list) -> QuickReply:
     return QuickReply(items=items)
 
 
+def _clarify_quick_reply(options: list) -> QuickReply:
+    """回問「發生什麼狀況」：卡片自己的常見問題當選項，另外兩個固定選項只是提示使用者怎麼描述。"""
+    items = [
+        QuickReplyItem(action=PostbackAction(label=f"{i + 1}. {title}"[:20], data=f"cec:item:{i}", display_text=title[:300]))
+        for i, title in options
+    ]
+    items.append(QuickReplyItem(action=PostbackAction(label="有跳出錯誤訊息", data="cec:paste", display_text="有跳出錯誤訊息")))
+    items.append(QuickReplyItem(action=PostbackAction(label="其他狀況", data="cec:other", display_text="其他狀況")))
+    return QuickReply(items=items[:MAX_QUICK_REPLY_ITEMS])
+
+
 def _respond(reply_token: str, user_id: str, question: str, **kwargs):
     _show_loading(user_id)
     try:
@@ -83,6 +96,8 @@ def _respond(reply_token: str, user_id: str, question: str, **kwargs):
     if result["type"] == "ask":
         pending_questions[user_id] = question
         _reply(reply_token, result["text"], quick_reply=_choices_quick_reply(result["choices"]))
+    elif result["type"] == "clarify":
+        _reply(reply_token, result["text"], quick_reply=_clarify_quick_reply(result["options"]))
     else:
         _reply(reply_token, result["text"])
 
@@ -103,6 +118,15 @@ def on_postback(event):
     if not data.startswith("cec:"):
         return
     user_id = event.source.user_id
+    if data == "cec:paste":
+        _reply(event.reply_token, PASTE_ERROR_REPLY)
+        return
+    if data == "cec:other":
+        _reply(event.reply_token, DESCRIBE_REPLY)
+        return
+    if data.startswith("cec:item:"):
+        _respond(event.reply_token, user_id, "", item_index=int(data.split(":", 2)[2]))
+        return
     question = pending_questions.pop(user_id, None)
     if question is None:
         _reply(event.reply_token, NO_PENDING_REPLY)

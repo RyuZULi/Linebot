@@ -24,6 +24,7 @@ import urllib.request
 from datetime import datetime
 
 import chromadb
+import numpy as np
 from llama_index.core import VectorStoreIndex
 from llama_index.core.schema import MetadataMode, NodeRelationship, RelatedNodeInfo, TextNode
 from llama_index.core.vector_stores import FilterCondition, FilterOperator, MetadataFilter, MetadataFilters
@@ -54,7 +55,8 @@ def _to_traditional(text: str) -> str:
 KB_DIR = r"D:\CalorieCalculation\data\CEC_Revit API"
 STORE_DIR = r"D:\CalorieCalculation\data\cec_rag"
 CHROMA_PATH = os.path.join(STORE_DIR, "chroma_store")
-STATE_PATH = os.path.join(STORE_DIR, "ingest_state_llamaindex.json")
+# 2026/10/6 常見問題、錯誤訊息對照改成一條一塊，換狀態檔讓所有卡片重新切段匯入
+STATE_PATH = os.path.join(STORE_DIR, "ingest_state_llamaindex_v2.json")
 LOG_PATH = os.path.join(STORE_DIR, "qa_log.jsonl")
 COLLECTION_NAME = "cec_docs_llamaindex"  # 2026/10/6 改由 LlamaIndex 寫入，換新 collection 重建
 EXCLUDE_FILES = {"AIRAGUse.md"}  # 給工程師看的實作說明，不是知識內容
@@ -146,7 +148,33 @@ def _parse_card(path: str) -> dict:
         current["lines"].append(line)
     for sec in card["sections"]:
         sec["text"] = "\n".join(sec.pop("lines")).strip()
+    card["items"] = [it for sec in card["sections"] if sec["name"] in ITEM_SECTIONS for it in _split_items(sec)]
     return card
+
+
+ITEM_SECTIONS = ("常見問題", "錯誤訊息對照")
+
+
+def _split_items(sec: dict) -> list:
+    """常見問題 / 錯誤訊息對照 拆成一條一條：每條從行首的「- 」開始（「- 問：…」「- 「訊息」」），
+    後面縮排的「答：」「原因：」「解法：」都算同一條。"""
+    blocks, buf = [], []
+    for line in sec["text"].splitlines():
+        if line.startswith("- ") and buf:
+            blocks.append("\n".join(buf).strip())
+            buf = []
+        buf.append(line)
+    if buf:
+        blocks.append("\n".join(buf).strip())
+    items = []
+    for block in blocks:
+        first = block.splitlines()[0] if block else ""
+        if not first.startswith("- "):  # 段落開頭的說明文字，不是一條問答
+            continue
+        title = re.sub(r"^- (問：)?", "", first).strip()
+        items.append({"section": sec["name"], "heading": sec["heading"], "title": title, "text": block,
+                      "quoted": title.startswith("「")})
+    return items
 
 
 def _kb_files() -> list:
@@ -168,16 +196,14 @@ def _load_cards():
     button_names = {_normalize(n) for c in cards.values() for n in [c["zh"], c["en"]] + c["aliases"] if n}
     errors = []
     for api, card in cards.items():
-        for sec in card["sections"]:
-            if sec["name"] not in ("錯誤訊息對照", "常見問題"):
-                continue
-            for quoted in re.findall(r"「([^」]+)」", sec["text"]):
+        for item in card["items"]:
+            for quoted in re.findall(r"「([^」]+)」", item["text"]):
                 norm = _normalize(quoted, for_error=True)
                 if len(norm) < 6:
                     continue
-                if sec["name"] == "常見問題" and _normalize(quoted) in button_names:
+                if item["section"] == "常見問題" and _normalize(quoted) in button_names:
                     continue
-                errors.append((norm, api, sec["name"]))
+                errors.append((norm, api, item))
     _cards, _error_index = cards, errors
     return cards
 
@@ -202,10 +228,16 @@ def _split_long(heading_line: str, text: str) -> list:
 
 
 def _chunks_for(card: dict) -> list:
-    """每個 ## 段落一塊，前面加上卡片第一行標題，讓每段都知道自己屬於哪個按鈕。"""
+    """每個 ## 段落一塊，前面加上卡片第一行標題，讓每段都知道自己屬於哪個按鈕。
+    常見問題、錯誤訊息對照則是一條一塊：整段當一塊的話，同一個按鈕的不同問題
+    （「欄杆扶手沒列出」vs「報告存在哪」）檢索到的都是同一大段，回答也就都一樣。"""
     chunks = []
     for sec in card["sections"]:
-        for i, piece in enumerate(_split_long(sec["heading"], sec["text"])):
+        if sec["name"] in ITEM_SECTIONS:
+            pieces = [it["text"] for it in card["items"] if it["heading"] == sec["heading"]] or [sec["text"]]
+        else:
+            pieces = _split_long(sec["heading"], sec["text"])
+        for i, piece in enumerate(pieces):
             chunks.append({
                 "id": f"{card['api']}::{sec['heading']}::{i}",
                 "text": f"# {card['title']}\n## {sec['heading']}\n{piece}",
@@ -322,17 +354,23 @@ def match_catalog(question: str) -> list:
 
 
 def match_errors(question: str) -> list:
-    """回傳命中的 [(api, section)]，同一句訊息可能出現在多張卡片。"""
+    """回傳命中的 [(api, 那一條)]，同一句訊息可能出現在多張卡片。"""
     _load_cards()
     qn = _normalize(question, for_error=True)
     if len(qn) < 6:
         return []
     found = []
-    for err, api, section in _error_index:
+    for err, api, item in _error_index:
         if err in qn or (len(qn) >= 8 and qn in err):
-            if (api, section) not in found:
-                found.append((api, section))
+            if not any(a == api and it is item for a, it in found):
+                found.append((api, item))
     return found
+
+
+def _item_hit(api: str, item: dict) -> dict:
+    card = _load_cards()[api]
+    return {"text": f"# {card['title']}\n## {item['heading']}\n{item['text']}", "api": api,
+            "section": item["section"], "notion_url": card["url"], "zh": card["zh"] or card["title"]}
 
 
 def _contacts() -> list:
@@ -524,8 +562,61 @@ def reset_session(user_id: str):
     _sessions.pop(user_id, None)
 
 
-def answer(question: str, user_id: str = "", forced_api: str = None, search_all: bool = False) -> dict:
-    """回傳 {"type": "answer"|"ask"|"refer"|"reset", "text", "choices": [(api, 中文名)], "route"}。"""
+# ---------- 先釐清狀況，再回答 ----------
+#
+# 2026/10/6 實測：「救命樓梯干涉壞掉了」→ 選了按鈕之後，直接回一份用途＋操作步驟的
+# 制式說明。「壞掉」沒說是什麼狀況，檢索只能抓到最泛的段落；同一個按鈕不管是
+# 「報告找不到」還是「扶手沒列出」都會拿到同一份回答。改成：問題含「壞掉／不能用」
+# 這類籠統說法、又對不到這張卡片任何一條常見問題或錯誤訊息時，先回問發生什麼狀況，
+# 選項直接用卡片自己的常見問題（不是我們編的分類）。
+#
+# 門檻 0.80 是實測校準的：具體描述對到正確那條的相似度 0.77~0.98（多數 ≥0.89），
+# 籠統說法最高 0.62；唯一例外「切割樓板壞掉了」0.773（對到不相干的「高度跑掉」），
+# 所以規則是「含籠統詞」且「最高相似度 < 0.80」兩個條件都成立才回問。
+
+VAGUE_WORDS = ["壞", "不能用", "不能跑", "不行", "有問題", "出問題", "怪", "失敗", "沒反應", "出錯",
+               "跑不出", "跑不動", "沒用", "異常", "不正常", "當掉", "閃退", "卡住", "不對"]
+USAGE_WORDS = ["怎麼用", "如何", "步驟", "教學", "要準備", "怎麼操作", "用法", "做什麼", "是什麼", "在哪"]
+ITEM_MATCH_THRESHOLD = 0.80
+MAX_CLARIFY_OPTIONS = 11  # LINE quick reply 最多 13 個，留 2 個給「跳出錯誤訊息」「其他狀況」
+
+_item_vectors = {}  # api -> 正規化後的常見問題/錯誤訊息標題向量
+
+
+def _best_item_score(api: str, question: str) -> float:
+    items = _load_cards()[api]["items"]
+    if not items:
+        return 0.0
+    if api not in _item_vectors:
+        m = np.array(nutrition_lookup._embed_model.get_text_embedding_batch([it["title"] for it in items]))
+        _item_vectors[api] = m / np.linalg.norm(m, axis=1, keepdims=True)
+    q = np.array(nutrition_lookup._embed_model.get_query_embedding(question))
+    return float((_item_vectors[api] @ (q / np.linalg.norm(q))).max())
+
+
+def _needs_clarify(api: str, question: str) -> bool:
+    q = question.lower()
+    if not any(w in q for w in VAGUE_WORDS) or any(w in q for w in USAGE_WORDS):
+        return False
+    if any(k.lower() in q for k in GENERAL_KEYWORDS) or match_errors(question):
+        return False  # 「按不了／灰色」「授權」這類有通用答案，貼了錯誤訊息的也已經很具體
+    return _best_item_score(api, question) < ITEM_MATCH_THRESHOLD
+
+
+def _clarify_options(api: str) -> list:
+    """回問的選項：常見問題全收；錯誤訊息對照只收「不是訊息原文」的那幾條（像「跳出 Revit 警告…」
+    「報告沒有…」這種現象描述）——有訊息原文的請使用者直接貼上，比列一長串好選。"""
+    items = _load_cards()[api]["items"]
+    faq = [it for it in items if it["section"] == "常見問題"]
+    symptoms = [it for it in items if it["section"] == "錯誤訊息對照" and not it["quoted"]]
+    return (faq + symptoms)[:MAX_CLARIFY_OPTIONS]
+
+
+def answer(question: str, user_id: str = "", forced_api: str = None, search_all: bool = False,
+           item_index: int = None) -> dict:
+    """回傳 {"type": "answer"|"ask"|"clarify"|"refer"|"reset", "text", "route",
+    "choices": [(api, 中文名)]（ask 用）, "options": [(編號, 狀況)]（clarify 用）}。
+    item_index：使用者在「發生什麼狀況」的回問裡點了第幾個選項。"""
     cards = _load_cards()
     q_lower = question.lower()
     general = any(k.lower() in q_lower for k in GENERAL_KEYWORDS)
@@ -542,6 +633,7 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
     def done(result: dict) -> dict:
         if result["type"] == "answer":
             session["history"] = (session["history"] + [(question, result["text"])])[-HISTORY_TURNS:]
+            session["clarify"] = None
         _log({"user": user_id, "question": question, "route": result.get("route"), "type": result["type"],
               "topic": session["api"], "choices": result.get("choices"), "answer": result.get("text", "")[:2000]})
         return result
@@ -549,14 +641,44 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
     def compose(hits: list) -> str:
         return _compose(question, hits, session["history"])
 
+    def ask_symptom(api: str) -> dict:
+        options = _clarify_options(api)
+        session["clarify"] = {"api": api, "question": question, "options": options}
+        lines = [f"了解，是「{cards[api]['zh']}」出了狀況。想先確認發生什麼事，才能給對的解法：", "",
+                 "・有跳出錯誤訊息 → 直接把訊息文字複製貼上來"]
+        if options:
+            lines.append("・是下面其中一種 → 點下方對應的按鈕")
+            lines += [f"  {i + 1}. {it['title']}" for i, it in enumerate(options)]
+        lines.append("・都不是 → 描述一下做了哪一步、畫面出現什麼")
+        return done({"type": "clarify", "route": f"釐清狀況:{api}", "text": "\n".join(lines),
+                     "options": [(i, it["title"]) for i, it in enumerate(options)]})
+
+    def answer_about(api: str, route: str, query: str = None, note: str = "") -> dict:
+        """回答某一個按鈕的問題；太籠統（「壞掉了」）就先回問狀況。同一個按鈕問過一次就不再問，
+        使用者接著描述的狀況就算還是講得不清楚，也直接用他的描述去檢索。"""
+        switch_topic(api)
+        already_asked = (session.get("clarify") or {}).get("api") == api
+        if not already_asked and _needs_clarify(api, question):
+            return ask_symptom(api)
+        hits = _retrieve(query or question, apis=[api, GENERAL]) + _general_hits(question)
+        return done({"type": "answer", "text": compose(hits) + note, "route": route})
+
     if any(w in question for w in RESET_WORDS) and len(question) <= 10:
         reset_session(user_id)
         return {"type": "reset", "route": "重設話題", "text": "好的，請問新的問題是？可以直接講按鈕名稱，或貼上錯誤訊息。"}
 
+    if item_index is not None:
+        c = session.get("clarify")
+        if not c or not 0 <= item_index < len(c["options"]):
+            return {"type": "answer", "route": "釐清選項過期", "text": "剛才的選項已經過期了，麻煩再描述一次遇到的狀況。"}
+        api, item = c["api"], c["options"][item_index]
+        switch_topic(api)
+        # 只給選到的那一條：回答就只會針對這個狀況，不會又附上整套操作步驟
+        question = f"{c['question']}（狀況：{item['title']}）"
+        return done({"type": "answer", "text": compose([_item_hit(api, item)]), "route": f"釐清後:{api}#{item['title']}"})
+
     if forced_api:
-        switch_topic(forced_api)
-        hits = _retrieve(question, apis=[forced_api, GENERAL]) + _general_hits(question)
-        return done({"type": "answer", "text": compose(hits), "route": f"使用者選擇:{forced_api}"})
+        return answer_about(forced_api, f"使用者選擇:{forced_api}")
     if search_all:
         switch_topic(None)
         return done({"type": "answer", "text": compose(_retrieve(question)), "route": "全庫檢索"})
@@ -572,16 +694,13 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
 
     if len(catalog_hits) == 1:
         api = catalog_hits[0][0]
-        switch_topic(api)
-        hits = _retrieve(question, apis=[api, GENERAL]) + _general_hits(question)
-        return done({"type": "answer", "text": compose(hits), "route": f"目錄比對:{api}"})
+        return answer_about(api, f"目錄比對:{api}")
 
     if len(catalog_hits) > 1:
         # 正在聊的按鈕剛好是候選之一（例：選過 RC 版後又說「切割樓板…」），就不再回問
         if session["api"] in [api for api, _ in catalog_hits]:
             api = session["api"]
-            hits = _retrieve(question, apis=[api, GENERAL]) + _general_hits(question)
-            return done({"type": "answer", "text": compose(hits) + _topic_note(api), "route": f"延續話題:{api}"})
+            return answer_about(api, f"延續話題:{api}", note=_topic_note(api))
         choices = [(api, cards[api]["zh"]) for api, _ in catalog_hits]
         return done({"type": "ask", "route": "目錄比對多個", "choices": choices,
                      "text": "找到好幾個相關的功能，請問是哪一個？"})
@@ -592,7 +711,7 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
             errors = [(a, sec) for a, sec in errors if a == session["api"]]
         apis = sorted({a for a, _ in errors})
         switch_topic(apis[0] if len(apis) == 1 else None)
-        hits = _sections_text(errors) + _retrieve(question, apis=[GENERAL], k=1)
+        hits = [_item_hit(a, it) for a, it in errors] + _retrieve(question, apis=[GENERAL], k=1)
         return done({"type": "answer", "text": compose(hits), "route": "錯誤訊息比對:" + ",".join(apis)})
 
     if session["api"] and not (any(k in question for k in FEATURE_SEARCH_KEYWORDS) and ("功能" in question or "按鈕" in question)):
@@ -600,8 +719,7 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
         # 檢索時把前一個問題也帶上，「清單是什麼」這種短追問才查得到對的段落。
         api = session["api"]
         prev = session["history"][-1][0] if session["history"] else ""
-        hits = _retrieve(f"{prev} {question}", apis=[api, GENERAL]) + _general_hits(question)
-        return done({"type": "answer", "text": compose(hits) + _topic_note(api), "route": f"延續話題:{api}"})
+        return answer_about(api, f"延續話題:{api}", query=f"{prev} {question}", note=_topic_note(api))
 
     if general:
         hits = _general_hits(question) + _retrieve(question, apis=[GENERAL], k=2)
