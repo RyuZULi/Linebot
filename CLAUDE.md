@@ -87,6 +87,7 @@ Ryuzu 收到「任務：...」→ 開 `worktrees/task-N` 隔離分支 → 無頭
 - 知識庫是公司內部資料（同仁姓名、內部 Notion），`data/CEC_Revit API/`、`data/cec_rag/` 都在 `.gitignore`，不要提交。
 - 照規格書流程：非本庫範圍直接轉介 → 目錄比對（容錯梁/樑、驅/軀、版/板；模糊比對只容許同長度錯一個字）
   → 錯誤訊息字串比對（只比「錯誤訊息對照」與非按鈕名稱的「」）→ 向量檢索 → LLM。判斷與比對都用程式，不讓小模型猜。
+- 存入與檢索都透過 LlamaIndex（`VectorStoreIndex` + `ChromaVectorStore` + `MetadataFilters`，每張卡片是一份來源文件，更新時 `delete(ref_doc_id=檔名)`）；錯誤訊息命中時用 `get_nodes` 依條件整段取出，不經相似度排序。
 - 回答模型用 `qwen3:8b`（`think: false`）。實測 12 個情境：llama3.2 有 4 題把資料裡有的答案回成「沒有資料」，不要換回去。
 - 提示詞的規則放在參考資料**後面**：放前面時 qwen3 會把相鄰兩條拼湊成假建議（「不支援斜板」+ 下一行
   「Deck 樓板請改用…」→ 回答「斜板請改用 Deck」）。網址由程式附上，模型寫的網址行會被刪掉。

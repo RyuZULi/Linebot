@@ -24,20 +24,39 @@ import urllib.request
 from datetime import datetime
 
 import chromadb
+from llama_index.core import VectorStoreIndex
+from llama_index.core.schema import MetadataMode, NodeRelationship, RelatedNodeInfo, TextNode
+from llama_index.core.vector_stores import FilterCondition, FilterOperator, MetadataFilter, MetadataFilters
+from llama_index.vector_stores.chroma import ChromaVectorStore
 from opencc import OpenCC
 
 import nutrition_lookup
 
-# qwen3 偶爾會混出簡體字（「没有」）。只做逐字轉換（s2tw），不做詞彙替換（s2twp），
-# 避免按鈕名稱、錯誤訊息原文被改寫。
-_to_traditional = OpenCC("s2tw").convert
+# qwen3 偶爾會混出簡體字（「没有」）。逐字轉換（s2tw）也會把「台」轉成「臺」、「里」
+# 轉成「裡」，改寫原文用字（實測「這台電腦」→「這臺電腦」）。所以只轉換知識庫原文
+# 從來沒用過的字：原文出現過的字一定是正確的繁體用字，保持不動。
+_s2tw = OpenCC("s2tw").convert
+_kb_chars = None
+
+
+def _to_traditional(text: str) -> str:
+    global _kb_chars
+    if _kb_chars is None:
+        _kb_chars = set()
+        for path in _kb_files():
+            with open(path, encoding="utf-8-sig") as f:
+                _kb_chars.update(f.read())
+    converted = _s2tw(text)
+    if len(converted) != len(text):  # s2tw 理論上逐字對應；萬一長度變了就整段採用轉換結果
+        return converted
+    return "".join(o if o in _kb_chars else c for o, c in zip(text, converted))
 
 KB_DIR = r"D:\CalorieCalculation\data\CEC_Revit API"
 STORE_DIR = r"D:\CalorieCalculation\data\cec_rag"
 CHROMA_PATH = os.path.join(STORE_DIR, "chroma_store")
-STATE_PATH = os.path.join(STORE_DIR, "ingest_state.json")
+STATE_PATH = os.path.join(STORE_DIR, "ingest_state_llamaindex.json")
 LOG_PATH = os.path.join(STORE_DIR, "qa_log.jsonl")
-COLLECTION_NAME = "cec_docs"
+COLLECTION_NAME = "cec_docs_llamaindex"  # 2026/10/6 改由 LlamaIndex 寫入，換新 collection 重建
 EXCLUDE_FILES = {"AIRAGUse.md"}  # 給工程師看的實作說明，不是知識內容
 
 GENERAL = "_通用問題"
@@ -73,6 +92,8 @@ ERROR_HINT_WORDS = ["「", "請確認", "無法", "失敗", "錯誤", "error", "
 _cards = None          # api -> card dict
 _error_index = None    # [(normalized 訊息, api, section 名稱)]
 _collection = None
+_vector_store = None
+_index = None
 
 
 # ---------- 文字正規化 ----------
@@ -198,19 +219,39 @@ def _file_hash(path: str) -> str:
         return hashlib.sha1(f.read()).hexdigest()
 
 
-def _get_collection():
-    global _collection
-    if _collection is None:
+def _get_index():
+    """LlamaIndex 的 VectorStoreIndex，底層存在 Chroma（跟 Belfast 的 nutrition_lookup 同一套寫法），
+    向量模型共用 nutrition_lookup 已載入的 bge-m3。"""
+    global _collection, _vector_store, _index
+    if _index is None:
         os.makedirs(STORE_DIR, exist_ok=True)
+        nutrition_lookup._load()
         db = chromadb.PersistentClient(path=CHROMA_PATH)
         _collection = db.get_or_create_collection(COLLECTION_NAME, metadata={"hnsw:space": "cosine"})
-    return _collection
+        _vector_store = ChromaVectorStore(chroma_collection=_collection)
+        _index = VectorStoreIndex.from_vector_store(_vector_store, embed_model=nutrition_lookup._embed_model)
+    return _index
+
+
+def _to_node(chunk: dict) -> TextNode:
+    # 段落文字本身已經帶「# 按鈕標題 / ## 段落名稱」，metadata 不再併進向量和給 LLM 的文字，
+    # 不然 LlamaIndex 預設會把 api、notion_url 這些欄位也塞進去算向量。
+    keys = list(chunk["meta"].keys())
+    return TextNode(
+        id_=chunk["id"],
+        text=chunk["text"],
+        metadata=chunk["meta"],
+        excluded_embed_metadata_keys=keys,
+        excluded_llm_metadata_keys=keys,
+        # 以卡片（檔名）當來源文件，更新時用 delete(ref_doc_id=檔名) 一次刪掉整張卡片的舊段落
+        relationships={NodeRelationship.SOURCE: RelatedNodeInfo(node_id=chunk["meta"]["api"])},
+    )
 
 
 def ensure_ingested() -> dict:
-    """只重新匯入有變動的檔案（規格書第 9 節：用 metadata api 刪掉舊段落再重建）。"""
+    """只重新匯入有變動的檔案（規格書第 9 節：刪掉該卡片的舊段落再重建）。"""
     cards = _load_cards()
-    collection = _get_collection()
+    index = _get_index()
     state = {}
     if os.path.exists(STATE_PATH):
         with open(STATE_PATH, encoding="utf-8") as f:
@@ -220,22 +261,14 @@ def ensure_ingested() -> dict:
     changed = [api for api, h in current.items() if state.get(api) != h]
     removed = [api for api in state if api not in current]
 
-    nutrition_lookup._load()
     for api in changed + removed:
-        collection.delete(where={"api": api})
+        _vector_store.delete(ref_doc_id=api)
     for api in changed:
-        chunks = _chunks_for(cards[api])
-        texts = [c["text"] for c in chunks]
-        collection.add(
-            ids=[c["id"] for c in chunks],
-            documents=texts,
-            embeddings=nutrition_lookup._embed_model.get_text_embedding_batch(texts),
-            metadatas=[c["meta"] for c in chunks],
-        )
+        index.insert_nodes([_to_node(c) for c in _chunks_for(cards[api])])
 
     with open(STATE_PATH, "w", encoding="utf-8") as f:
         json.dump(current, f, ensure_ascii=False, indent=1)
-    return {"changed": len(changed), "removed": len(removed), "total_chunks": collection.count()}
+    return {"changed": len(changed), "removed": len(removed), "total_chunks": _collection.count()}
 
 
 # ---------- 查詢流程 ----------
@@ -330,30 +363,36 @@ def _out_of_scope(question: str):
     return None
 
 
-def _retrieve(question: str, apis: list = None, sections: list = None, k: int = TOP_K) -> list:
-    collection = _get_collection()
-    nutrition_lookup._load()
-    where = None
+def _node_hit(node, score=None) -> dict:
+    hit = {"text": node.get_content(metadata_mode=MetadataMode.NONE), **node.metadata}
+    if score is not None:
+        hit["score"] = round(score, 4)
+    return hit
+
+
+def _retrieve(question: str, apis: list = None, k: int = TOP_K) -> list:
+    """向量檢索（LlamaIndex retriever），apis 有給時用 metadata 篩選只搜這幾張卡片。"""
+    filters = None
     if apis:
-        where = {"api": {"$in": apis}} if len(apis) > 1 else {"api": apis[0]}
-    result = collection.query(
-        query_embeddings=[nutrition_lookup._embed_model.get_query_embedding(question)],
-        n_results=k, where=where, include=["documents", "metadatas", "distances"],
-    )
-    hits = [{"text": t, **m, "score": round(1 - d, 4)}
-            for t, m, d in zip(result["documents"][0], result["metadatas"][0], result["distances"][0])]
-    if sections:
-        hits = [h for h in hits if (h["api"], h["section"]) in sections] or hits
-    return hits
+        filters = MetadataFilters(filters=[
+            MetadataFilter(key="api", value=apis, operator=FilterOperator.IN) if len(apis) > 1
+            else MetadataFilter(key="api", value=apis[0], operator=FilterOperator.EQ)
+        ])
+    retriever = _get_index().as_retriever(similarity_top_k=k, filters=filters)
+    return [_node_hit(n.node, n.score) for n in retriever.retrieve(question)]
 
 
 def _sections_text(pairs: list) -> list:
-    """直接取指定 (api, section) 的整段（錯誤訊息比對命中時用，不經向量檢索）。"""
-    collection = _get_collection()
+    """直接取指定 (api, section) 的整段——錯誤訊息比對命中、通用問題指定段落時用。
+    用 get_nodes 依條件取出，刻意不經過相似度排序（見 match_errors 的說明）。"""
+    _get_index()
     hits = []
     for api, section in pairs:
-        got = collection.get(where={"$and": [{"api": api}, {"section": section}]}, include=["documents", "metadatas"])
-        hits += [{"text": t, **m} for t, m in zip(got["documents"], got["metadatas"])]
+        filters = MetadataFilters(
+            filters=[MetadataFilter(key="api", value=api), MetadataFilter(key="section", value=section)],
+            condition=FilterCondition.AND,
+        )
+        hits += [_node_hit(n) for n in _vector_store.get_nodes(node_ids=None, filters=filters)]
     return hits
 
 
