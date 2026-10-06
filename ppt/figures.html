@@ -1,0 +1,422 @@
+<title>結案報告配圖</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface: #fcfcfb;
+    --page: #eeede9;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --ink-3: #8a8984;
+    --line: #d9d8d3;
+    --grid: #e7e6e1;
+    --s1: #2a78d6;      /* 新做法／主要 */
+    --s1-soft: #e3eefb;
+    --s2: #eb6834;      /* 舊做法／對照 */
+    --s2-soft: #fde9e0;
+    --s3: #1baf7a;      /* 第三種元件（資料） */
+    --s3-soft: #def4ea;
+    --box: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+    color: var(--ink);
+    padding: 24px 16px 48px;
+  }
+  .note { max-width: 1280px; margin: 0 auto 20px; color: var(--ink-2); font-size: 14px; }
+  .fig {
+    width: 1280px; height: 720px; margin: 0 auto 32px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+    padding: 40px 56px; position: relative; overflow: hidden;
+  }
+  .fig-id { position: absolute; top: 14px; right: 20px; font-size: 13px; color: var(--ink-3); }
+  h2 { margin: 0 0 6px; font-size: 34px; font-weight: 700; letter-spacing: 0.5px; }
+  .sub { margin: 0 0 24px; font-size: 18px; color: var(--ink-2); }
+  svg text { font-family: inherit; }
+  .scroll { overflow-x: auto; }
+</style>
+
+<p class="note">每張圖都是 1280×720（16:9），直接截圖貼進投影片。編號對應講稿 .md 裡的「配圖」。</p>
+
+<!-- ============ 圖1 系統架構 ============ -->
+<div class="scroll"><section class="fig" id="fig1">
+  <span class="fig-id">圖1</span>
+  <h2>系統架構</h2>
+  <p class="sub">一台 Flask 伺服器接多個 LINE 頻道，所有模型都在本機執行</p>
+  <svg width="1168" height="560" viewBox="0 0 1168 560">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#8a8984"/>
+      </marker>
+    </defs>
+    <!-- 使用者端 -->
+    <rect x="0" y="40" width="200" height="200" rx="10" fill="#fff" stroke="#d9d8d3"/>
+    <text x="100" y="80" text-anchor="middle" font-size="22" font-weight="700">LINE</text>
+    <text x="100" y="125" text-anchor="middle" font-size="18">🍱 Belfast</text>
+    <text x="100" y="150" text-anchor="middle" font-size="15" fill="#52514e">熱量秘書</text>
+    <text x="100" y="195" text-anchor="middle" font-size="18">🏗️ CEC_API助手</text>
+    <text x="100" y="220" text-anchor="middle" font-size="15" fill="#52514e">建築 API 問答</text>
+
+    <!-- tunnel -->
+    <line x1="200" y1="140" x2="278" y2="140" stroke="#8a8984" stroke-width="2" marker-end="url(#ar)"/>
+    <rect x="280" y="100" width="150" height="80" rx="10" fill="#fff" stroke="#d9d8d3"/>
+    <text x="355" y="135" text-anchor="middle" font-size="17" font-weight="700">cloudflared</text>
+    <text x="355" y="160" text-anchor="middle" font-size="14" fill="#52514e">HTTPS 通道</text>
+    <line x1="430" y1="140" x2="508" y2="140" stroke="#8a8984" stroke-width="2" marker-end="url(#ar)"/>
+
+    <!-- Flask -->
+    <rect x="510" y="40" width="250" height="200" rx="10" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5"/>
+    <text x="635" y="78" text-anchor="middle" font-size="20" font-weight="700">Flask Webhook</text>
+    <text x="635" y="118" text-anchor="middle" font-size="15" fill="#52514e">/callback/belfast</text>
+    <text x="635" y="143" text-anchor="middle" font-size="15" fill="#52514e">/callback/cec</text>
+    <text x="635" y="183" text-anchor="middle" font-size="15">程式規則判斷</text>
+    <text x="635" y="206" text-anchor="middle" font-size="15">→ 檢索 → 生成回答</text>
+
+    <!-- 右側：本機模型 -->
+    <rect x="850" y="0" width="318" height="270" rx="10" fill="#fff" stroke="#d9d8d3"/>
+    <text x="1009" y="34" text-anchor="middle" font-size="19" font-weight="700">本機模型（Ollama）</text>
+    <text x="874" y="74" font-size="15" font-weight="700">看圖（三模型投票）</text>
+    <text x="874" y="98" font-size="14" fill="#52514e">gemma3:12b ・ qwen3-vl:8b ・ minicpm-v</text>
+    <text x="874" y="138" font-size="15" font-weight="700">回答生成</text>
+    <text x="874" y="162" font-size="14" fill="#52514e">qwen3:8b</text>
+    <text x="874" y="202" font-size="15" font-weight="700">向量模型 ／ 影像比對</text>
+    <text x="874" y="226" font-size="14" fill="#52514e">bge-m3（LlamaIndex 載入）・ CLIP</text>
+    <line x1="760" y1="120" x2="848" y2="120" stroke="#8a8984" stroke-width="2" marker-end="url(#ar)"/>
+
+    <!-- 下方：資料 -->
+    <line x1="635" y1="240" x2="635" y2="318" stroke="#8a8984" stroke-width="2" marker-end="url(#ar)"/>
+    <rect x="160" y="320" width="950" height="230" rx="10" fill="#def4ea" stroke="#1baf7a" stroke-width="1.5"/>
+    <text x="635" y="356" text-anchor="middle" font-size="20" font-weight="700">知識庫（LlamaIndex VectorStoreIndex ＋ Chroma 向量資料庫）</text>
+    <g font-size="15">
+      <rect x="190" y="380" width="430" height="150" rx="8" fill="#fff" stroke="#d9d8d3"/>
+      <text x="210" y="410" font-weight="700">Belfast 熱量</text>
+      <text x="210" y="438" fill="#52514e">衛福部食品營養資料庫 2,180 筆</text>
+      <text x="210" y="462" fill="#52514e">台大自助餐熱量表 83 道 ・ 使用者回報的菜</text>
+      <text x="210" y="486" fill="#52514e">典型便當份量表（附出處）</text>
+      <text x="210" y="510" fill="#52514e">Nutrition5k 實測熱量餐點照片 3,456 張</text>
+      <rect x="650" y="380" width="430" height="150" rx="8" fill="#fff" stroke="#d9d8d3"/>
+      <text x="670" y="410" font-weight="700">CEC 建築 API</text>
+      <text x="670" y="438" fill="#52514e">60 個按鈕說明卡 ＋ 通用問題 ＋ 功能目錄</text>
+      <text x="670" y="462" fill="#52514e">依段落切成 361 段，每段帶按鈕名稱</text>
+      <text x="670" y="486" fill="#52514e">錯誤訊息原文索引（字串比對用）</text>
+      <text x="670" y="510" fill="#52514e">SQLite：飲食紀錄 ・ 問答紀錄</text>
+    </g>
+  </svg>
+</section></div>
+
+<!-- ============ 圖2 Belfast 流程 ============ -->
+<div class="scroll"><section class="fig" id="fig2">
+  <span class="fig-id">圖2</span>
+  <h2>Belfast：拍一張照片到記錄熱量</h2>
+  <p class="sub">熱量數字只來自資料庫；查不到就說「無法確定」，最後由使用者確認才記錄</p>
+  <svg width="1168" height="560" viewBox="0 0 1168 560">
+    <defs>
+      <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" fill="#8a8984"/>
+      </marker>
+    </defs>
+    <g font-size="15">
+      <!-- step boxes -->
+      <rect x="0" y="40" width="200" height="170" rx="10" fill="#fff" stroke="#d9d8d3"/>
+      <text x="100" y="78" text-anchor="middle" font-size="30">📷</text>
+      <text x="100" y="118" text-anchor="middle" font-size="18" font-weight="700">傳照片</text>
+      <text x="100" y="148" text-anchor="middle" fill="#52514e">先問：要我算？</text>
+      <text x="100" y="172" text-anchor="middle" fill="#52514e">還是你知道熱量？</text>
+
+      <rect x="240" y="40" width="200" height="170" rx="10" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5"/>
+      <text x="340" y="78" text-anchor="middle" font-size="30">🗳️</text>
+      <text x="340" y="118" text-anchor="middle" font-size="18" font-weight="700">三模型投票</text>
+      <text x="340" y="148" text-anchor="middle" fill="#52514e">每道菜 0～1 信心</text>
+      <text x="340" y="172" text-anchor="middle" fill="#52514e">加總 ÷ 3 ≥ 0.4 才算</text>
+
+      <rect x="480" y="40" width="200" height="170" rx="10" fill="#def4ea" stroke="#1baf7a" stroke-width="1.5"/>
+      <text x="580" y="78" text-anchor="middle" font-size="30">🔎</text>
+      <text x="580" y="118" text-anchor="middle" font-size="18" font-weight="700">RAG 查熱量</text>
+      <text x="580" y="148" text-anchor="middle" fill="#52514e">衛福部資料庫優先</text>
+      <text x="580" y="172" text-anchor="middle" fill="#52514e">→ 台大表 → 自己回報</text>
+
+      <rect x="720" y="40" width="200" height="170" rx="10" fill="#fff" stroke="#d9d8d3"/>
+      <text x="820" y="78" text-anchor="middle" font-size="30">⚖️</text>
+      <text x="820" y="118" text-anchor="middle" font-size="18" font-weight="700">份量換公克</text>
+      <text x="820" y="148" text-anchor="middle" fill="#52514e">代換表 → 典型</text>
+      <text x="820" y="172" text-anchor="middle" fill="#52514e">便當份量（附出處）</text>
+
+      <rect x="960" y="40" width="208" height="170" rx="10" fill="#fff" stroke="#d9d8d3"/>
+      <text x="1064" y="78" text-anchor="middle" font-size="30">✅</text>
+      <text x="1064" y="118" text-anchor="middle" font-size="18" font-weight="700">使用者選定</text>
+      <text x="1064" y="148" text-anchor="middle" fill="#52514e">選完才寫入紀錄</text>
+      <text x="1064" y="172" text-anchor="middle" fill="#52514e">可問每週平均攝取</text>
+
+      <line x1="200" y1="125" x2="236" y2="125" stroke="#8a8984" stroke-width="2" marker-end="url(#ar2)"/>
+      <line x1="440" y1="125" x2="476" y2="125" stroke="#8a8984" stroke-width="2" marker-end="url(#ar2)"/>
+      <line x1="680" y1="125" x2="716" y2="125" stroke="#8a8984" stroke-width="2" marker-end="url(#ar2)"/>
+      <line x1="920" y1="125" x2="956" y2="125" stroke="#8a8984" stroke-width="2" marker-end="url(#ar2)"/>
+    </g>
+
+    <!-- 兩種估計 -->
+    <text x="0" y="280" font-size="20" font-weight="700">最後給使用者看的畫面（測試照片：炸豬排便當）</text>
+    <rect x="0" y="300" width="560" height="230" rx="12" fill="#fff" stroke="#d9d8d3"/>
+    <g font-size="17">
+      <text x="28" y="342">這餐的熱量估算：</text>
+      <text x="28" y="380">① 逐項加總：約 762 大卡（相近估算）</text>
+      <text x="28" y="414">② 外觀參考：約 358 大卡</text>
+      <text x="56" y="440" font-size="14" fill="#52514e">（外觀相似的參考餐點，範圍 181～458）</text>
+    </g>
+    <g font-size="15">
+      <rect x="28" y="466" width="120" height="40" rx="20" fill="#fff" stroke="#2a78d6"/>
+      <text x="88" y="491" text-anchor="middle" fill="#2a78d6">逐項 762</text>
+      <rect x="160" y="466" width="120" height="40" rx="20" fill="#fff" stroke="#2a78d6"/>
+      <text x="220" y="491" text-anchor="middle" fill="#2a78d6">外觀 358</text>
+      <rect x="292" y="466" width="120" height="40" rx="20" fill="#fff" stroke="#2a78d6"/>
+      <text x="352" y="491" text-anchor="middle" fill="#2a78d6">手動輸入</text>
+      <rect x="424" y="466" width="110" height="40" rx="20" fill="#fff" stroke="#2a78d6"/>
+      <text x="479" y="491" text-anchor="middle" fill="#2a78d6">不記錄</text>
+    </g>
+    <g font-size="17">
+      <text x="610" y="342" font-weight="700">為什麼給兩個數字、讓人選？</text>
+      <text x="610" y="380" fill="#52514e">・兩者誤差來源不同：一個可能漏算品項，</text>
+      <text x="610" y="406" fill="#52514e">　一個是參考餐點和台菜外觀有落差</text>
+      <text x="610" y="442" fill="#52514e">・硬取平均會把兩邊的誤差混在一起</text>
+      <text x="610" y="478" fill="#52514e">・使用者的選擇和照片都存下來，</text>
+      <text x="610" y="504" fill="#52514e">　之後可以分析哪種估計比較準</text>
+    </g>
+  </svg>
+</section></div>
+
+<!-- ============ 圖3 三模型投票成效 ============ -->
+<div class="scroll"><section class="fig" id="fig3">
+  <span class="fig-id">圖3</span>
+  <h2>三模型投票：真的有的菜不再被丟掉</h2>
+  <p class="sub">10 張便當照片、61 道人工標註的菜（同一套評分方式）</p>
+  <svg width="1168" height="540" viewBox="0 0 1168 540" role="img" aria-label="抓到率舊 44.3% 新 70.5%；正確率舊 86.7% 新 85.7%">
+    <!-- legend -->
+    <g font-size="17">
+      <rect x="60" y="0" width="18" height="18" rx="3" fill="#eb6834"/><text x="86" y="15">舊：2 個模型，兩個都講到才算</text>
+      <rect x="400" y="0" width="18" height="18" rx="3" fill="#2a78d6"/><text x="426" y="15">新：3 個模型，信心分數投票（門檻 0.4）</text>
+    </g>
+    <!-- axis: plot area y 60..440 (100% = 380px) -->
+    <g stroke="#e7e6e1" stroke-width="1">
+      <line x1="60" y1="440" x2="760" y2="440" stroke="#8a8984"/>
+      <line x1="60" y1="345" x2="760" y2="345"/><line x1="60" y1="250" x2="760" y2="250"/>
+      <line x1="60" y1="155" x2="760" y2="155"/><line x1="60" y1="60" x2="760" y2="60"/>
+    </g>
+    <g font-size="14" fill="#8a8984" text-anchor="end">
+      <text x="50" y="445">0%</text><text x="50" y="350">25%</text><text x="50" y="255">50%</text><text x="50" y="160">75%</text><text x="50" y="65">100%</text>
+    </g>
+    <!-- 抓到率 -->
+    <g>
+      <title>抓到率：舊 44.3%，新 70.5%</title>
+      <path d="M140,440 V275.7 a4,4 0 0 1 4,-4 H222 a4,4 0 0 1 4,4 V440 z" fill="#eb6834"/>
+      <path d="M228,440 V176.1 a4,4 0 0 1 4,-4 H310 a4,4 0 0 1 4,4 V440 z" fill="#2a78d6"/>
+      <text x="183" y="262" text-anchor="middle" font-size="20" font-weight="700">44.3%</text>
+      <text x="271" y="162" text-anchor="middle" font-size="20" font-weight="700">70.5%</text>
+      <text x="227" y="470" text-anchor="middle" font-size="18">抓到率</text>
+      <text x="227" y="494" text-anchor="middle" font-size="14" fill="#52514e">照片裡有的菜，抓到幾成</text>
+    </g>
+    <!-- 正確率 -->
+    <g>
+      <title>正確率：舊 86.7%，新 85.7%</title>
+      <path d="M460,440 V114.5 a4,4 0 0 1 4,-4 H542 a4,4 0 0 1 4,4 V440 z" fill="#eb6834"/>
+      <path d="M548,440 V118.3 a4,4 0 0 1 4,-4 H630 a4,4 0 0 1 4,4 V440 z" fill="#2a78d6"/>
+      <text x="503" y="101" text-anchor="middle" font-size="20" font-weight="700">86.7%</text>
+      <text x="591" y="101" text-anchor="middle" font-size="20" font-weight="700">85.7%</text>
+      <text x="547" y="470" text-anchor="middle" font-size="18">正確率</text>
+      <text x="547" y="494" text-anchor="middle" font-size="14" fill="#52514e">算進去的菜，有幾成真的存在</text>
+    </g>
+    <!-- 右側重點 -->
+    <g font-size="18">
+      <text x="820" y="90" font-weight="700">抓到率 +26 個百分點</text>
+      <text x="820" y="118" font-size="16" fill="#52514e">正確率幾乎不變</text>
+      <text x="820" y="190" font-weight="700">門檻為什麼是 0.4？</text>
+      <text x="820" y="218" font-size="16" fill="#52514e">單一模型就算給 0.95 分，</text>
+      <text x="820" y="242" font-size="16" fill="#52514e">0.95 ÷ 3 ≈ 0.32，過不了門檻</text>
+      <text x="820" y="266" font-size="16" fill="#52514e">→ 至少要 2 個模型同意</text>
+      <text x="820" y="296" font-size="16" fill="#52514e">（門檻 0.3 時正確率掉到 56%）</text>
+      <text x="820" y="366" font-weight="700">主菜名稱各說各話</text>
+      <text x="820" y="394" font-size="16" fill="#52514e">糖醋排骨／烤鴨／滷雞肉</text>
+      <text x="820" y="418" font-size="16" fill="#52514e">→ 改用肉的種類歸群</text>
+      <text x="820" y="442" font-size="16" fill="#52514e">有算到主菜：9/10 → 10/10 張</text>
+    </g>
+  </svg>
+</section></div>
+
+<!-- ============ 圖4 份量換算前後 ============ -->
+<div class="scroll"><section class="fig" id="fig4">
+  <span class="fig-id">圖4</span>
+  <h2>份量換算：從 91 大卡到合理範圍</h2>
+  <p class="sub">典型便當份量表，每個數字都有出處；查不到出處的菜就不套用</p>
+  <svg width="1168" height="540" viewBox="0 0 1168 540" role="img" aria-label="同一個炸豬排便當，改前 91.5 大卡，改後 761.7 大卡">
+    <text x="0" y="20" font-size="20" font-weight="700">同一個炸豬排便當的逐項加總</text>
+    <!-- horizontal bars, scale 1100 kcal = 640px, x0=150 -->
+    <g stroke="#e7e6e1">
+      <line x1="150" y1="40" x2="150" y2="200" stroke="#8a8984"/>
+      <line x1="266.4" y1="40" x2="266.4" y2="200"/><line x1="382.7" y1="40" x2="382.7" y2="200"/>
+      <line x1="499.1" y1="40" x2="499.1" y2="200"/><line x1="615.5" y1="40" x2="615.5" y2="200"/>
+      <line x1="731.8" y1="40" x2="731.8" y2="200"/>
+    </g>
+    <g font-size="13" fill="#8a8984" text-anchor="middle">
+      <text x="150" y="220">0</text><text x="266.4" y="220">200</text><text x="382.7" y="220">400</text>
+      <text x="499.1" y="220">600</text><text x="615.5" y="220">800</text><text x="731.8" y="220">1000</text>
+    </g>
+    <g>
+      <title>改前：91.5 大卡（只算到白飯，而且白飯只算了 1 湯匙 50 公克）</title>
+      <path d="M150,60 H199.2 a4,4 0 0 1 4,4 V100 a4,4 0 0 1 -4,4 H150 z" fill="#eb6834"/>
+      <text x="140" y="88" text-anchor="end" font-size="16">改前</text>
+      <text x="213" y="88" font-size="17" font-weight="700">91.5 大卡</text>
+      <text x="320" y="88" font-size="14" fill="#52514e">只算到白飯，而且白飯只算了 1 湯匙</text>
+    </g>
+    <g>
+      <title>改後：761.7 大卡</title>
+      <path d="M150,130 H589.3 a4,4 0 0 1 4,4 V170 a4,4 0 0 1 -4,4 H150 z" fill="#2a78d6"/>
+      <text x="140" y="158" text-anchor="end" font-size="16">改後</text>
+      <text x="603" y="158" font-size="17" font-weight="700">761.7 大卡</text>
+    </g>
+
+    <text x="0" y="280" font-size="20" font-weight="700">10 張測試便當 vs 一般便當</text>
+    <g stroke="#e7e6e1">
+      <line x1="150" y1="300" x2="150" y2="440" stroke="#8a8984"/>
+      <line x1="382.7" y1="300" x2="382.7" y2="440"/><line x1="499.1" y1="300" x2="499.1" y2="440"/>
+      <line x1="615.5" y1="300" x2="615.5" y2="440"/><line x1="731.8" y1="300" x2="731.8" y2="440"/>
+    </g>
+    <g font-size="13" fill="#8a8984" text-anchor="middle">
+      <text x="382.7" y="460">400</text><text x="499.1" y="460">600</text><text x="615.5" y="460">800</text><text x="731.8" y="460">1000</text>
+    </g>
+    <g>
+      <title>10 張測試便當大多落在 730～910 大卡</title>
+      <rect x="574.8" y="318" width="104.7" height="36" rx="4" fill="#2a78d6"/>
+      <text x="140" y="342" text-anchor="end" font-size="16">本系統</text>
+      <text x="692" y="342" font-size="15">730～910（10 張中大多數）</text>
+    </g>
+    <g>
+      <title>陽明交大自助餐公告的 7 種便當：790～1020 大卡</title>
+      <rect x="609.7" y="380" width="133.8" height="36" rx="4" fill="#1baf7a"/>
+      <text x="140" y="404" text-anchor="end" font-size="16">參考值</text>
+      <text x="756" y="404" font-size="15">790～1020（陽明交大公告的 7 種便當）</text>
+    </g>
+
+    <g font-size="16">
+      <text x="0" y="500" fill="#52514e">份量出處：國健署《每日飲食指南》1 碗飯 200 公克 ・ 馬偕《食物份量代換手冊》雞蛋 55 公克</text>
+      <text x="0" y="528" fill="#52514e">　　　　　陽明交大自助餐營養分析表（滷雞腿 150、炸雞腿 200、配菜每格 80 公克…）</text>
+    </g>
+  </svg>
+</section></div>
+
+<!-- ============ 圖5 CEC 查詢流程 ============ -->
+<div class="scroll"><section class="fig" id="fig5">
+  <span class="fig-id">圖5</span>
+  <h2>CEC_API助手：能用程式判斷的，就不讓 AI 猜</h2>
+  <p class="sub">比對不到才交給向量檢索與語言模型；回答只能根據資料，並附上說明頁連結</p>
+  <svg width="1168" height="560" viewBox="0 0 1168 560">
+    <defs>
+      <marker id="ar5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" fill="#8a8984"/>
+      </marker>
+    </defs>
+    <rect x="0" y="20" width="200" height="70" rx="10" fill="#fff" stroke="#d9d8d3"/>
+    <text x="100" y="62" text-anchor="middle" font-size="18" font-weight="700">💬 同事發問</text>
+    <line x1="200" y1="55" x2="246" y2="55" stroke="#8a8984" stroke-width="2" marker-end="url(#ar5)"/>
+
+    <g font-size="15">
+      <!-- 規則層 -->
+      <rect x="250" y="0" width="560" height="440" rx="12" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5"/>
+      <text x="530" y="34" text-anchor="middle" font-size="18" font-weight="700">程式規則（不靠 AI）</text>
+
+      <rect x="274" y="54" width="512" height="80" rx="8" fill="#fff" stroke="#d9d8d3"/>
+      <text x="294" y="84" font-weight="700">① 不屬於本外掛？（機電、土木、帳號授權）</text>
+      <text x="294" y="112" fill="#52514e">→ 直接告訴對方該找誰，不回答內容</text>
+
+      <rect x="274" y="148" width="512" height="100" rx="8" fill="#fff" stroke="#d9d8d3"/>
+      <text x="294" y="178" font-weight="700">② 比對 60 個按鈕的名稱與別名</text>
+      <text x="294" y="204" fill="#52514e">容許錯字：梁／樑、驅／軀、版／板、少打一個字</text>
+      <text x="294" y="230" fill="#52514e">→ 1 個：只搜這個按鈕 ・ 多個：跳按鈕讓使用者選</text>
+
+      <rect x="274" y="262" width="512" height="80" rx="8" fill="#fff" stroke="#d9d8d3"/>
+      <text x="294" y="292" font-weight="700">③ 貼上的是錯誤訊息？</text>
+      <text x="294" y="320" fill="#52514e">→ 去掉空白標點後比對原文，直接找到對應段落</text>
+
+      <rect x="274" y="356" width="512" height="68" rx="8" fill="#fff" stroke="#d9d8d3"/>
+      <text x="294" y="386" font-weight="700">④ 記得目前在聊哪個按鈕</text>
+      <text x="294" y="410" fill="#52514e">→ 追問不用重講；換話題時清掉舊的對話紀錄</text>
+    </g>
+
+    <line x1="810" y1="220" x2="886" y2="220" stroke="#8a8984" stroke-width="2" marker-end="url(#ar5)"/>
+    <text x="848" y="208" text-anchor="middle" font-size="13" fill="#8a8984">比對不到</text>
+
+    <g font-size="15">
+      <rect x="890" y="120" width="278" height="100" rx="10" fill="#def4ea" stroke="#1baf7a" stroke-width="1.5"/>
+      <text x="1029" y="158" text-anchor="middle" font-size="17" font-weight="700">向量檢索</text>
+      <text x="1029" y="186" text-anchor="middle" fill="#52514e">bge-m3 ・ 361 段說明</text>
+      <text x="1029" y="208" text-anchor="middle" fill="#52514e">範圍限定在比對到的按鈕</text>
+
+      <line x1="1029" y1="220" x2="1029" y2="256" stroke="#8a8984" stroke-width="2" marker-end="url(#ar5)"/>
+      <rect x="890" y="260" width="278" height="130" rx="10" fill="#fff" stroke="#d9d8d3"/>
+      <text x="1029" y="296" text-anchor="middle" font-size="17" font-weight="700">qwen3:8b 回答</text>
+      <text x="1029" y="324" text-anchor="middle" fill="#52514e">只能根據檢索到的段落</text>
+      <text x="1029" y="348" text-anchor="middle" fill="#52514e">沒資料就說沒資料</text>
+      <text x="1029" y="372" text-anchor="middle" fill="#52514e">說明頁連結由程式附上</text>
+    </g>
+
+    <g font-size="16">
+      <text x="0" y="490" font-weight="700">為什麼這樣設計</text>
+      <text x="0" y="518" fill="#52514e">同事打的是中文、常打錯字、最常直接貼錯誤視窗的文字 — 程式比對比小模型判斷可靠，也比只靠向量檢索精準。</text>
+    </g>
+  </svg>
+</section></div>
+
+<!-- ============ 圖6 回答模型比較 ============ -->
+<div class="scroll"><section class="fig" id="fig6">
+  <span class="fig-id">圖6</span>
+  <h2>回答模型的選擇與踩到的坑</h2>
+  <p class="sub">規格書的 10 個情境 ＋ 2 題補充，共 12 題</p>
+  <svg width="1168" height="540" viewBox="0 0 1168 540" role="img" aria-label="llama3.2 答對 8 題，qwen3:8b 修正後 12 題核心答案正確">
+    <!-- bars: scale 12 = 480px, x0=180 -->
+    <g stroke="#e7e6e1">
+      <line x1="180" y1="20" x2="180" y2="190" stroke="#8a8984"/>
+      <line x1="340" y1="20" x2="340" y2="190"/><line x1="500" y1="20" x2="500" y2="190"/><line x1="660" y1="20" x2="660" y2="190"/>
+    </g>
+    <g font-size="13" fill="#8a8984" text-anchor="middle">
+      <text x="180" y="210">0</text><text x="340" y="210">4</text><text x="500" y="210">8</text><text x="660" y="210">12 題</text>
+    </g>
+    <g>
+      <title>llama3.2：答對 8 題（4 題把資料裡有的答案回成「沒有資料」）</title>
+      <path d="M180,40 H496 a4,4 0 0 1 4,4 V80 a4,4 0 0 1 -4,4 H180 z" fill="#eb6834"/>
+      <text x="170" y="68" text-anchor="end" font-size="16">llama3.2</text>
+      <text x="512" y="68" font-size="17" font-weight="700">8 / 12</text>
+    </g>
+    <g>
+      <title>qwen3:8b（修正後）：12 題核心答案正確</title>
+      <path d="M180,110 H656 a4,4 0 0 1 4,4 V150 a4,4 0 0 1 -4,4 H180 z" fill="#2a78d6"/>
+      <text x="170" y="138" text-anchor="end" font-size="16">qwen3:8b</text>
+      <text x="672" y="138" font-size="17" font-weight="700">12 / 12</text>
+    </g>
+    <g font-size="16">
+      <text x="760" y="60" fill="#52514e">llama3.2：4 題資料明明有答案，</text>
+      <text x="760" y="84" fill="#52514e">卻回「沒有資料」</text>
+      <text x="760" y="130" fill="#52514e">qwen3:8b：每題 2～6 秒</text>
+    </g>
+
+    <!-- 踩坑 -->
+    <text x="0" y="270" font-size="20" font-weight="700">踩到的坑：模型把相鄰兩條拼成錯的建議</text>
+    <g font-size="16">
+      <rect x="0" y="290" width="360" height="150" rx="10" fill="#fff" stroke="#d9d8d3"/>
+      <text x="20" y="322" font-weight="700">資料原文</text>
+      <text x="20" y="356" fill="#52514e">4. 不支援斜板。</text>
+      <text x="20" y="386" fill="#52514e">5. Deck 樓板請改用</text>
+      <text x="20" y="410" fill="#52514e">　「建立Deck切割樓板」。</text>
+
+      <rect x="400" y="290" width="360" height="150" rx="10" fill="#fde9e0" stroke="#eb6834"/>
+      <text x="420" y="322" font-weight="700">問：可以用在斜板嗎？</text>
+      <text x="420" y="356" fill="#52514e">改前回答：</text>
+      <text x="420" y="386">「不可以，請改用</text>
+      <text x="420" y="410">　建立Deck切割樓板」✗</text>
+
+      <rect x="800" y="290" width="368" height="150" rx="10" fill="#e3eefb" stroke="#2a78d6"/>
+      <text x="820" y="322" font-weight="700">解法</text>
+      <text x="820" y="356" fill="#52514e">「不可以拼湊」的規則移到</text>
+      <text x="820" y="380" fill="#52514e">提示詞最後面（小模型較聽從</text>
+      <text x="820" y="404" fill="#52514e">結尾的指示）→「不支援斜板。」✓</text>
+    </g>
+  </svg>
+</section></div>

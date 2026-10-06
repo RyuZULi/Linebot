@@ -1,0 +1,190 @@
+<title>踩坑配圖</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface: #fcfcfb; --page: #eeede9; --ink: #0b0b0b; --ink-2: #52514e; --ink-3: #8a8984;
+    --line: #d9d8d3; --grid: #e7e6e1;
+    --s1: #2a78d6; --s1-soft: #e3eefb; --s2: #eb6834; --s2-soft: #fde9e0; --s3: #1baf7a; --s3-soft: #def4ea;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); padding: 24px 16px 48px;
+         font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif; }
+  .note { max-width: 1280px; margin: 0 auto 20px; color: var(--ink-2); font-size: 14px; }
+  .fig { width: 1280px; height: 720px; margin: 0 auto 32px; background: var(--surface);
+         border: 1px solid var(--line); border-radius: 6px; padding: 40px 56px; position: relative; overflow: hidden; }
+  .fig-id { position: absolute; top: 14px; right: 20px; font-size: 13px; color: var(--ink-3); }
+  h2 { margin: 0 0 6px; font-size: 34px; font-weight: 700; }
+  .sub { margin: 0 0 22px; font-size: 18px; color: var(--ink-2); }
+  .scroll { overflow-x: auto; }
+  table.rank { border-collapse: collapse; font-size: 17px; width: 100%; }
+  table.rank th { text-align: left; font-weight: 700; padding: 6px 10px; border-bottom: 2px solid var(--ink-3); }
+  table.rank td { padding: 6px 10px; border-bottom: 1px solid var(--grid); }
+  table.rank td.score { color: var(--ink-2); font-variant-numeric: tabular-nums; width: 70px; }
+  .hit { background: var(--s1-soft); font-weight: 700; }
+  .tag { display: inline-block; font-size: 13px; padding: 1px 8px; border-radius: 10px; margin-left: 8px; }
+  .tag.ok { background: var(--s1); color: #fff; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+  .col h3 { margin: 0 0 10px; font-size: 19px; }
+  .q { font-size: 16px; color: var(--ink-2); margin: 0 0 8px; }
+  .verdict { margin-top: 12px; font-size: 16px; }
+  svg text { font-family: inherit; }
+</style>
+
+<p class="note">每張 1280×720（16:9），截圖貼進投影片。編號對應 `踩坑與試錯紀錄.md`。</p>
+
+<!-- ============ P1 錯誤訊息：向量 vs 字串 ============ -->
+<div class="scroll"><section class="fig" id="p1">
+  <span class="fig-id">圖P1</span>
+  <h2>錯誤訊息不該用向量檢索</h2>
+  <p class="sub">同事貼上的是程式裡一字不差的原文 → 直接比對原文最準；向量檢索比的是「意思像不像」</p>
+  <div class="cols">
+    <div class="col">
+      <h3>貼上：「無法取得柱幾何-ID: 352871」</h3>
+      <p class="q">向量檢索前 4 名</p>
+      <table class="rank">
+        <tr><th>#</th><th>段落</th><th>分數</th></tr>
+        <tr><td>1</td><td>柱表面標註｜錯誤訊息對照</td><td class="score">0.640</td></tr>
+        <tr><td>2</td><td>柱位放樣及網格標註｜錯誤訊息對照</td><td class="score">0.610</td></tr>
+        <tr class="hit"><td>3</td><td>建立切割樓板｜錯誤訊息對照 <span class="tag ok">正確</span></td><td class="score">0.584</td></tr>
+        <tr><td>4</td><td>建立Deck切割樓板｜錯誤訊息對照</td><td class="score">0.578</td></tr>
+      </table>
+      <p class="verdict">正確段落排第 3；第 1、2 名只是同樣跟「柱」有關</p>
+    </div>
+    <div class="col">
+      <h3>貼上：「請切換到 3D 視圖，並開啟剖面框…」</h3>
+      <p class="q">這句出現在 3 個按鈕（開門空間、窗淨空間、樓梯淨高檢查）。向量檢索前 4 名</p>
+      <table class="rank">
+        <tr><th>#</th><th>段落</th><th>分數</th></tr>
+        <tr class="hit"><td>1</td><td>開門空間碰撞檢查｜錯誤訊息對照 <span class="tag ok">正確</span></td><td class="score">0.746</td></tr>
+        <tr><td>2</td><td>批次套用3D範圍及視角｜錯誤訊息對照</td><td class="score">0.725</td></tr>
+        <tr><td>3</td><td>開門空間碰撞檢查｜執行前要準備</td><td class="score">0.725</td></tr>
+        <tr><td>4</td><td>匯出3D剖面框參數｜錯誤訊息對照</td><td class="score">0.723</td></tr>
+      </table>
+      <p class="verdict">3 個正確按鈕只找到 1 個；其他名次被「主題相近」的剖面框功能佔走</p>
+    </div>
+  </div>
+  <svg width="1168" height="110" viewBox="0 0 1168 110" style="margin-top:22px">
+    <rect x="0" y="0" width="1168" height="100" rx="10" fill="#e3eefb" stroke="#2a78d6"/>
+    <text x="24" y="38" font-size="19" font-weight="700">改成字串比對：去掉空白、標點和 ID 數字後比對原文，命中就整段取出</text>
+    <text x="24" y="72" font-size="17" fill="#52514e">兩句都 100% 找到正確段落（第 2 句的 3 個按鈕全部找到）；比對不到才退回向量檢索</text>
+  </svg>
+</section></div>
+
+<!-- ============ P2 人設 → 編造 ============ -->
+<div class="scroll"><section class="fig" id="p2">
+  <span class="fig-id">圖P2</span>
+  <h2>幫 AI 套上角色人設，它就開始編造</h2>
+  <p class="sub">營養手冊 PDF 問答：問手冊裡「沒有」的兩題（一碗白飯幾公克、一碗牛肉麵熱量），各問 3 次，共 6 次</p>
+  <svg width="1168" height="560" viewBox="0 0 1168 560" role="img" aria-label="編造次數：原本 1/6，加人設 6/6，不套人設加嚴格規則 0/6">
+    <!-- scale: 6 = 600px, x0 = 300 -->
+    <g stroke="#e7e6e1">
+      <line x1="300" y1="20" x2="300" y2="300" stroke="#8a8984"/>
+      <line x1="500" y1="20" x2="500" y2="300"/><line x1="700" y1="20" x2="700" y2="300"/><line x1="900" y1="20" x2="900" y2="300"/>
+    </g>
+    <g font-size="14" fill="#8a8984" text-anchor="middle">
+      <text x="300" y="322">0</text><text x="500" y="322">2</text><text x="700" y="322">4</text><text x="900" y="322">6 次</text>
+    </g>
+    <g font-size="17">
+      <g><title>原本：寬鬆提示詞＋溫度 0.2，編造 1/6</title>
+        <path d="M300,40 H396 a4,4 0 0 1 4,4 V80 a4,4 0 0 1 -4,4 H300 z" fill="#8a8984"/>
+        <text x="288" y="68" text-anchor="end">原本（寬鬆規則）</text>
+        <text x="412" y="68" font-weight="700">1 / 6</text></g>
+      <g><title>加上角色人設，編造 6/6</title>
+        <path d="M300,130 H896 a4,4 0 0 1 4,4 V170 a4,4 0 0 1 -4,4 H300 z" fill="#eb6834"/>
+        <text x="288" y="158" text-anchor="end">加上角色人設</text>
+        <text x="912" y="158" font-weight="700">6 / 6</text></g>
+      <g><title>不套人設＋嚴格規則＋溫度 0，編造 0/6</title>
+        <rect x="300" y="220" width="3" height="44" fill="#2a78d6"/>
+        <text x="288" y="248" text-anchor="end">不套人設＋嚴格規則</text>
+        <text x="316" y="248" font-weight="700">0 / 6</text></g>
+    </g>
+    <rect x="0" y="370" width="1168" height="170" rx="10" fill="#fde9e0" stroke="#eb6834"/>
+    <text x="24" y="408" font-size="18" font-weight="700">加人設時的實際回答（手冊裡根本沒有牛肉麵）：</text>
+    <text x="24" y="446" font-size="19">「根據《食物份量代換手冊 2023 年版》，一碗牛肉麵的熱量為 120 大卡。」</text>
+    <text x="24" y="492" font-size="17" fill="#52514e">最危險的不是編造，而是把編造的數字掛上真實文件當出處 → 使用者會更相信</text>
+    <text x="24" y="520" font-size="17" fill="#52514e">→ 兩個 bot「根據資料回答」的部分都不套人設，人設只用在打招呼這類對話文字</text>
+  </svg>
+</section></div>
+
+<!-- ============ P3 直覺 vs 數據 ============ -->
+<div class="scroll"><section class="fig" id="p3">
+  <span class="fig-id">圖P3</span>
+  <h2>直覺上對的做法，數據說不對</h2>
+  <p class="sub">想法：叫模型「整道菜列一項、不拆配料」，三個模型的答案應該更一致 → 實測 10 張照片 × 3 個模型</p>
+  <svg width="1168" height="520" viewBox="0 0 1168 520" role="img" aria-label="原本提示詞抓到率 70.5% 正確率 85.7%；整道菜不拆抓到率 65.6% 正確率 83.3%">
+    <g font-size="17">
+      <rect x="60" y="0" width="18" height="18" rx="3" fill="#2a78d6"/><text x="86" y="15">原本：品項盡量具體</text>
+      <rect x="320" y="0" width="18" height="18" rx="3" fill="#eb6834"/><text x="346" y="15">新想法：整道菜不拆</text>
+    </g>
+    <!-- y: 0%=440, 100%=60 -->
+    <g stroke="#e7e6e1">
+      <line x1="60" y1="440" x2="700" y2="440" stroke="#8a8984"/>
+      <line x1="60" y1="345" x2="700" y2="345"/><line x1="60" y1="250" x2="700" y2="250"/>
+      <line x1="60" y1="155" x2="700" y2="155"/><line x1="60" y1="60" x2="700" y2="60"/>
+    </g>
+    <g font-size="14" fill="#8a8984" text-anchor="end">
+      <text x="50" y="445">0%</text><text x="50" y="350">25%</text><text x="50" y="255">50%</text><text x="50" y="160">75%</text><text x="50" y="65">100%</text>
+    </g>
+    <g><title>抓到率：原本 70.5%，整道菜不拆 65.6%</title>
+      <path d="M140,440 V176.1 a4,4 0 0 1 4,-4 H222 a4,4 0 0 1 4,4 V440 z" fill="#2a78d6"/>
+      <path d="M228,440 V194.7 a4,4 0 0 1 4,-4 H310 a4,4 0 0 1 4,4 V440 z" fill="#eb6834"/>
+      <text x="183" y="162" text-anchor="middle" font-size="19" font-weight="700">70.5%</text>
+      <text x="271" y="181" text-anchor="middle" font-size="19" font-weight="700">65.6%</text>
+      <text x="227" y="470" text-anchor="middle" font-size="18">抓到率</text></g>
+    <g><title>正確率：原本 85.7%，整道菜不拆 83.3%</title>
+      <path d="M440,440 V118.3 a4,4 0 0 1 4,-4 H522 a4,4 0 0 1 4,4 V440 z" fill="#2a78d6"/>
+      <path d="M528,440 V127.5 a4,4 0 0 1 4,-4 H610 a4,4 0 0 1 4,4 V440 z" fill="#eb6834"/>
+      <text x="483" y="104" text-anchor="middle" font-size="19" font-weight="700">85.7%</text>
+      <text x="571" y="114" text-anchor="middle" font-size="19" font-weight="700">83.3%</text>
+      <text x="527" y="470" text-anchor="middle" font-size="18">正確率</text></g>
+    <g font-size="18">
+      <text x="760" y="110" font-weight="700">兩項都比原本差</text>
+      <text x="760" y="140" font-size="16" fill="#52514e">其中一個模型還有 2 張照片</text>
+      <text x="760" y="164" font-size="16" fill="#52514e">因此回傳格式錯誤</text>
+      <text x="760" y="230" font-weight="700">→ 收回這個想法</text>
+      <text x="760" y="300" font-weight="700">學到</text>
+      <text x="760" y="330" font-size="16" fill="#52514e">寫好評測腳本之後，</text>
+      <text x="760" y="354" font-size="16" fill="#52514e">驗證一個想法的成本只是重跑一次；</text>
+      <text x="760" y="378" font-size="16" fill="#52514e">沒有評測就只能憑感覺</text>
+    </g>
+  </svg>
+</section></div>
+
+<!-- ============ P4 土豆 ============ -->
+<div class="scroll"><section class="fig" id="p4">
+  <span class="fig-id">圖P4</span>
+  <h2>「土豆」被算成 7 倍熱量——通用解法試過了，失敗</h2>
+  <p class="sub">衛福部資料庫把「土豆」列為花生的俗名 → 辨識出土豆（馬鈴薯 77 大卡/100g）被算成花生（553 大卡/100g）</p>
+  <svg width="1168" height="540" viewBox="0 0 1168 540" role="img" aria-label="土豆語意分數 0.6477，地瓜葉 0.6607，只差 0.013">
+    <text x="0" y="24" font-size="19" font-weight="700">想法：精確比對到的俗名，如果語意分數太低，就判定不可靠</text>
+    <!-- number line 0.60..0.70 -> x 80..1080 (10000px per 1.0) -->
+    <line x1="80" y1="200" x2="1080" y2="200" stroke="#8a8984" stroke-width="2"/>
+    <g font-size="14" fill="#8a8984" text-anchor="middle">
+      <line x1="80" y1="194" x2="80" y2="206" stroke="#8a8984"/><text x="80" y="228">0.60</text>
+      <line x1="330" y1="194" x2="330" y2="206" stroke="#8a8984"/><text x="330" y="228">0.625</text>
+      <line x1="580" y1="194" x2="580" y2="206" stroke="#8a8984"/><text x="580" y="228">0.65</text>
+      <line x1="830" y1="194" x2="830" y2="206" stroke="#8a8984"/><text x="830" y="228">0.675</text>
+      <line x1="1080" y1="194" x2="1080" y2="206" stroke="#8a8984"/><text x="1080" y="228">0.70</text>
+    </g>
+    <g><title>土豆（錯的俗名）：0.6477</title>
+      <circle cx="557" cy="200" r="9" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/>
+      <text x="557" y="150" text-anchor="middle" font-size="18" font-weight="700">土豆 0.6477</text>
+      <text x="557" y="172" text-anchor="middle" font-size="15" fill="#52514e">應該擋掉（錯的俗名）</text></g>
+    <g><title>地瓜葉（正確的比對）：0.6607</title>
+      <circle cx="687" cy="200" r="9" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+      <text x="687" y="270" text-anchor="middle" font-size="18" font-weight="700">地瓜葉 0.6607</text>
+      <text x="687" y="292" text-anchor="middle" font-size="15" fill="#52514e">應該保留（正確的比對）</text></g>
+    <line x1="557" y1="186" x2="687" y2="186" stroke="#0b0b0b" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="622" y="108" text-anchor="middle" font-size="16" fill="#0b0b0b">只差 0.013，中間放不下任何安全的門檻</text>
+    <g font-size="17">
+      <rect x="0" y="350" width="560" height="170" rx="10" fill="#fff" stroke="#d9d8d3"/>
+      <text x="24" y="388" font-weight="700">最後的做法</text>
+      <text x="24" y="420" fill="#52514e">「模糊俗名」黑名單，發現一個加一個</text>
+      <text x="24" y="448" fill="#52514e">（不優雅，但可靠）</text>
+      <rect x="600" y="350" width="568" height="170" rx="10" fill="#fff" stroke="#d9d8d3"/>
+      <text x="624" y="388" font-weight="700">學到</text>
+      <text x="624" y="420" fill="#52514e">失敗的嘗試也寫進程式註解和報告，</text>
+      <text x="624" y="448" fill="#52514e">避免之後又走一次同樣的死路</text>
+    </g>
+  </svg>
+</section></div>

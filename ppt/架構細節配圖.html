@@ -1,0 +1,237 @@
+<title>架構細節配圖</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #eeede9; color: #0b0b0b; padding: 24px 16px 48px;
+         font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif; }
+  .note { max-width: 1280px; margin: 0 auto 20px; color: #52514e; font-size: 14px; }
+  .fig { width: 1280px; height: 720px; margin: 0 auto 32px; background: #fcfcfb; border: 1px solid #d9d8d3;
+         border-radius: 6px; padding: 36px 56px; position: relative; overflow: hidden; }
+  .fig-id { position: absolute; top: 14px; right: 20px; font-size: 13px; color: #8a8984; }
+  h2 { margin: 0 0 6px; font-size: 32px; font-weight: 700; }
+  .sub { margin: 0 0 18px; font-size: 17px; color: #52514e; }
+  .scroll { overflow-x: auto; }
+  svg text { font-family: inherit; }
+</style>
+
+<p class="note">每張 1280×720（16:9），截圖貼進投影片。編號對應 `架構細節.md`。</p>
+
+<!-- ============ D1 Belfast 細節 ============ -->
+<div class="scroll"><section class="fig" id="d1">
+  <span class="fig-id">圖D1</span>
+  <h2>Belfast：每個步驟背後怎麼做</h2>
+  <p class="sub">藍＝AI 模型　綠＝查資料（RAG）　灰＝程式規則</p>
+  <svg width="1168" height="590" viewBox="0 0 1168 590">
+    <defs><marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8a8984"/></marker></defs>
+    <g font-size="14">
+      <!-- row 1 -->
+      <rect x="0" y="0" width="270" height="170" rx="10" fill="#e3eefb" stroke="#2a78d6"/>
+      <text x="16" y="28" font-size="17" font-weight="700">① 三模型辨識</text>
+      <text x="16" y="56" fill="#52514e">gemma3 ・ qwen3-vl ・ minicpm-v</text>
+      <text x="16" y="80" fill="#52514e">輸出：菜名、份量、信心 0～1</text>
+      <text x="16" y="104" fill="#52514e">溫度 0.1、JSON 用括號配對抓</text>
+      <text x="16" y="128" fill="#52514e">簡體 → OpenCC 轉繁體</text>
+      <text x="16" y="152" fill="#8a8984">food_recognition.py</text>
+
+      <rect x="300" y="0" width="270" height="170" rx="10" fill="#f4f4f2" stroke="#8a8984"/>
+      <text x="316" y="28" font-size="17" font-weight="700">② 投票</text>
+      <text x="316" y="56" fill="#52514e">歸群：字面相似 → 肉的種類</text>
+      <text x="316" y="80" fill="#52514e">分數 = 信心加總 ÷ 3</text>
+      <text x="316" y="104" fill="#52514e">≥ 0.4 計入，否則疑似誤判</text>
+      <text x="316" y="128" fill="#52514e">菜名平手聽 gemma3</text>
+      <text x="316" y="152" fill="#8a8984">food_recognition_ensemble.py</text>
+
+      <rect x="600" y="0" width="270" height="170" rx="10" fill="#def4ea" stroke="#1baf7a"/>
+      <text x="616" y="28" font-size="17" font-weight="700">③ 查熱量密度</text>
+      <text x="616" y="56" fill="#52514e">LlamaIndex retriever ＋ bge-m3</text>
+      <text x="616" y="80" fill="#52514e">衛福部 → 使用者回報 → 台大表</text>
+      <text x="616" y="104" fill="#52514e">完全相同 優先於 相近</text>
+      <text x="616" y="128" fill="#52514e">相近門檻 0.70（校準過）</text>
+      <text x="616" y="152" fill="#8a8984">nutrition_lookup.py（圖D2）</text>
+
+      <rect x="900" y="0" width="268" height="170" rx="10" fill="#f4f4f2" stroke="#8a8984"/>
+      <text x="916" y="28" font-size="17" font-weight="700">④ 份量換公克</text>
+      <text x="916" y="56" fill="#52514e">手冊代換表（單位對得上才用）</text>
+      <text x="916" y="80" fill="#52514e">→ 典型便當份量表（附出處）</text>
+      <text x="916" y="104" fill="#52514e">飯 1 碗 200、配菜 1 格 80 公克</text>
+      <text x="916" y="128" fill="#52514e">熱量 = 密度 × 公克 ÷ 100</text>
+      <text x="916" y="152" fill="#8a8984">portion_lookup ・ typical_portion</text>
+
+      <line x1="270" y1="85" x2="296" y2="85" stroke="#8a8984" stroke-width="2" marker-end="url(#a1)"/>
+      <line x1="570" y1="85" x2="596" y2="85" stroke="#8a8984" stroke-width="2" marker-end="url(#a1)"/>
+      <line x1="870" y1="85" x2="896" y2="85" stroke="#8a8984" stroke-width="2" marker-end="url(#a1)"/>
+
+      <!-- row 2 -->
+      <line x1="1034" y1="170" x2="1034" y2="216" stroke="#8a8984" stroke-width="2" marker-end="url(#a1)"/>
+      <rect x="900" y="220" width="268" height="150" rx="10" fill="#f4f4f2" stroke="#8a8984"/>
+      <text x="916" y="248" font-size="17" font-weight="700">⑤ 信心分級 ＋ 加總</text>
+      <text x="916" y="276" fill="#52514e">疑似誤判（先判斷）</text>
+      <text x="916" y="300" fill="#52514e">查無資料 → 不計入</text>
+      <text x="916" y="324" fill="#52514e">精確對應／相近估算</text>
+      <text x="916" y="352" fill="#8a8984">calorie_estimator.py</text>
+
+      <rect x="600" y="220" width="270" height="150" rx="10" fill="#e3eefb" stroke="#2a78d6"/>
+      <text x="616" y="248" font-size="17" font-weight="700">⑥ 外觀參考（第二種估計）</text>
+      <text x="616" y="276" fill="#52514e">CLIP 影像向量</text>
+      <text x="616" y="300" fill="#52514e">比對 Nutrition5k 3,456 張</text>
+      <text x="616" y="324" fill="#52514e">取最像 5 張的熱量中位數</text>
+      <text x="616" y="352" fill="#8a8984">meal_similarity.py</text>
+
+      <line x1="900" y1="295" x2="874" y2="295" stroke="#8a8984" stroke-width="2" marker-end="url(#a1)"/>
+
+      <rect x="300" y="220" width="270" height="150" rx="10" fill="#fff" stroke="#d9d8d3"/>
+      <text x="316" y="248" font-size="17" font-weight="700">⑦ 使用者確認</text>
+      <text x="316" y="276" fill="#52514e">逐項／外觀／手動輸入／不記錄</text>
+      <text x="316" y="300" fill="#52514e">選完才寫進 SQLite</text>
+      <text x="316" y="324" fill="#52514e">存兩種估計＋照片＋選擇</text>
+      <text x="316" y="352" fill="#8a8984">belfast_bot.py ・ meal_db.py</text>
+
+      <line x1="600" y1="295" x2="574" y2="295" stroke="#8a8984" stroke-width="2" marker-end="url(#a1)"/>
+
+      <rect x="0" y="220" width="270" height="150" rx="10" fill="#def4ea" stroke="#1baf7a"/>
+      <text x="16" y="248" font-size="17" font-weight="700">⑧ 回饋進知識庫</text>
+      <text x="16" y="276" fill="#52514e">手動輸入「炒麵 500大卡」</text>
+      <text x="16" y="300" fill="#52514e">→ 加進使用者回報索引</text>
+      <text x="16" y="324" fill="#52514e">下次辨識到炒麵就查得到</text>
+      <text x="16" y="352" fill="#8a8984">nutrition_lookup.add_user_food</text>
+
+      <line x1="300" y1="295" x2="274" y2="295" stroke="#8a8984" stroke-width="2" marker-end="url(#a1)"/>
+    </g>
+    <!-- 底部原則 -->
+    <rect x="0" y="410" width="1168" height="170" rx="10" fill="#fff" stroke="#d9d8d3"/>
+    <g font-size="16">
+      <text x="24" y="444" font-weight="700" font-size="18">貫穿全程的三個原則</text>
+      <text x="24" y="478">1. 熱量數字只能來自資料庫或有出處的份量，<tspan font-weight="700">LLM 不寫數字</tspan>（這個 bot 的 LLM 只負責看圖和聊天）</text>
+      <text x="24" y="510">2. 查不到就標「查無資料」不計入，<tspan font-weight="700">不硬湊一個最接近的答案</tspan></text>
+      <text x="24" y="542">3. 每個門檻和規則都用測試資料校準（0.4、0.70、典型份量），<tspan font-weight="700">不憑感覺</tspan></text>
+    </g>
+  </svg>
+</section></div>
+
+<!-- ============ D2 C1 查詢順序 ============ -->
+<div class="scroll"><section class="fig" id="d2">
+  <span class="fig-id">圖D2</span>
+  <h2>查熱量：依序查 7 層，查到就停</h2>
+  <p class="sub">「完全相同」一律優先於「相近」；官方資料優先於非官方資料</p>
+  <svg width="1168" height="600" viewBox="0 0 1168 600">
+    <g font-size="16">
+      <!-- ladder rows: y step 64 -->
+      <g>
+        <rect x="0" y="0" width="760" height="52" rx="8" fill="#def4ea" stroke="#1baf7a"/>
+        <text x="20" y="33" font-weight="700">1</text><text x="56" y="33">衛福部食品營養資料庫（2,180 筆）：品名或俗名完全相同</text>
+        <text x="740" y="33" text-anchor="end" fill="#52514e">官方送檢數據</text>
+      </g>
+      <g>
+        <rect x="0" y="64" width="760" height="52" rx="8" fill="#def4ea" stroke="#1baf7a"/>
+        <text x="20" y="97" font-weight="700">2</text><text x="56" y="97">衛福部資料庫：向量相似度 ≥ 0.70（LlamaIndex ＋ bge-m3）</text>
+      </g>
+      <g>
+        <rect x="0" y="128" width="760" height="52" rx="8" fill="#fff" stroke="#d9d8d3"/>
+        <text x="20" y="161" font-weight="700">3</text><text x="56" y="161">使用者自己回報過的菜：完全相同</text>
+        <text x="740" y="161" text-anchor="end" fill="#52514e">本人講的</text>
+      </g>
+      <g>
+        <rect x="0" y="192" width="760" height="52" rx="8" fill="#fff" stroke="#d9d8d3"/>
+        <text x="20" y="225" font-weight="700">4</text><text x="56" y="225">台大自助餐熱量表（83 道）：完全相同</text>
+        <text x="740" y="225" text-anchor="end" fill="#52514e">僅供參考的公開表</text>
+      </g>
+      <g>
+        <rect x="0" y="256" width="760" height="52" rx="8" fill="#fff" stroke="#d9d8d3"/>
+        <text x="20" y="289" font-weight="700">5</text><text x="56" y="289">使用者回報：相近（≥ 0.70）</text>
+      </g>
+      <g>
+        <rect x="0" y="320" width="760" height="52" rx="8" fill="#fff" stroke="#d9d8d3"/>
+        <text x="20" y="353" font-weight="700">6</text><text x="56" y="353">台大自助餐熱量表：相近（≥ 0.65）</text>
+      </g>
+      <g>
+        <rect x="0" y="384" width="760" height="52" rx="8" fill="#fde9e0" stroke="#eb6834"/>
+        <text x="20" y="417" font-weight="700">7</text><text x="56" y="417">都沒有 → 「查無資料」，誠實回報，不計入總熱量</text>
+      </g>
+    </g>
+    <g font-size="16">
+      <rect x="800" y="0" width="368" height="436" rx="10" fill="#fff" stroke="#d9d8d3"/>
+      <text x="822" y="36" font-size="18" font-weight="700">每一層都有的過濾</text>
+      <text x="822" y="76" font-weight="700">模糊俗名黑名單</text>
+      <text x="822" y="102" fill="#52514e">「土豆」在資料庫是花生的俗名</text>
+      <text x="822" y="126" fill="#52514e">→ 不准當完全相同使用（差 7 倍）</text>
+      <text x="822" y="176" font-weight="700">乾貨／粉類過濾</text>
+      <text x="822" y="202" fill="#52514e">問的名稱沒有「乾」「粉」</text>
+      <text x="822" y="226" fill="#52514e">→ 跳過「花椰菜乾」「麵粉」</text>
+      <text x="822" y="276" font-weight="700">門檻 0.70 怎麼來的</text>
+      <text x="822" y="302" fill="#52514e">測試詞的雜訊上限約 0.59</text>
+      <text x="822" y="326" fill="#52514e">（腳踏車→豬蹄膀 0.59）</text>
+      <text x="822" y="350" fill="#52514e">合理比對落在 0.68～0.75</text>
+      <text x="822" y="374" fill="#52514e">→ 取 0.70，寧可查無資料</text>
+      <text x="822" y="398" fill="#52514e">　也不要張冠李戴</text>
+    </g>
+    <text x="0" y="490" font-size="17" font-weight="700">為什麼「完全相同」要排在「相近」前面，即使來源比較不官方？</text>
+    <text x="0" y="522" font-size="16" fill="#52514e">實測「炸豬排」被相近比對到使用者回報的「炸豬排便當」（整個便當的熱量），排在台大表完全相同的「炸豬排」前面，</text>
+    <text x="0" y="548" font-size="16" fill="#52514e">等於把白飯和配菜又算一次。名稱完全相同的資料，就算不是官方的，也比「名稱很像」的官方資料可靠。</text>
+  </svg>
+</section></div>
+
+<!-- ============ D3 CEC 細節 ============ -->
+<div class="scroll"><section class="fig" id="d3">
+  <span class="fig-id">圖D3</span>
+  <h2>CEC_API助手：每個問題怎麼被處理</h2>
+  <p class="sub">灰＝程式規則（依序檢查，符合就停）　綠＝LlamaIndex 檢索　藍＝LLM 生成</p>
+  <svg width="1168" height="600" viewBox="0 0 1168 600">
+    <defs><marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8a8984"/></marker></defs>
+    <g font-size="15">
+      <rect x="0" y="0" width="560" height="560" rx="12" fill="#f4f4f2" stroke="#8a8984"/>
+      <text x="20" y="32" font-size="17" font-weight="700">程式規則（不靠 AI）</text>
+      <g>
+        <text x="20" y="72" font-weight="700">① 不屬於本外掛？</text>
+        <text x="44" y="96" fill="#52514e">關鍵字（機電、土木、Autodesk…）→ 直接轉介負責人</text>
+      </g>
+      <g>
+        <text x="20" y="140" font-weight="700">② 提到按鈕名稱？</text>
+        <text x="44" y="164" fill="#52514e">60 個按鈕的中文名、英文名、別名</text>
+        <text x="44" y="188" fill="#52514e">正規化：全半形、梁→樑、驅→軀、版→板</text>
+        <text x="44" y="212" fill="#52514e">完整出現 → 否則同長度錯一個字</text>
+        <text x="44" y="236" fill="#52514e">1 個：鎖定 ・ 多個：跳按鈕讓使用者選</text>
+      </g>
+      <g>
+        <text x="20" y="280" font-weight="700">③ 貼上錯誤訊息？</text>
+        <text x="44" y="304" fill="#52514e">332 條原文，去空白標點和 ID 數字後比對</text>
+        <text x="44" y="328" fill="#52514e">命中 → get_nodes 整段取出（不排序）</text>
+      </g>
+      <g>
+        <text x="20" y="372" font-weight="700">④ 正在聊某個按鈕？</text>
+        <text x="44" y="396" fill="#52514e">對話記憶：當成追問，附最近 2 輪問答</text>
+        <text x="44" y="420" fill="#52514e">換按鈕時清掉舊紀錄；15 分鐘沒說話重設</text>
+      </g>
+      <g>
+        <text x="20" y="464" font-weight="700">⑤ 通用問題？</text>
+        <text x="44" y="488" fill="#52514e">「灰色」→ 直接指定「按鈕是灰色的」那段</text>
+      </g>
+      <g>
+        <text x="20" y="530" font-weight="700">⑥ 都不是 → 回問「是哪個功能」</text>
+      </g>
+    </g>
+
+    <line x1="560" y1="200" x2="616" y2="200" stroke="#8a8984" stroke-width="2" marker-end="url(#a3)"/>
+
+    <g font-size="15">
+      <rect x="620" y="110" width="548" height="170" rx="12" fill="#def4ea" stroke="#1baf7a"/>
+      <text x="640" y="142" font-size="17" font-weight="700">LlamaIndex 檢索</text>
+      <text x="640" y="172" fill="#52514e">知識庫：62 份文件依 ## 切成 361 段</text>
+      <text x="640" y="196" fill="#52514e">每段補上按鈕標題；metadata：按鈕、段落、說明頁</text>
+      <text x="640" y="220" fill="#52514e">retriever 取前 4 段 ＋ MetadataFilters</text>
+      <text x="640" y="244" fill="#52514e">（只搜比對到的按鈕 ＋ 通用問題）</text>
+      <text x="640" y="268" fill="#8a8984">卡片更新：依檔案 SHA1 判斷，delete(ref_doc_id) 後重建</text>
+
+      <line x1="894" y1="280" x2="894" y2="316" stroke="#8a8984" stroke-width="2" marker-end="url(#a3)"/>
+
+      <rect x="620" y="320" width="548" height="240" rx="12" fill="#e3eefb" stroke="#2a78d6"/>
+      <text x="640" y="352" font-size="17" font-weight="700">qwen3:8b 生成（關閉思考模式、溫度 0.1）</text>
+      <text x="640" y="382" fill="#52514e">提示詞順序：</text>
+      <text x="640" y="406">參考資料 → 找誰問 → 先前對話 → 問題 → <tspan font-weight="700">規則</tspan> → 回答：</text>
+      <text x="640" y="436" fill="#52514e">規則：只能根據資料、不可拼湊成建議、</text>
+      <text x="640" y="460" fill="#52514e">　　　沒資料就說沒資料、條列式、不寫網址</text>
+      <text x="640" y="490" fill="#52514e">後處理：刪掉模型寫的網址 → 程式附上說明頁連結</text>
+      <text x="640" y="514" fill="#52514e">　　　　簡體字只轉換知識庫沒用過的字</text>
+      <text x="640" y="544" fill="#8a8984">每次問答寫進 qa_log.jsonl（找出資料缺口）</text>
+    </g>
+  </svg>
+</section></div>
