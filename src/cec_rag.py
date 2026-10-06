@@ -84,11 +84,18 @@ GENERAL_SECTION_RULES = [
 ]
 GENERAL_KEYWORDS = [k for words, _ in GENERAL_SECTION_RULES for k in words]
 FEATURE_SEARCH_KEYWORDS = ["有沒有", "哪個按鈕", "哪個功能", "什麼功能", "有什麼", "可以做", "能不能做", "有哪些"]
+# 正在聊某個按鈕時，只有這些「明確在找另一個功能」的說法才跳出話題；
+# 單純「有沒有」太常出現在追問裡（「有沒有其他方法」）。
+FEATURE_SEARCH_PATTERNS = ["有沒有可以", "有沒有能", "有沒有功能", "有沒有按鈕", "有沒有什麼功能", "哪個按鈕",
+                           "哪個功能", "什麼功能", "有什麼功能", "有哪些功能", "可以用哪個", "要用哪個"]
 OUT_OF_SCOPE = [
     (["機電", "mep", "套管"], "機電"),
     (["土木", "civil", "lebr"], "土木"),
-    (["autodesk", "登不進", "登入不了", "無法登入", "授權過期", "雲端"], "Autodesk"),
+    (["autodesk", "登不進", "登入不了", "無法登入", "授權過期", "雲端", "bim360", "aecc", "aeccollection"], "Autodesk"),
 ]
+# 句子裡有這些字就是在問 CEC API 本身（「CEC API 授權過期了」），不轉介 Autodesk 窗口，
+# 交給 _通用問題「授權與註冊」回答。
+IN_SCOPE_WORDS = ["cec", "註冊", "密鑰", "金鑰", "本機id", "按鈕"]
 ERROR_HINT_WORDS = ["「", "請確認", "無法", "失敗", "錯誤", "error", "!"]
 
 _cards = None          # api -> card dict
@@ -305,9 +312,22 @@ def ensure_ingested() -> dict:
 
 # ---------- 查詢流程 ----------
 
+GENERIC_SUFFIXES = ("檢查", "建立", "設定", "計算", "匯出")
+MIN_CORE_LEN = 4
+
+
 def _card_names(card: dict) -> list:
+    """按鈕的各種叫法。中文名／別名尾巴是通用詞時，去掉後的核心詞（至少 4 字）也算一種叫法：
+    同仁說「樓梯干涉壞掉了」，別名是「樓梯干涉檢查」，原本完全包含才算命中就對不到。
+    4 字的下限是避免「門干涉檢查」→「門干涉」這種太短的核心詞亂對（見 F2「干涉檢查的期限」）。"""
     names = [card["zh"], card["en"], card["en"].split(".")[-1]] + card["aliases"]
-    return [n for n in names if n and len(_normalize(n)) >= 2]
+    names = [n for n in names if n and len(_normalize(n)) >= 2]
+    cores = []
+    for n in [card["zh"]] + card["aliases"]:
+        for suffix in GENERIC_SUFFIXES:
+            if n and n.endswith(suffix) and len(_normalize(n[:-len(suffix)])) >= MIN_CORE_LEN:
+                cores.append(n[:-len(suffix)])
+    return names + [c for c in cores if c not in names]
 
 
 def match_catalog(question: str) -> list:
@@ -392,12 +412,21 @@ def _contacts_text() -> str:
 
 
 def _out_of_scope(question: str):
-    q = question.lower()
+    """回傳 (問題類型, 聯絡人, [本庫裡名稱含同一個詞的按鈕]) 或 None。
+    「套管」機電和建築都有：轉介機電窗口的同時，也列出本庫的「建築套管開口切割」讓使用者自己選。"""
+    q = question.lower().replace(" ", "")
     for words, key in OUT_OF_SCOPE:
-        if any(w in q for w in words):
-            for kind, who in _contacts():
-                if key.lower() in kind.lower():
-                    return kind, who
+        hit_words = [w for w in words if w in q]
+        if not hit_words:
+            continue
+        if key == "Autodesk" and any(w in q for w in IN_SCOPE_WORDS):
+            continue
+        cards = _load_cards()
+        also = [(api, c["zh"]) for api, c in cards.items() if not api.startswith("_")
+                and any(w in _normalize(n) for w in hit_words for n in _card_names(c))]
+        for kind, who in _contacts():
+            if key.lower() in kind.lower():
+                return kind, who, also
     return None
 
 
@@ -507,13 +536,33 @@ def _compose(question: str, hits: list, history: list = None) -> str:
     # 網址一律由程式附上（模型抄網址容易抄錯），模型自己寫的網址行拿掉
     answer = "\n".join(l for l in answer.splitlines() if "http" not in l and "網址" not in l).strip()
     answer = re.sub(r"^回答[:：]\s*", "", answer)
+    return _with_urls(answer, hits)
+
+
+def _with_urls(text: str, hits: list) -> str:
     urls = []
     for h in hits:
         if h.get("notion_url") and h["notion_url"] not in urls:
             urls.append(h["notion_url"])
     if urls:
-        answer += "\n\n📖 說明頁（有圖文與影片）：\n" + "\n".join(urls[:2])
-    return answer
+        text += "\n\n📖 說明頁（有圖文與影片）：\n" + "\n".join(urls[:2])
+    return text
+
+
+def _direct_answer(pairs: list) -> str:
+    """錯誤訊息命中、或使用者點了某個狀況時，那幾條本身就是整理好的「原因／解法」或「問／答」，
+    直接照原文排版輸出，不經過 LLM：不會編造、不會多補延伸說明，也比較快。
+    同一句訊息出現在好幾張卡片、內容又一樣時（規格書第 7 節：樓梯淨高／開門／窗淨空間），只列一次。"""
+    cards = _load_cards()
+    groups = {}  # 條目內容 -> [按鈕中文名]
+    for api, item in pairs:
+        body = "\n".join(l.strip() for l in item["text"].splitlines())
+        body = re.sub(r"^- (問：)?", "", body)
+        if item["section"] == "常見問題":
+            body = "問：" + body
+        groups.setdefault(body, []).append(cards[api]["zh"] or cards[api]["title"])
+    parts = [f"【{'、'.join(names)}】\n{body}" for body, names in groups.items()]
+    return _with_urls("\n\n".join(parts), [_item_hit(api, item) for api, item in pairs])
 
 
 def _log(entry: dict):
@@ -545,7 +594,17 @@ SESSION_TTL_SECONDS = 15 * 60
 HISTORY_TURNS = 2
 RESET_WORDS = ["新問題", "換個問題", "換問題", "重新開始", "問別的"]
 
-_sessions = {}  # user_id -> {"api": str|None, "history": [(問, 答)], "time": datetime}
+# user_id -> {"api": 目前話題, "history": [(問, 答)], "clarify": 等使用者描述狀況時的選項,
+#             "pending": 等使用者選按鈕時的原問題, "time": 最後說話時間}
+# 對話狀態全放這裡（原本「等選按鈕」的問題存在 cec_bot 的另一個 dict、沒有過期時間）。
+_sessions = {}
+
+
+def log_feedback(user_id: str, good: bool):
+    """使用者對上一個回答按 👍／👎，記進 qa_log，累積後用來找答錯的題目、調門檻。"""
+    s = _sessions.get(user_id)
+    last = s["history"][-1] if s and s["history"] else ("", "")
+    _log({"user": user_id, "feedback": "good" if good else "bad", "question": last[0], "answer": last[1][:2000]})
 
 
 def _session(user_id: str) -> dict:
@@ -553,7 +612,7 @@ def _session(user_id: str) -> dict:
     if s and (datetime.now() - s["time"]).total_seconds() > SESSION_TTL_SECONDS:
         s = None
     if s is None:
-        s = {"api": None, "history": [], "time": datetime.now()}
+        s = {"api": None, "history": [], "clarify": None, "pending": None, "time": datetime.now()}
         _sessions[user_id] = s
     return s
 
@@ -574,8 +633,9 @@ def reset_session(user_id: str):
 # 籠統說法最高 0.62；唯一例外「切割樓板壞掉了」0.773（對到不相干的「高度跑掉」），
 # 所以規則是「含籠統詞」且「最高相似度 < 0.80」兩個條件都成立才回問。
 
-VAGUE_WORDS = ["壞", "不能用", "不能跑", "不行", "有問題", "出問題", "怪", "失敗", "沒反應", "出錯",
-               "跑不出", "跑不動", "沒用", "異常", "不正常", "當掉", "閃退", "卡住", "不對"]
+VAGUE_WORDS = ["壞", "不能用", "不能跑", "不行", "有問題", "出問題", "怪怪", "很怪", "奇怪", "失敗", "沒反應",
+               "出錯", "跑不出", "跑不動", "沒用", "異常", "不正常", "當掉", "閃退", "卡住",
+               "不對勁", "結果不對", "不太對", "算不對", "數量不對", "位置不對"]  # 不收單獨的「不對」：「這樣對不對」
 USAGE_WORDS = ["怎麼用", "如何", "步驟", "教學", "要準備", "怎麼操作", "用法", "做什麼", "是什麼", "在哪"]
 ITEM_MATCH_THRESHOLD = 0.80
 MAX_CLARIFY_OPTIONS = 11  # LINE quick reply 最多 13 個，留 2 個給「跳出錯誤訊息」「其他狀況」
@@ -630,16 +690,26 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
             session["history"] = []
         session["api"] = api
 
+    used_hits = []  # 這次回答實際用到的段落，記進 qa_log，之後才分得出「沒查到」還是「查到了卻答錯」
+
     def done(result: dict) -> dict:
         if result["type"] == "answer":
             session["history"] = (session["history"] + [(question, result["text"])])[-HISTORY_TURNS:]
             session["clarify"] = None
+        session["pending"] = question if result["type"] == "ask" else None
         _log({"user": user_id, "question": question, "route": result.get("route"), "type": result["type"],
-              "topic": session["api"], "choices": result.get("choices"), "answer": result.get("text", "")[:2000]})
+              "topic": session["api"], "choices": result.get("choices"),
+              "hits": [[h.get("api"), h.get("section"), h.get("score")] for h in used_hits],
+              "answer": result.get("text", "")[:2000]})
         return result
 
     def compose(hits: list) -> str:
+        used_hits[:] = _dedupe(hits)
         return _compose(question, hits, session["history"])
+
+    def direct(pairs: list) -> str:
+        used_hits[:] = [_item_hit(a, it) for a, it in pairs]
+        return _direct_answer(pairs)
 
     def ask_symptom(api: str) -> dict:
         options = _clarify_options(api)
@@ -673,24 +743,45 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
             return {"type": "answer", "route": "釐清選項過期", "text": "剛才的選項已經過期了，麻煩再描述一次遇到的狀況。"}
         api, item = c["api"], c["options"][item_index]
         switch_topic(api)
-        # 只給選到的那一條：回答就只會針對這個狀況，不會又附上整套操作步驟
+        # 只給選到的那一條、照原文輸出：回答只針對這個狀況，不會又附上整套操作步驟
         question = f"{c['question']}（狀況：{item['title']}）"
-        return done({"type": "answer", "text": compose([_item_hit(api, item)]), "route": f"釐清後:{api}#{item['title']}"})
+        return done({"type": "answer", "text": direct([(api, item)]), "route": f"釐清後:{api}#{item['title']}"})
 
-    if forced_api:
-        return answer_about(forced_api, f"使用者選擇:{forced_api}")
-    if search_all:
+    if forced_api or search_all:
+        # 使用者在「是哪個功能」的回問裡點了按鈕：原本的問題存在 session 裡（15 分鐘過期）
+        question = question or session.get("pending") or ""
+        if not question:
+            return {"type": "answer", "route": "回問過期", "text": "剛才的問題我這邊已經沒有保留了，麻煩再問一次。"}
+        if forced_api:
+            return answer_about(forced_api, f"使用者選擇:{forced_api}")
         switch_topic(None)
         return done({"type": "answer", "text": compose(_retrieve(question)), "route": "全庫檢索"})
 
     catalog_hits = match_catalog(question)
 
+    # 錯誤訊息原文是最強的線索，排在目錄比對前面：很多訊息本身就含按鈕名稱
+    # （「剖面框內無樓梯淨高檢查量體」含「樓梯淨高檢查」），以前會先被目錄比對攔走、送去 LLM 重寫。
+    errors = match_errors(question)
+    if errors:
+        for scope_apis in ({a for a, _ in catalog_hits}, {session["api"]}):
+            narrowed = [(a, it) for a, it in errors if a in scope_apis]
+            if narrowed:
+                errors = narrowed
+                break
+        apis = sorted({a for a, _ in errors})
+        switch_topic(apis[0] if len(apis) == 1 else None)
+        return done({"type": "answer", "text": direct(errors), "route": "錯誤訊息比對:" + ",".join(apis)})
+
     if not catalog_hits:
         scope = _out_of_scope(question)
         if scope:
-            kind, who = scope
-            return done({"type": "refer", "route": "非本庫範圍",
-                         "text": f"這個問題不在 CEC 建築 API 的範圍（{kind}），請直接聯絡：{who}。"})
+            kind, who, also = scope
+            text = f"這個問題不在 CEC 建築 API 的範圍（{kind}），請直接聯絡：{who}。"
+            if also:
+                names = "、".join(f"「{zh}」" for _, zh in also)
+                return done({"type": "ask", "route": "非本庫範圍+本庫相近", "choices": also,
+                             "text": text + f"\n\n不過建築 API 也有{names}，如果問的是這個，請點下方按鈕。"})
+            return done({"type": "refer", "route": "非本庫範圍", "text": text})
 
     if len(catalog_hits) == 1:
         api = catalog_hits[0][0]
@@ -705,16 +796,7 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
         return done({"type": "ask", "route": "目錄比對多個", "choices": choices,
                      "text": "找到好幾個相關的功能，請問是哪一個？"})
 
-    errors = match_errors(question)
-    if errors:
-        if session["api"] in {a for a, _ in errors}:
-            errors = [(a, sec) for a, sec in errors if a == session["api"]]
-        apis = sorted({a for a, _ in errors})
-        switch_topic(apis[0] if len(apis) == 1 else None)
-        hits = [_item_hit(a, it) for a, it in errors] + _retrieve(question, apis=[GENERAL], k=1)
-        return done({"type": "answer", "text": compose(hits), "route": "錯誤訊息比對:" + ",".join(apis)})
-
-    if session["api"] and not (any(k in question for k in FEATURE_SEARCH_KEYWORDS) and ("功能" in question or "按鈕" in question)):
+    if session["api"] and not any(p in question for p in FEATURE_SEARCH_PATTERNS):
         # 沒提到任何按鈕、也不是在找新功能 → 當成正在聊的按鈕的追問。
         # 檢索時把前一個問題也帶上，「清單是什麼」這種短追問才查得到對的段落。
         api = session["api"]

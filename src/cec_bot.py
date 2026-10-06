@@ -38,14 +38,12 @@ WELCOME = (
 HELP_WORDS = {"help", "說明", "怎麼用", "使用說明", "你好", "您好", "hi", "hello"}
 NON_TEXT_REPLY = "目前只能回答文字問題。如果是錯誤訊息，請直接複製視窗上的文字貼過來，或打出按鈕名稱跟遇到的狀況。"
 ERROR_REPLY = "抱歉，查詢時出了問題，請稍後再試一次。急的話請直接聯絡建築 API 負責人。"
-NO_PENDING_REPLY = "剛才的問題我這邊已經沒有保留了，麻煩再問一次。"
 PASTE_ERROR_REPLY = "好的，請把錯誤視窗上的文字直接複製貼過來（不用截圖，打字或複製都可以）。"
 DESCRIBE_REPLY = "好的，請描述一下：做到哪一步、畫面出現什麼、跟預期哪裡不一樣。"
 
-_configuration = None
+FEEDBACK_THANKS = {True: "收到，謝謝回饋！", False: "收到，這題我會記下來請負責人補資料。急的話請直接聯絡建築 API 負責人。"}
 
-# 回問「是哪個功能」時，暫存使用者原本的問題，等他選完按鈕再回答
-pending_questions = {}
+_configuration = None
 
 
 def _reply(reply_token: str, text: str, quick_reply: QuickReply = None):
@@ -85,6 +83,14 @@ def _clarify_quick_reply(options: list) -> QuickReply:
     return QuickReply(items=items[:MAX_QUICK_REPLY_ITEMS])
 
 
+def _feedback_quick_reply() -> QuickReply:
+    """每個回答下面附 👍／👎，記進 qa_log，累積後才分得出哪些題目答錯（跟 Belfast 收集使用者選擇同一個想法）。"""
+    return QuickReply(items=[
+        QuickReplyItem(action=PostbackAction(label="👍 有幫助", data="cec:fb:up", display_text="👍 有幫助")),
+        QuickReplyItem(action=PostbackAction(label="👎 沒解決", data="cec:fb:down", display_text="👎 沒解決")),
+    ])
+
+
 def _respond(reply_token: str, user_id: str, question: str, **kwargs):
     _show_loading(user_id)
     try:
@@ -94,10 +100,11 @@ def _respond(reply_token: str, user_id: str, question: str, **kwargs):
         _reply(reply_token, ERROR_REPLY)
         return
     if result["type"] == "ask":
-        pending_questions[user_id] = question
         _reply(reply_token, result["text"], quick_reply=_choices_quick_reply(result["choices"]))
     elif result["type"] == "clarify":
         _reply(reply_token, result["text"], quick_reply=_clarify_quick_reply(result["options"]))
+    elif result["type"] == "answer":
+        _reply(reply_token, result["text"], quick_reply=_feedback_quick_reply())
     else:
         _reply(reply_token, result["text"])
 
@@ -127,14 +134,16 @@ def on_postback(event):
     if data.startswith("cec:item:"):
         _respond(event.reply_token, user_id, "", item_index=int(data.split(":", 2)[2]))
         return
-    question = pending_questions.pop(user_id, None)
-    if question is None:
-        _reply(event.reply_token, NO_PENDING_REPLY)
+    if data.startswith("cec:fb:"):
+        good = data == "cec:fb:up"
+        cec_rag.log_feedback(user_id, good)
+        _reply(event.reply_token, FEEDBACK_THANKS[good])
         return
+    # 選按鈕：原本的問題存在 cec_rag 的 session 裡（過期會回「麻煩再問一次」）
     if data == "cec:all":
-        _respond(event.reply_token, user_id, question, search_all=True)
+        _respond(event.reply_token, user_id, "", search_all=True)
     elif data.startswith("cec:pick:"):
-        _respond(event.reply_token, user_id, question, forced_api=data.split(":", 2)[2])
+        _respond(event.reply_token, user_id, "", forced_api=data.split(":", 2)[2])
 
 
 def on_follow(event):
