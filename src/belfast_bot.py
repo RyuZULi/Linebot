@@ -90,7 +90,9 @@ NO_FOOD_MESSAGE = "真是抱歉，主人，這張照片我看不太出來是什�
 
 ERROR_MESSAGE = "抱歉，主人，剛才處理的時候出了點小狀況，這次就不算數了。稍後再麻煩您試一次，好嗎？"
 
-NO_PENDING_MEAL_MESSAGE = "抱歉，主人，我這邊已經找不到那筆紀錄了，麻煩您重新傳一次照片。"
+DETAIL_CONFIRM_TEXT = "看完之後，主人想記錄哪一個呢？選下面的按鈕，或直接告訴我實際的熱量也可以。"
+
+NO_PENDING_MEAL_MESSAGE ="抱歉，主人，我這邊已經找不到那筆紀錄了，麻煩您重新傳一次照片。"
 
 NO_PENDING_PHOTO_MESSAGE = "抱歉，主人，剛剛那張照片我這邊已經沒有保留了，請您再傳一次。"
 
@@ -182,6 +184,17 @@ def on_text(event):
         _handle_report_text(event.reply_token, user_id, text)
         return
 
+    if user_id in pending_meals:
+        action = _typed_meal_choice(text)
+        if action:
+            _confirm_meal(event.reply_token, user_id, action)
+            return
+        # 確認訊息上寫「知道實際熱量直接告訴我」：直接打「500」「炒麵 500 大卡」就當成手動輸入
+        # 問句（「這個 500 大卡是怎麼算的？」）不算
+        if _parse_kcal_text(text) and not any(w in text for w in QUESTION_MARKERS):
+            _handle_correction_text(event.reply_token, user_id, text)
+            return
+
     intent = classify_intent(text)
     if intent == "HELP":
         _reply(event.reply_token, GUIDE_MESSAGE)
@@ -190,7 +203,13 @@ def on_text(event):
     elif intent == "HISTORY":
         _reply(event.reply_token, _format_history(user_id))
     elif intent == "DETAIL":
-        _reply(event.reply_token, _format_detail(user_id))
+        pending = pending_meals.get(user_id)
+        if pending:
+            # 還沒確認的估算：看完細節要能接著選，所以把確認按鈕重新附上
+            text = _format_detail(user_id) + "\n\n" + DETAIL_CONFIRM_TEXT
+            _reply(event.reply_token, text, quick_reply=_meal_confirm_quick_reply(pending["options"]))
+        else:
+            _reply(event.reply_token, _format_detail(user_id))
     elif intent == "DELETE":
         _reply(event.reply_token, _handle_delete(user_id, text))
     else:
@@ -208,23 +227,7 @@ def on_postback(event):
             _reply(event.reply_token, NO_PENDING_MEAL_MESSAGE)
             return
 
-        if action in ("items", "anchor"):
-            kcal = pending["options"][action]
-            if kcal is None:
-                _reply(event.reply_token, MEAL_UNKNOWN_CONFIRM_TEXT, quick_reply=_meal_confirm_quick_reply(pending["options"]))
-                return
-            pending_meals.pop(user_id)
-            pending_corrections.pop(user_id, None)
-            _save_estimate(user_id, pending, kcal, choice=action)
-            _reply(event.reply_token, f"好的，已經幫您記錄為約 {_kcal(kcal)} 大卡，主人。")
-
-        elif action == "correct":
-            pending_corrections[user_id] = True
-            _reply(event.reply_token, CORRECTION_PROMPT_TEXT)
-
-        elif action == "skip":
-            _discard_pending(user_id)
-            _reply(event.reply_token, CANCEL_TEXT)
+        _confirm_meal(event.reply_token, user_id, action)
         return
 
     if data.startswith("photo:"):
@@ -249,6 +252,41 @@ def on_postback(event):
             _reply(event.reply_token, CANCEL_TEXT)
 
         return
+
+
+def _confirm_meal(reply_token: str, user_id: str, action: str):
+    """處理「逐項／外觀／手動輸入／不記錄」：按鈕（postback）跟直接打字都走這裡。"""
+    pending = pending_meals[user_id]
+    if action in ("items", "anchor"):
+        kcal = pending["options"][action]
+        if kcal is None:
+            _reply(reply_token, MEAL_UNKNOWN_CONFIRM_TEXT, quick_reply=_meal_confirm_quick_reply(pending["options"]))
+            return
+        pending_meals.pop(user_id)
+        pending_corrections.pop(user_id, None)
+        _save_estimate(user_id, pending, kcal, choice=action)
+        _reply(reply_token, f"好的，已經幫您記錄為約 {_kcal(kcal)} 大卡，主人。")
+
+    elif action == "correct":
+        pending_corrections[user_id] = True
+        _reply(reply_token, CORRECTION_PROMPT_TEXT)
+
+    elif action == "skip":
+        _discard_pending(user_id)
+        _reply(reply_token, CANCEL_TEXT)
+
+
+# 估算還沒確認時，直接打字也能選（快速回覆按鈕一有新訊息就會消失，
+# 2026/10/7 主人說了「細節」之後按鈕不見，就沒辦法記錄了）。
+QUESTION_MARKERS = ["?", "？", "嗎", "怎麼", "為什麼", "如何", "多少"]
+TYPED_MEAL_CHOICES = {"逐項": "items", "外觀": "anchor", "手動輸入": "correct", "不記錄": "skip", "不用記錄": "skip"}
+
+
+def _typed_meal_choice(text: str):
+    for word, action in TYPED_MEAL_CHOICES.items():
+        if text.startswith(word):
+            return action
+    return None
 
 
 def _parse_kcal_text(text: str):
