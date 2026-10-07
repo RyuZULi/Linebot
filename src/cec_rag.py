@@ -589,6 +589,29 @@ def _log(entry: dict):
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
+# 2026/10/7 實測：先問了「依列表選取物件」，接著問「車道要怎麼建」（按鈕叫「建置車道」，
+# 句子裡沒有完整名稱），被當成「依列表選取物件」的追問，只在那張卡片裡找 → 回答沒資料。
+# 名稱比對補不了（去掉「建置」只剩「車道」，兩字的核心詞像「樓板」「干涉」「編號」在追問裡太常見），
+# 改比較「目前按鈕的資料」跟「其他按鈕的資料」哪邊比較像。實測（ppt/補充 F8）：
+#   該延續的 18 句：其他按鈕最多只比目前話題高 0.074；該換話題的 8 句：至少高 0.102。
+# 空隙只有 0.028，所以超過門檻時不自動換，而是回問「繼續問 A，還是 B／C？」，判斷錯了只多點一下。
+TOPIC_SHIFT_MARGIN = 0.09
+
+
+def _topic_shift_candidates(question: str, api: str, n: int = 2) -> list:
+    """其他按鈕的段落明顯比目前話題更像這句話時，回傳那幾個按鈕；否則回傳 []。"""
+    in_topic = _retrieve(question, apis=[api], k=1)
+    topic_score = in_topic[0]["score"] if in_topic else 0
+    others = []
+    for h in _retrieve(question, k=12):
+        if h["api"] == api or h["api"].startswith("_") or h["api"] in [a for a, _ in others]:
+            continue
+        others.append((h["api"], h["score"]))
+    if not others or others[0][1] - topic_score < TOPIC_SHIFT_MARGIN:
+        return []
+    return [a for a, _ in others[:n]]
+
+
 def candidate_choices(question: str, n: int = 3) -> list:
     """比對不到按鈕時，用向量檢索找幾個可能的按鈕給使用者選。"""
     seen = []
@@ -892,6 +915,11 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
         # 沒提到任何按鈕、也不是在找新功能 → 當成正在聊的按鈕的追問。
         # 檢索時把前一個問題也帶上，「清單是什麼」這種短追問才查得到對的段落。
         api = session["api"]
+        others = _topic_shift_candidates(question, api)
+        if others:
+            choices = [(api, cards[api]["zh"])] + [(a, cards[a]["zh"]) for a in others]
+            return done({"type": "ask", "route": "疑似換話題", "choices": choices,
+                         "text": f"想確認一下，是繼續問「{cards[api]['zh']}」，還是要問別的功能？"})
         prev = session["history"][-1][0] if session["history"] else ""
         return answer_about(api, f"延續話題:{api}", query=f"{prev} {question}", note=_topic_note(api))
 

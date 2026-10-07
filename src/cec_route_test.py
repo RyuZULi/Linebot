@@ -16,6 +16,8 @@ FL = "CEC_QuickModeling.CreateFLByCut"
 DKFL = "CEC_QuickModeling.CreateDKFLByCut"
 L2B = "CEC_QuickModeling.Line2Beam"
 CARBON = "CEC_QuantityTakeoff.CalculateEmbodiedCarbonByMass"
+SKIP = "CEC_Skip.SelectByList"
+DRIVEWAY = "CEC_QuickModeling.DrivewayCreate"
 
 # 每個案例是一段對話：[(輸入, 預期)]。輸入是字串，或 {"pick": api} / {"item": 編號} 表示點按鈕。
 # 預期：type（answer/ask/clarify/refer）、route 開頭、topic（session 目前的按鈕）、
@@ -99,6 +101,21 @@ CASES = [
     ("10/7 聊某按鈕時問授權＝通用問題，聯絡人不限縮", [
         ("干涉風險匯出隱含碳是做什麼的", {"type": "answer", "topic": CARBON}),
         ("CEC 授權過期了要找誰", {"type": "answer", "prompt_has": "機電窗口"}),
+    ]),
+    ("10/7 實測：聊略過時問車道（沒講完整按鈕名稱）→ 回問是否換話題", [
+        ("要怎麼略過檢查", {"type": "answer", "topic": SKIP}),
+        ("車道要怎麼建", {"type": "ask", "route": "疑似換話題", "choices_has": [SKIP, DRIVEWAY]}),
+        ({"pick": DRIVEWAY}, {"type": "answer", "route": "使用者選擇:" + DRIVEWAY, "topic": DRIVEWAY}),
+    ]),
+    ("10/7 疑似換話題時選回原本的按鈕", [
+        ("要怎麼略過檢查", {"type": "answer", "topic": SKIP}),
+        ("車道怎麼用", {"type": "ask", "route": "疑似換話題"}),
+        ("1", {"type": "answer", "route": "使用者選擇:" + SKIP, "topic": SKIP}),
+    ]),
+    ("10/7 正常追問不可誤判換話題", [
+        ("要怎麼略過檢查", {"type": "answer", "topic": SKIP}),
+        ("清單上的欄位是什麼意思", {"type": "answer", "route": "延續話題:" + SKIP}),
+        ("物件移動位置之後會怎樣", {"type": "answer", "route": "延續話題:" + SKIP}),
     ]),
     ("錯誤訊息含按鈕名稱仍走錯誤比對", [("剖面框內無樓梯淨高檢查量體，請確認。",
                               {"type": "answer", "route": "錯誤訊息比對:" + STAIRS, "text_has": "建置樓梯淨高量體"})]),
