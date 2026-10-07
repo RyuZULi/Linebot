@@ -125,6 +125,8 @@ def on_postback(event):
     if not data.startswith("cec:"):
         return
     user_id = event.source.user_id
+    if data in ("cec:paste", "cec:other"):
+        cec_rag._log({"user": user_id, "event": data})
     if data == "cec:paste":
         _reply(event.reply_token, PASTE_ERROR_REPLY)
         return

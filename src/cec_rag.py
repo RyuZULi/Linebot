@@ -612,7 +612,7 @@ def _session(user_id: str) -> dict:
     if s and (datetime.now() - s["time"]).total_seconds() > SESSION_TTL_SECONDS:
         s = None
     if s is None:
-        s = {"api": None, "history": [], "clarify": None, "pending": None, "time": datetime.now()}
+        s = {"api": None, "history": [], "clarify": None, "pending": None, "choices": [], "time": datetime.now()}
         _sessions[user_id] = s
     return s
 
@@ -654,6 +654,46 @@ def _best_item_score(api: str, question: str) -> float:
     return float((_item_vectors[api] @ (q / np.linalg.norm(q))).max())
 
 
+STRONG_ITEM_THRESHOLD = 0.90
+
+
+def _strong_item_apis(question: str) -> list:
+    """問題幾乎就是某張卡片的某一條常見問題原文時，回傳那些按鈕。
+    2026/10/7 同仁照著回問清單打字「鋼構、機電、連結檔有算嗎？」（干涉風險匯出隱含碳的常見問題），
+    因為含「機電」被轉介給機電窗口。轉介前先確認不是本庫的原題。"""
+    cards = _load_cards()
+    return [api for api in cards if not api.startswith("_") and _best_item_score(api, question) >= STRONG_ITEM_THRESHOLD]
+
+
+def _typed_choice(question: str, session: dict):
+    """電腦版 LINE 不顯示快速回覆按鈕（官方文件：只支援 iOS／Android），同仁只能照清單打字。
+    輸入編號（「2」）或選項原文，就當成點了那個選項。回傳 ("api", api) / ("item", 編號) / None。"""
+    q = unicodedata.normalize("NFKC", question).strip().rstrip(".。、")
+    qn = _normalize(question)
+    if session.get("pending") and session.get("choices"):
+        choices = session["choices"]
+        if q.isdigit() and 1 <= int(q) <= len(choices):
+            return "api", choices[int(q) - 1][0]
+        for api, zh in choices:
+            if qn == _normalize(zh):
+                return "api", api
+    c = session.get("clarify")
+    if c:
+        if q.isdigit() and 1 <= int(q) <= len(c["options"]):
+            return "item", int(q) - 1
+        for i, it in enumerate(c["options"]):
+            if len(qn) >= 4 and qn == _normalize(it["title"]):
+                return "item", i
+    return None
+
+
+def _numbered(choices: list) -> str:
+    return "\n".join(f"{i + 1}. {zh}" for i, (_, zh) in enumerate(choices))
+
+
+PC_HINT = "（電腦版 LINE 看不到按鈕，直接輸入編號即可）"
+
+
 def _needs_clarify(api: str, question: str) -> bool:
     q = question.lower()
     if not any(w in q for w in VAGUE_WORDS) or any(w in q for w in USAGE_WORDS):
@@ -688,6 +728,7 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
         按鈕的對話干擾（例：剛聊完切割樓板就問單線轉樑，模型還看得到切割樓板的問答）。"""
         if api != session["api"]:
             session["history"] = []
+            session["clarify"] = None
         session["api"] = api
 
     used_hits = []  # 這次回答實際用到的段落，記進 qa_log，之後才分得出「沒查到」還是「查到了卻答錯」
@@ -695,8 +736,14 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
     def done(result: dict) -> dict:
         if result["type"] == "answer":
             session["history"] = (session["history"] + [(question, result["text"])])[-HISTORY_TURNS:]
-            session["clarify"] = None
-        session["pending"] = question if result["type"] == "ask" else None
+        # 回問的選項（clarify）答完一個後仍然保留：同仁常會想再看另一個狀況。
+        # 2026/10/7 原本答完就清掉，再點清單上的其他選項就變成「選項已過期」。換話題或過期才清。
+        if result["type"] == "ask":
+            session["pending"], session["choices"] = question, result.get("choices") or []
+            if session["choices"]:
+                result["text"] += "\n\n" + _numbered(session["choices"]) + "\n" + PC_HINT
+        else:
+            session["pending"], session["choices"] = None, []
         _log({"user": user_id, "question": question, "route": result.get("route"), "type": result["type"],
               "topic": session["api"], "choices": result.get("choices"),
               "hits": [[h.get("api"), h.get("section"), h.get("score")] for h in used_hits],
@@ -720,6 +767,8 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
             lines.append("・是下面其中一種 → 點下方對應的按鈕")
             lines += [f"  {i + 1}. {it['title']}" for i, it in enumerate(options)]
         lines.append("・都不是 → 描述一下做了哪一步、畫面出現什麼")
+        if options:
+            lines += ["", PC_HINT]
         return done({"type": "clarify", "route": f"釐清狀況:{api}", "text": "\n".join(lines),
                      "options": [(i, it["title"]) for i, it in enumerate(options)]})
 
@@ -733,14 +782,26 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
         hits = _retrieve(query or question, apis=[api, GENERAL]) + _general_hits(question)
         return done({"type": "answer", "text": compose(hits) + note, "route": route})
 
+    def quick(result: dict) -> dict:
+        """不經過檢索的簡短回覆（重設、過期）也記進 qa_log，不然出問題時查不到。"""
+        _log({"user": user_id, "question": question, "route": result["route"], "type": result["type"],
+              "topic": session["api"], "item_index": item_index, "forced_api": forced_api, "answer": result["text"]})
+        return result
+
     if any(w in question for w in RESET_WORDS) and len(question) <= 10:
         reset_session(user_id)
-        return {"type": "reset", "route": "重設話題", "text": "好的，請問新的問題是？可以直接講按鈕名稱，或貼上錯誤訊息。"}
+        return quick({"type": "reset", "route": "重設話題", "text": "好的，請問新的問題是？可以直接講按鈕名稱，或貼上錯誤訊息。"})
+
+    typed = _typed_choice(question, session) if question else None
+    if typed and typed[0] == "item":
+        item_index = typed[1]
+    elif typed:
+        forced_api, question = typed[1], session["pending"]
 
     if item_index is not None:
         c = session.get("clarify")
         if not c or not 0 <= item_index < len(c["options"]):
-            return {"type": "answer", "route": "釐清選項過期", "text": "剛才的選項已經過期了，麻煩再描述一次遇到的狀況。"}
+            return quick({"type": "answer", "route": "釐清選項過期", "text": "剛才的選項已經過期了，麻煩再描述一次遇到的狀況。"})
         api, item = c["api"], c["options"][item_index]
         switch_topic(api)
         # 只給選到的那一條、照原文輸出：回答只針對這個狀況，不會又附上整套操作步驟
@@ -751,7 +812,7 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
         # 使用者在「是哪個功能」的回問裡點了按鈕：原本的問題存在 session 裡（15 分鐘過期）
         question = question or session.get("pending") or ""
         if not question:
-            return {"type": "answer", "route": "回問過期", "text": "剛才的問題我這邊已經沒有保留了，麻煩再問一次。"}
+            return quick({"type": "answer", "route": "回問過期", "text": "剛才的問題我這邊已經沒有保留了，麻煩再問一次。"})
         if forced_api:
             return answer_about(forced_api, f"使用者選擇:{forced_api}")
         switch_topic(None)
@@ -774,13 +835,21 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
 
     if not catalog_hits:
         scope = _out_of_scope(question)
+        strong = _strong_item_apis(question) if scope else []
+        if scope and strong:
+            # 其實是本庫某張卡片的常見問題原文（含「機電」「雲端」等字），不轉介
+            if session["api"] in strong or len(strong) == 1:
+                api = session["api"] if session["api"] in strong else strong[0]
+                return answer_about(api, f"常見問題原題:{api}")
+            return done({"type": "ask", "route": "常見問題原題多個", "choices": [(a, cards[a]["zh"]) for a in strong],
+                         "text": "好幾個功能都有這個問題，請問是哪一個？"})
         if scope:
             kind, who, also = scope
             text = f"這個問題不在 CEC 建築 API 的範圍（{kind}），請直接聯絡：{who}。"
             if also:
                 names = "、".join(f"「{zh}」" for _, zh in also)
                 return done({"type": "ask", "route": "非本庫範圍+本庫相近", "choices": also,
-                             "text": text + f"\n\n不過建築 API 也有{names}，如果問的是這個，請點下方按鈕。"})
+                             "text": text + f"\n\n不過建築 API 也有{names}，如果問的是這個，請選下面的編號。"})
             return done({"type": "refer", "route": "非本庫範圍", "text": text})
 
     if len(catalog_hits) == 1:
@@ -815,7 +884,7 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
         return done({"type": "answer", "text": compose(_retrieve(question)), "route": "錯誤訊息未命中→全庫檢索"})
 
     return done({"type": "ask", "route": "比對不到→回問", "choices": candidate_choices(question),
-                 "text": "請問是哪個功能的問題呢？下面是幾個可能的功能，或直接告訴我按鈕名稱。"})
+                 "text": "請問是哪個功能的問題呢？下面是幾個可能的功能，或直接告訴我按鈕名稱："})
 
 
 def _topic_note(api: str) -> str:

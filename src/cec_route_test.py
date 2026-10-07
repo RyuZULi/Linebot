@@ -15,6 +15,7 @@ STAIRS = "CEC_Detection.StairsHeightCheck"
 FL = "CEC_QuickModeling.CreateFLByCut"
 DKFL = "CEC_QuickModeling.CreateDKFLByCut"
 L2B = "CEC_QuickModeling.Line2Beam"
+CARBON = "CEC_QuantityTakeoff.CalculateEmbodiedCarbonByMass"
 
 # 每個案例是一段對話：[(輸入, 預期)]。輸入是字串，或 {"pick": api} / {"item": 編號} 表示點按鈕。
 # 預期：type（answer/ask/clarify/refer）、route 開頭、topic（session 目前的按鈕）、
@@ -56,10 +57,31 @@ CASES = [
     ]),
     ("F1-2 回問後自己描述", [
         ("建立切割樓板壞掉了", {"type": "clarify", "topic": FL}),
-        ("切完之後有一整塊樓板不見了", {"type": "answer", "route": "延續話題:" + FL}),
+        ("切完之後有一整塊樓板不見了", {"type": "answer", "route": "釐清後:" + FL}),  # 跟選項原文相同 → 當成點選
+        ("新樓板的高度跟原本不一樣", {"type": "answer", "route": "延續話題:" + FL}),
     ]),
     ("F1-2 具體問題不回問", [("樓梯淨高檢查的報告存在哪裡", {"type": "answer", "route": "目錄比對:" + STAIRS})]),
     ("F1-2 怎麼用不回問", [("樓梯淨高檢查怎麼用", {"type": "answer"})]),
+    ("10/7 回問後連點兩個選項", [
+        ("干涉風險匯出隱含碳壞掉了", {"type": "clarify", "topic": CARBON}),
+        ({"item": 0}, {"type": "answer", "route": "釐清後:" + CARBON}),
+        ({"item": 2}, {"type": "answer", "route": "釐清後:" + CARBON, "text_has": "量體"}),
+    ]),
+    ("10/7 電腦版：回問狀況時輸入編號", [
+        ("干涉風險匯出隱含碳壞掉了", {"type": "clarify", "text_has": "輸入編號"}),
+        ("3", {"type": "answer", "route": "釐清後:" + CARBON}),
+    ]),
+    ("10/7 電腦版：照清單打選項原文（含「機電」不可轉介）", [
+        ("干涉風險匯出隱含碳壞掉了", {"type": "clarify"}),
+        ("鋼構、機電、連結檔有算嗎？", {"type": "answer", "route": "釐清後:" + CARBON}),
+    ]),
+    ("10/7 沒有話題時問本庫常見問題原文（含「機電」）", [
+        ("鋼構、機電、連結檔有算嗎？", {"type": "answer", "route": "常見問題原題:" + CARBON}),
+    ]),
+    ("10/7 電腦版：回問是哪個功能時輸入編號", [
+        ("切割樓板之後有一塊板不見了", {"type": "ask", "text_has": "1. "}),
+        ("2", {"type": "answer", "route": "使用者選擇:"}),
+    ]),
     ("錯誤訊息含按鈕名稱仍走錯誤比對", [("剖面框內無樓梯淨高檢查量體，請確認。",
                               {"type": "answer", "route": "錯誤訊息比對:" + STAIRS, "text_has": "建置樓梯淨高量體"})]),
 ]
