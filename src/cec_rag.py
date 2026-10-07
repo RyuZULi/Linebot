@@ -96,6 +96,15 @@ OUT_OF_SCOPE = [
 # 句子裡有這些字就是在問 CEC API 本身（「CEC API 授權過期了」），不轉介 Autodesk 窗口，
 # 交給 _通用問題「授權與註冊」回答。
 IN_SCOPE_WORDS = ["cec", "註冊", "密鑰", "金鑰", "本機id", "按鈕"]
+# 正在聊某個按鈕時，句子裡出現「機電」「雲端」多半是在問這個按鈕的細節（「鋼構、機電、連結檔有算嗎？」），
+# 只有明確在問別的產品／帳號時才算新問題、才轉介。
+EXPLICIT_OTHER_PRODUCT = re.compile(r"(機電|mep|土木|civil|lebr)[^，。？?！!]{0,4}(api|按鈕|功能|外掛|工具)")
+ACCOUNT_WORDS = ["autodesk", "登不進", "登入不了", "無法登入", "bim360", "aecc"]
+
+
+def _explicit_other_scope(question: str) -> bool:
+    q = question.lower().replace(" ", "")
+    return bool(EXPLICIT_OTHER_PRODUCT.search(q)) or any(w in q for w in ACCOUNT_WORDS)
 ERROR_HINT_WORDS = ["「", "請確認", "無法", "失敗", "錯誤", "error", "!"]
 
 _cards = None          # api -> card dict
@@ -407,8 +416,16 @@ def _contacts() -> list:
     return []
 
 
-def _contacts_text() -> str:
-    return "\n".join(f"- {kind}：{who}" for kind, who in _contacts())
+TOPIC_CONTACT_ROW = "CEC 建築 API"  # 本庫所有按鈕都是建築 API；之後收了別的 API 再依卡片分類對應
+
+
+def _contacts_text(topic_api: str = None) -> str:
+    """有明確在聊某個按鈕時，只給那個按鈕所屬類別的聯絡人：問題裡提到「機電」，
+    模型看到整張表就會建議找機電窗口，但按鈕本身是建築 API，該找的是建築的負責人。"""
+    rows = _contacts()
+    if topic_api:
+        rows = [r for r in rows if TOPIC_CONTACT_ROW in r[0]] or rows
+    return "\n".join(f"- {kind}：{who}" for kind, who in rows)
 
 
 def _out_of_scope(question: str):
@@ -522,10 +539,10 @@ def _general_hits(question: str) -> list:
     return _sections_text([(GENERAL, s) for s in sections])
 
 
-def _compose(question: str, hits: list, history: list = None) -> str:
+def _compose(question: str, hits: list, history: list = None, topic_api: str = None) -> str:
     hits = _dedupe(hits)
     context = "\n\n".join(h["text"] for h in hits)
-    prompt = SYSTEM_PROMPT.format(contacts=_contacts_text(), context=context, question=question)
+    prompt = SYSTEM_PROMPT.format(contacts=_contacts_text(topic_api), context=context, question=question)
     if history:
         # 追問常用「清單」「那個」之類的指代，附上前幾輪問答讓模型知道在講什麼
         turns = "\n\n".join(f"問：{q}\n答：{a[:400]}" for q, a in history[-HISTORY_TURNS:])
@@ -751,7 +768,9 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
 
     def compose(hits: list) -> str:
         used_hits[:] = _dedupe(hits)
-        return _compose(question, hits, session["history"])
+        # 通用問題（授權、安裝…）各有負責人，不限縮聯絡人
+        topic_api = session["api"] if not general else None
+        return _compose(question, hits, session["history"], topic_api=topic_api)
 
     def direct(pairs: list) -> str:
         used_hits[:] = [_item_hit(a, it) for a, it in pairs]
@@ -834,6 +853,9 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
 
     if not catalog_hits:
         scope = _out_of_scope(question)
+        if scope and session["api"] and not _explicit_other_scope(question):
+            # 正在聊某個按鈕、又沒有明確在問別的產品 → 當成追問，交給下面「延續話題」處理
+            scope = None
         strong = _strong_item_apis(question) if scope else []
         if scope and strong:
             # 其實是本庫某張卡片的常見問題原文（含「機電」「雲端」等字），不轉介

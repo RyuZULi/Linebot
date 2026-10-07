@@ -19,7 +19,8 @@ CARBON = "CEC_QuantityTakeoff.CalculateEmbodiedCarbonByMass"
 
 # 每個案例是一段對話：[(輸入, 預期)]。輸入是字串，或 {"pick": api} / {"item": 編號} 表示點按鈕。
 # 預期：type（answer/ask/clarify/refer）、route 開頭、topic（session 目前的按鈕）、
-#       choices_has（回問選項要包含的按鈕）、text_has（只檢查程式產生的固定文字）。
+#       choices_has（回問選項要包含的按鈕）、text_has（只檢查程式產生的固定文字）、
+#       prompt_has / prompt_not（送給 LLM 的提示詞要有／不可有的字，例如聯絡人）。
 CASES = [
     ("規格7-1 怎麼用", [("建立切割樓板怎麼用", {"type": "answer", "route": "目錄比對:" + FL})]),
     ("規格7-2 RC/Deck 回問", [
@@ -82,13 +83,36 @@ CASES = [
         ("切割樓板之後有一塊板不見了", {"type": "ask", "text_has": "1. "}),
         ("2", {"type": "answer", "route": "使用者選擇:"}),
     ]),
+    ("10/7 聊某按鈕時提到機電＝追問，聯絡人只給建築", [
+        ("干涉風險匯出隱含碳是做什麼的", {"type": "answer", "topic": CARBON}),
+        ("那機電管線的元件也會算進去嗎", {"type": "answer", "route": "延續話題:" + CARBON,
+                                "prompt_has": "霽倫", "prompt_not": "機電窗口"}),
+    ]),
+    ("10/7 聊某按鈕時明確問機電 API＝新問題，照樣轉介", [
+        ("干涉風險匯出隱含碳是做什麼的", {"type": "answer", "topic": CARBON}),
+        ("那機電的 API 有類似功能嗎", {"type": "refer", "route": "非本庫範圍", "text_has": "機電窗口"}),
+    ]),
+    ("10/7 聊某按鈕時問 Revit 登入＝新問題，照樣轉介", [
+        ("干涉風險匯出隱含碳是做什麼的", {"type": "answer", "topic": CARBON}),
+        ("Revit 登不進去怎麼辦", {"type": "refer", "text_has": "Autodesk 窗口"}),
+    ]),
+    ("10/7 聊某按鈕時問授權＝通用問題，聯絡人不限縮", [
+        ("干涉風險匯出隱含碳是做什麼的", {"type": "answer", "topic": CARBON}),
+        ("CEC 授權過期了要找誰", {"type": "answer", "prompt_has": "機電窗口"}),
+    ]),
     ("錯誤訊息含按鈕名稱仍走錯誤比對", [("剖面框內無樓梯淨高檢查量體，請確認。",
                               {"type": "answer", "route": "錯誤訊息比對:" + STAIRS, "text_has": "建置樓梯淨高量體"})]),
 ]
 
 
 def run():
-    cec_rag._llm = lambda prompt: "（測試用假回答）"
+    prompts = []
+
+    def fake_llm(prompt):
+        prompts.append(prompt)
+        return "（測試用假回答）"
+
+    cec_rag._llm = fake_llm
     cec_rag._log = lambda entry: None
     passed = failed = 0
     lines = []
@@ -117,6 +141,12 @@ def run():
                 problems.append(f"choices={got}")
             if "text_has" in exp and exp["text_has"] not in r.get("text", ""):
                 problems.append("text 缺「" + exp["text_has"] + "」")
+            prompt = prompts[-1] if prompts else ""
+            if "prompt_has" in exp and exp["prompt_has"] not in prompt:
+                problems.append("提示詞缺「" + exp["prompt_has"] + "」")
+            if "prompt_not" in exp and exp["prompt_not"] in prompt:
+                problems.append("提示詞不該有「" + exp["prompt_not"] + "」")
+            prompts.clear()
             label = inp if isinstance(inp, str) else str(inp)
             if problems:
                 failed += 1
