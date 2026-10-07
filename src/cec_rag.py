@@ -666,8 +666,7 @@ def _strong_item_apis(question: str) -> list:
 
 
 def _typed_choice(question: str, session: dict):
-    """電腦版 LINE 不顯示快速回覆按鈕（官方文件：只支援 iOS／Android），同仁只能照清單打字。
-    輸入編號（「2」）或選項原文，就當成點了那個選項。回傳 ("api", api) / ("item", 編號) / None。"""
+    """輸入編號（「2」）或照打選項原文，就當成點了那個選項（2026/10/7 實測同仁會照清單打字）。回傳 ("api", api) / ("item", 編號) / None。"""
     q = unicodedata.normalize("NFKC", question).strip().rstrip(".。、")
     qn = _normalize(question)
     if session.get("pending") and session.get("choices"):
@@ -691,7 +690,7 @@ def _numbered(choices: list) -> str:
     return "\n".join(f"{i + 1}. {zh}" for i, (_, zh) in enumerate(choices))
 
 
-PC_HINT = "（電腦版 LINE 看不到按鈕，直接輸入編號即可）"
+PC_HINT = "（也可以直接輸入編號）"
 
 
 def _needs_clarify(api: str, question: str) -> bool:

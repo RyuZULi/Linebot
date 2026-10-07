@@ -54,8 +54,24 @@ def _reply(reply_token: str, text: str, quick_reply: QuickReply = None):
         )
 
 
+def _chat_key(event) -> str:
+    """對話狀態要記在「聊天室」而不是「發言的人」上。
+    2026/10/7 兩位同事在同一個群組測試：A 問了問題、助手列出選項，B 按了選項，
+    程式用 B 的 user_id 找不到回問紀錄，回「選項已過期」。群組裡大家看到的是同一串對話、
+    同一組按鈕，所以群組用 group_id、多人聊天室用 room_id，一對一才用 user_id。"""
+    src = event.source
+    if src.type == "group":
+        return src.group_id
+    if src.type == "room":
+        return src.room_id
+    return src.user_id
+
+
 def _show_loading(user_id: str):
-    """LLM 回答要好幾秒，先讓對方看到「輸入中」的動畫。失敗也不影響回答。"""
+    """LLM 回答要好幾秒，先讓對方看到「輸入中」的動畫。失敗也不影響回答。
+    這個動畫只支援一對一聊天，群組（C 開頭）、聊天室（R 開頭）就不送。"""
+    if not user_id.startswith("U"):
+        return
     try:
         with ApiClient(_configuration) as client:
             MessagingApi(client).show_loading_animation(ShowLoadingAnimationRequest(chat_id=user_id, loading_seconds=30))
@@ -110,7 +126,7 @@ def _respond(reply_token: str, user_id: str, question: str, **kwargs):
 
 
 def on_text(event):
-    user_id = event.source.user_id
+    user_id = _chat_key(event)
     text = (event.message.text or "").strip()
     if not text:
         return
@@ -124,7 +140,7 @@ def on_postback(event):
     data = event.postback.data or ""
     if not data.startswith("cec:"):
         return
-    user_id = event.source.user_id
+    user_id = _chat_key(event)
     if data in ("cec:paste", "cec:other"):
         cec_rag._log({"user": user_id, "event": data})
     if data == "cec:paste":
