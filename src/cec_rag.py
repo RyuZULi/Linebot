@@ -607,7 +607,9 @@ def candidate_choices(question: str, n: int = 3) -> list:
 # 檢索混進 Deck 版的資料，一句直接回問「是哪個功能」。改成記住目前的話題（按鈕），
 # 沒提到其他按鈕的追問就延續同一個話題；提到別的按鈕或錯誤訊息就換話題；閒置太久就忘掉。
 
-SESSION_TTL_SECONDS = 15 * 60
+# 2026/10/7 依使用者要求從 15 分鐘延長：同仁中午問一半、下午回來接著問很常見。不設無限期：
+# 隔天還延續昨天的話題容易誤判追問（回答最後會標示延續哪個按鈕，看到不對講按鈕名稱就會換）。
+SESSION_TTL_SECONDS = 24 * 60 * 60
 HISTORY_TURNS = 2
 RESET_WORDS = ["新問題", "換個問題", "換問題", "重新開始", "問別的"]
 
@@ -827,7 +829,7 @@ def answer(question: str, user_id: str = "", forced_api: str = None, search_all:
         return done({"type": "answer", "text": direct([(api, item)]), "route": f"釐清後:{api}#{item['title']}"})
 
     if forced_api or search_all:
-        # 使用者在「是哪個功能」的回問裡點了按鈕：原本的問題存在 session 裡（15 分鐘過期）
+        # 使用者在「是哪個功能」的回問裡點了按鈕：原本的問題存在 session 裡（1 天過期）
         question = question or session.get("pending") or ""
         if not question:
             return quick({"type": "answer", "route": "回問過期", "text": "剛才的問題我這邊已經沒有保留了，麻煩再問一次。"})

@@ -90,7 +90,9 @@ NO_FOOD_MESSAGE = "真是抱歉，主人，這張照片我看不太出來是什�
 
 ERROR_MESSAGE = "抱歉，主人，剛才處理的時候出了點小狀況，這次就不算數了。稍後再麻煩您試一次，好嗎？"
 
-DETAIL_CONFIRM_TEXT = "看完之後，主人想記錄哪一個呢？選下面的按鈕，或直接告訴我實際的熱量也可以。"
+PENDING_REMINDER_TEXT = "對了，主人，剛才那一餐還沒記錄喔。要記哪一個呢？選下面的按鈕，或直接告訴我實際的熱量也可以。"
+
+DETAIL_CONFIRM_TEXT ="看完之後，主人想記錄哪一個呢？選下面的按鈕，或直接告訴我實際的熱量也可以。"
 
 NO_PENDING_MEAL_MESSAGE ="抱歉，主人，我這邊已經找不到那筆紀錄了，麻煩您重新傳一次照片。"
 
@@ -177,8 +179,11 @@ def on_text(event):
     text = (event.message.text or "").strip()
 
     if pending_corrections.get(user_id):
-        _handle_correction_text(event.reply_token, user_id, text)
-        return
+        if _parse_kcal_text(text):
+            _handle_correction_text(event.reply_token, user_id, text)
+            return
+        # 按了「手動輸入」卻改問別的：當一般問題回答，最後會再提醒這餐還沒記錄
+        pending_corrections.pop(user_id, None)
 
     if pending_reports.get(user_id):
         _handle_report_text(event.reply_token, user_id, text)
@@ -197,23 +202,26 @@ def on_text(event):
 
     intent = classify_intent(text)
     if intent == "HELP":
-        _reply(event.reply_token, GUIDE_MESSAGE)
+        reply = GUIDE_MESSAGE
     elif intent == "STATS":
-        _reply(event.reply_token, _format_stats(user_id, text))
+        reply = _format_stats(user_id, text)
     elif intent == "HISTORY":
-        _reply(event.reply_token, _format_history(user_id))
+        reply = _format_history(user_id)
     elif intent == "DETAIL":
-        pending = pending_meals.get(user_id)
-        if pending:
-            # 還沒確認的估算：看完細節要能接著選，所以把確認按鈕重新附上
-            text = _format_detail(user_id) + "\n\n" + DETAIL_CONFIRM_TEXT
-            _reply(event.reply_token, text, quick_reply=_meal_confirm_quick_reply(pending["options"]))
-        else:
-            _reply(event.reply_token, _format_detail(user_id))
+        reply = _format_detail(user_id)
     elif intent == "DELETE":
-        _reply(event.reply_token, _handle_delete(user_id, text))
+        reply = _handle_delete(user_id, text)
     else:
-        _reply(event.reply_token, generate_chat_reply(text, persona="belfast"))
+        reply = generate_chat_reply(text, persona="belfast")
+
+    # 估算還沒確認時被別的問題打斷（「衛福部的資料哪來的？」），回答完主動提醒、重新附上按鈕，
+    # 不然按鈕一消失，主人很容易忘了這餐還沒記錄。
+    pending = pending_meals.get(user_id)
+    if pending:
+        reminder = DETAIL_CONFIRM_TEXT if intent == "DETAIL" else PENDING_REMINDER_TEXT
+        _reply(event.reply_token, reply + "\n\n" + reminder, quick_reply=_meal_confirm_quick_reply(pending["options"]))
+    else:
+        _reply(event.reply_token, reply)
 
 
 def on_postback(event):
