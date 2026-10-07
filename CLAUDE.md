@@ -3,7 +3,9 @@
 RAG 課程期末專題。三個 LINE bot 共用一個 Flask process：
 
 - **Belfast**（秘書）：拍照估算熱量、飲食紀錄、一般聊天 → `src/belfast_bot.py`
-- **Ryuzu**（開發助手）：一般聊天、「任務：」自動開發、PDF 統整/RAG → `src/dev_bot.py`
+- **Ryuzu**（開發助手）：一般聊天、「任務：」自動開發、PDF 統整/RAG、YouTube 影片統整 → `src/dev_bot.py`
+  （YouTube：owner 訊息裡有連結就觸發，邏輯在 `src/youtube_summary.py`，需要 `youtube-transcript-api` 1.x；
+  只統整、不進資料庫；統整共用 `pdf_rag` 的分段統整流程與模型）
 - **CEC_API助手**：公司同仁查 CEC 建築 Revit API 的操作與錯誤 → `src/cec_bot.py`、`src/cec_rag.py`
 
 入口是 `src/webhook_app.py`（port 5000），路徑分流 `/callback/belfast`、`/callback/dev`、`/callback/cec`。

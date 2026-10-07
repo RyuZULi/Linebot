@@ -30,6 +30,9 @@ Ryuzu：開發助手 bot，負責一般聊天 + 「任務：...」指令（修bu
 開一個新的命令列視窗跑互動式 claude，工作目錄是專案根目錄。只開視窗、
 不帶任何 prompt 也不加權限參數，後續操作都由人在視窗裡自己決定。
 
+2026/10/8 新增 YouTube 影片統整（邏輯在 youtube_summary.py）：owner 的訊息裡有
+YouTube 連結 → 背景抓字幕、統整 → push 摘要。只做統整，不加入資料庫。
+
 跟 belfast_bot.py 共用同一個 Flask process/port（見 webhook_app.py），
 用 register(handler, configuration) 掛到專屬於 Ryuzu channel 的
 WebhookHandler 上。
@@ -57,6 +60,7 @@ from linebot.v3.messaging import (
 from linebot.v3.webhooks import MessageEvent, TextMessageContent, FileMessageContent, PostbackEvent
 
 import pdf_rag
+import youtube_summary
 import task_db
 import task_runner
 from chat_persona import generate_chat_reply
@@ -261,6 +265,18 @@ def _process_pdf_async(message_id: str, user_id: str, filename: str):
         _push(user_id, "統整 PDF 的時候出錯了，才不是本大小姐的問題……麻煩再傳一次。")
 
 
+def _process_youtube_async(url: str, user_id: str):
+    """背景執行緒：抓字幕 → 統整 → push。長影片要分段統整，可能要幾分鐘。"""
+    try:
+        summary = youtube_summary.summarize_youtube(url)
+        _push(user_id, f"【影片統整】\n{summary}")
+    except ValueError as e:
+        _push(user_id, f"……這部影片沒辦法統整：{e}")
+    except Exception:
+        traceback.print_exc()
+        _push(user_id, "統整影片的時候出錯了，才不是本大小姐的問題……過一會兒再貼一次連結試試。")
+
+
 def _add_pdf_to_rag_async(doc_id: int, user_id: str):
     try:
         count = pdf_rag.add_to_rag(doc_id)
@@ -339,6 +355,12 @@ def on_text(event):
             return
 
         if _handle_pdf_command(event.reply_token, user_id, text):
+            return
+
+        youtube_url = youtube_summary.find_youtube_url(text)
+        if youtube_url:
+            _reply(event.reply_token, "收到影片連結，本大小姐這就去看字幕幫您統整，長一點的影片要等幾分鐘。")
+            threading.Thread(target=_process_youtube_async, args=(youtube_url, user_id), daemon=True).start()
             return
 
         _reply(event.reply_token, _chat_reply(user_id, text))
