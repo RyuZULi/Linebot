@@ -82,8 +82,8 @@
       <rect x="300" y="220" width="270" height="150" rx="10" fill="#fff" stroke="#d9d8d3"/>
       <text x="316" y="248" font-size="17" font-weight="700">⑦ 使用者確認</text>
       <text x="316" y="276" fill="#52514e">逐項／外觀／手動輸入／不記錄</text>
-      <text x="316" y="300" fill="#52514e">選完才寫進 SQLite</text>
-      <text x="316" y="324" fill="#52514e">存兩種估計＋照片＋選擇</text>
+      <text x="316" y="300" fill="#52514e">選完才寫進 SQLite（含照片）</text>
+      <text x="316" y="324" fill="#52514e">被打斷會提醒，打字也能選</text>
       <text x="316" y="352" fill="#8a8984">belfast_bot.py ・ meal_db.py</text>
 
       <line x1="600" y1="295" x2="574" y2="295" stroke="#8a8984" stroke-width="2" marker-end="url(#a1)"/>
@@ -174,64 +174,75 @@
 <div class="scroll"><section class="fig" id="d3">
   <span class="fig-id">圖D3</span>
   <h2>CEC_API助手：每個問題怎麼被處理</h2>
-  <p class="sub">灰＝程式規則（依序檢查，符合就停）　綠＝LlamaIndex 檢索　藍＝LLM 生成</p>
-  <svg width="1168" height="600" viewBox="0 0 1168 600">
+  <p class="sub">灰＝程式規則（依序檢查，符合就停）　綠＝LlamaIndex 檢索　藍＝LLM 生成　虛線＝不經 LLM</p>
+  <svg width="1089" height="550" viewBox="0 0 1168 590">
     <defs><marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8a8984"/></marker></defs>
-    <g font-size="15">
-      <rect x="0" y="0" width="560" height="560" rx="12" fill="#f4f4f2" stroke="#8a8984"/>
-      <text x="20" y="32" font-size="17" font-weight="700">程式規則（不靠 AI）</text>
-      <g>
-        <text x="20" y="72" font-weight="700">① 不屬於本外掛？</text>
-        <text x="44" y="96" fill="#52514e">關鍵字（機電、土木、Autodesk…）→ 直接轉介負責人</text>
-      </g>
-      <g>
-        <text x="20" y="140" font-weight="700">② 提到按鈕名稱？</text>
-        <text x="44" y="164" fill="#52514e">60 個按鈕的中文名、英文名、別名</text>
-        <text x="44" y="188" fill="#52514e">正規化：全半形、梁→樑、驅→軀、版→板</text>
-        <text x="44" y="212" fill="#52514e">完整出現 → 否則同長度錯一個字</text>
-        <text x="44" y="236" fill="#52514e">1 個：鎖定 ・ 多個：跳按鈕讓使用者選</text>
-      </g>
-      <g>
-        <text x="20" y="280" font-weight="700">③ 貼上錯誤訊息？</text>
-        <text x="44" y="304" fill="#52514e">332 條原文，去空白標點和 ID 數字後比對</text>
-        <text x="44" y="328" fill="#52514e">命中 → get_nodes 整段取出（不排序）</text>
-      </g>
-      <g>
-        <text x="20" y="372" font-weight="700">④ 正在聊某個按鈕？</text>
-        <text x="44" y="396" fill="#52514e">對話記憶：當成追問，附最近 2 輪問答</text>
-        <text x="44" y="420" fill="#52514e">換按鈕時清掉舊紀錄；15 分鐘沒說話重設</text>
-      </g>
-      <g>
-        <text x="20" y="464" font-weight="700">⑤ 通用問題？</text>
-        <text x="44" y="488" fill="#52514e">「灰色」→ 直接指定「按鈕是灰色的」那段</text>
-      </g>
-      <g>
-        <text x="20" y="530" font-weight="700">⑥ 都不是 → 回問「是哪個功能」</text>
-      </g>
+    <g font-size="14">
+      <rect x="0" y="0" width="560" height="590" rx="12" fill="#f4f4f2" stroke="#8a8984"/>
+      <text x="20" y="30" font-size="17" font-weight="700">程式規則（不靠 AI）</text>
+
+      <text x="20" y="62" font-weight="700">① 回答回問？</text>
+      <text x="44" y="84" fill="#52514e">輸入編號或照打選項原文 → 當成點選</text>
+
+      <text x="20" y="116" font-weight="700">② 貼上錯誤訊息？</text>
+      <text x="44" y="138" fill="#52514e">332 條原文，去空白標點和 ID 數字後比對</text>
+      <text x="44" y="160" fill="#52514e">命中 → 那一條照原文輸出（排在按鈕比對前面）</text>
+
+      <text x="20" y="192" font-weight="700">③ 不屬於本外掛？</text>
+      <text x="44" y="214" fill="#52514e">機電、土木、Autodesk… → 轉介負責人</text>
+      <text x="44" y="236" fill="#52514e">例外：正在聊某按鈕、或就是本庫常見問題原文</text>
+
+      <text x="20" y="268" font-weight="700">④ 提到按鈕名稱？</text>
+      <text x="44" y="290" fill="#52514e">中英文名、別名、核心詞（去掉結尾的「檢查」…）</text>
+      <text x="44" y="312" fill="#52514e">正規化＋同長度錯一個字；多個 → 回問選哪個</text>
+
+      <text x="20" y="344" font-weight="700">⑤ 正在聊某個按鈕？</text>
+      <text x="44" y="366" fill="#52514e">別的按鈕明顯更像（差距 ≥ 0.09）→ 回問是否換話題</text>
+      <text x="44" y="388" fill="#52514e">否則當追問，附最近 2 輪問答</text>
+
+      <text x="20" y="420" font-weight="700">⑥ 通用問題？</text>
+      <text x="44" y="442" fill="#52514e">「灰色」「授權」→ 直接指定那一段</text>
+
+      <text x="20" y="474" font-weight="700">⑦ 都不是 → 回問「是哪個功能」</text>
+
+      <line x1="20" y1="496" x2="540" y2="496" stroke="#d9d8d3"/>
+      <text x="20" y="522" fill="#52514e">對話狀態以聊天室為單位，1 天沒說話重設</text>
+      <text x="20" y="546" fill="#52514e">分流回歸測試 57 題（不呼叫 LLM，約 20 秒）</text>
+      <text x="20" y="570" fill="#52514e">每次問答記錄路線、用到的段落、👍／👎</text>
     </g>
 
-    <line x1="560" y1="200" x2="616" y2="200" stroke="#8a8984" stroke-width="2" marker-end="url(#a3)"/>
+    <line x1="560" y1="300" x2="616" y2="300" stroke="#8a8984" stroke-width="2" marker-end="url(#a3)"/>
 
-    <g font-size="15">
-      <rect x="620" y="110" width="548" height="170" rx="12" fill="#def4ea" stroke="#1baf7a"/>
-      <text x="640" y="142" font-size="17" font-weight="700">LlamaIndex 檢索</text>
-      <text x="640" y="172" fill="#52514e">知識庫：62 份文件依 ## 切成 361 段</text>
-      <text x="640" y="196" fill="#52514e">每段補上按鈕標題；metadata：按鈕、段落、說明頁</text>
-      <text x="640" y="220" fill="#52514e">retriever 取前 4 段 ＋ MetadataFilters</text>
-      <text x="640" y="244" fill="#52514e">（只搜比對到的按鈕 ＋ 通用問題）</text>
-      <text x="640" y="268" fill="#8a8984">卡片更新：依檔案 SHA1 判斷，delete(ref_doc_id) 後重建</text>
+    <g font-size="14">
+      <rect x="620" y="0" width="548" height="120" rx="12" fill="#f4f4f2" stroke="#8a8984"/>
+      <text x="640" y="28" font-size="16" font-weight="700">鎖定按鈕後：問得太籠統就先問清楚</text>
+      <text x="640" y="54" fill="#52514e">含「壞掉、不能用…」且跟卡片每條常見問題相似度 &lt; 0.80</text>
+      <text x="640" y="78" fill="#52514e">→ 回問「發生什麼狀況？」選項＝卡片自己的常見問題</text>
+      <text x="640" y="102" fill="#8a8984">（具體描述 0.77～0.98、籠統說法 ≤ 0.62）</text>
 
-      <line x1="894" y1="280" x2="894" y2="316" stroke="#8a8984" stroke-width="2" marker-end="url(#a3)"/>
+      <line x1="894" y1="120" x2="894" y2="146" stroke="#8a8984" stroke-width="2" marker-end="url(#a3)"/>
 
-      <rect x="620" y="320" width="548" height="240" rx="12" fill="#e3eefb" stroke="#2a78d6"/>
-      <text x="640" y="352" font-size="17" font-weight="700">qwen3:8b 生成（關閉思考模式、溫度 0.1）</text>
-      <text x="640" y="382" fill="#52514e">提示詞順序：</text>
-      <text x="640" y="406">參考資料 → 找誰問 → 先前對話 → 問題 → <tspan font-weight="700">規則</tspan> → 回答：</text>
-      <text x="640" y="436" fill="#52514e">規則：只能根據資料、不可拼湊成建議、</text>
-      <text x="640" y="460" fill="#52514e">　　　沒資料就說沒資料、條列式、不寫網址</text>
-      <text x="640" y="490" fill="#52514e">後處理：刪掉模型寫的網址 → 程式附上說明頁連結</text>
-      <text x="640" y="514" fill="#52514e">　　　　簡體字只轉換知識庫沒用過的字</text>
-      <text x="640" y="544" fill="#8a8984">每次問答寫進 qa_log.jsonl（找出資料缺口）</text>
+      <rect x="620" y="150" width="548" height="130" rx="12" fill="#def4ea" stroke="#1baf7a"/>
+      <text x="640" y="178" font-size="16" font-weight="700">LlamaIndex 檢索</text>
+      <text x="640" y="204" fill="#52514e">62 份文件切成 689 段：一般段落依 ## 切，</text>
+      <text x="640" y="226" fill="#52514e">常見問題、錯誤訊息一條一塊（同按鈕不同問題才分得開）</text>
+      <text x="640" y="250" fill="#52514e">retriever 取前 4 段 ＋ MetadataFilters（只搜鎖定的按鈕）</text>
+      <text x="640" y="272" fill="#8a8984">卡片更新：依 SHA1 判斷，delete(ref_doc_id) 後重建</text>
+
+      <line x1="894" y1="280" x2="894" y2="306" stroke="#8a8984" stroke-width="2" marker-end="url(#a3)"/>
+
+      <rect x="620" y="310" width="548" height="180" rx="12" fill="#e3eefb" stroke="#2a78d6"/>
+      <text x="640" y="338" font-size="16" font-weight="700">qwen3:8b 生成（關閉思考模式、溫度 0.1）</text>
+      <text x="640" y="364">參考資料 → 找誰問 → 先前對話 → 問題 → <tspan font-weight="700">規則</tspan> → 回答：</text>
+      <text x="640" y="390" fill="#52514e">規則：只根據資料、不可拼湊、沒資料就說沒資料</text>
+      <text x="640" y="414" fill="#52514e">找誰問：有鎖定按鈕時只給該按鈕類別的負責人</text>
+      <text x="640" y="438" fill="#52514e">後處理：刪掉模型寫的網址 → 程式附上說明頁連結</text>
+      <text x="640" y="462" fill="#52514e">　　　　簡體字只轉換知識庫沒用過的字</text>
+
+      <rect x="620" y="510" width="548" height="80" rx="12" fill="#fcfcfb" stroke="#8a8984" stroke-dasharray="6 4"/>
+      <text x="640" y="538" font-size="16" font-weight="700">只命中一條資料 → 照原文輸出，不經 LLM</text>
+      <text x="640" y="564" fill="#52514e">錯誤訊息命中（②）、或點了「發生什麼狀況」的選項</text>
+      <text x="640" y="584" fill="#8a8984">不會編造、不會多補延伸說明、也比較快</text>
     </g>
   </svg>
 </section></div>
