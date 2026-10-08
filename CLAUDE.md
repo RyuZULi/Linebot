@@ -86,7 +86,7 @@ Ryuzu 收到「任務：...」→ 開 `worktrees/task-N` 隔離分支 → 無頭
 - 純照片頁面（例：食物照片）MinerU 也讀不出文字；直排表頭會被打亂（「蛋(公白克質)」）。
 - PDF RAG 門檻 `RAG_THRESHOLD=0.55` / `0.40` 只用一份文件初步驗證過。
 - 嚴格提示詞偏保守：偶爾會只列品項而沒回答數值（例：問低脂乳品熱量只回品項），寧可少答不亂答。
-- 兩個 bot 共用一個 process，重啟會同時影響兩邊。
+- 三個 bot 共用一個 process，重啟會同時影響三個。
 - cloudflared 用 quick tunnel，重啟後網址會變，要去 LINE Developers Console 重填 Webhook URL。
 
 ## CEC_API助手（`cec_rag.py`，規格：`data/CEC_Revit API/AIRAGUse.md`）
