@@ -37,11 +37,28 @@ WELCOME = (
 )
 HELP_WORDS = {"help", "說明", "怎麼用", "使用說明", "你好", "您好", "hi", "hello"}
 NON_TEXT_REPLY = "目前只能回答文字問題。如果是錯誤訊息，請直接複製視窗上的文字貼過來，或打出按鈕名稱跟遇到的狀況。"
-ERROR_REPLY = "抱歉，查詢時出了問題，請稍後再試一次。急的話請直接聯絡建築 API 負責人。"
 PASTE_ERROR_REPLY = "好的，請把錯誤視窗上的文字直接複製貼過來（不用截圖，打字或複製都可以）。"
 DESCRIBE_REPLY = "好的，請描述一下：做到哪一步、畫面出現什麼、跟預期哪裡不一樣。"
 
-FEEDBACK_THANKS = {True: "收到，謝謝回饋！", False: "收到，這題我會記下來請負責人補資料。急的話請直接聯絡建築 API 負責人。"}
+
+def _urgent_contact() -> str:
+    """「急的話請直接聯絡…」的對象從知識庫的聯絡人表讀（建築 API 那一列）。
+    同仁姓名只放在知識庫（不進 git），程式碼裡不寫死名字。"""
+    try:
+        for kind, who in cec_rag._contacts():
+            if cec_rag.TOPIC_CONTACT_ROW in kind:
+                return f"急的話請直接聯絡{who}。"
+    except Exception:
+        traceback.print_exc()
+    return "急的話請直接聯絡 CEC 建築 API 的負責人。"
+
+
+def _error_reply() -> str:
+    return "抱歉，查詢時出了問題，請稍後再試一次。" + _urgent_contact()
+
+
+def _feedback_thanks(good: bool) -> str:
+    return "收到，謝謝回饋！" if good else "收到，這題我會記下來請負責人補資料。" + _urgent_contact()
 
 _configuration = None
 
@@ -113,7 +130,7 @@ def _respond(reply_token: str, user_id: str, question: str, **kwargs):
         result = cec_rag.answer(question, user_id=user_id, **kwargs)
     except Exception:
         traceback.print_exc()
-        _reply(reply_token, ERROR_REPLY)
+        _reply(reply_token, _error_reply())
         return
     if result["type"] == "ask":
         _reply(reply_token, result["text"], quick_reply=_choices_quick_reply(result["choices"]))
@@ -155,7 +172,7 @@ def on_postback(event):
     if data.startswith("cec:fb:"):
         good = data == "cec:fb:up"
         cec_rag.log_feedback(user_id, good)
-        _reply(event.reply_token, FEEDBACK_THANKS[good])
+        _reply(event.reply_token, _feedback_thanks(good))
         return
     # 選按鈕：原本的問題存在 cec_rag 的 session 裡（過期會回「麻煩再問一次」）
     if data == "cec:all":

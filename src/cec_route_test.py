@@ -19,6 +19,20 @@ CARBON = "CEC_QuantityTakeoff.CalculateEmbodiedCarbonByMass"
 SKIP = "CEC_Skip.SelectByList"
 DRIVEWAY = "CEC_QuickModeling.DrivewayCreate"
 
+
+def _who(kind_key: str) -> str:
+    """聯絡人從知識庫的「找誰問」表格讀（同仁姓名不寫進程式碼／git）。"""
+    for kind, who in cec_rag._contacts():
+        if kind_key in kind:
+            return who
+    raise KeyError(kind_key)
+
+
+ARCH_WHO = _who("CEC 建築 API")       # 建築 API 負責人
+MEP_WHO = _who("機電")                # 機電窗口
+AUTODESK_WHO = _who("Autodesk")       # Autodesk／Revit 授權窗口
+LICENSE_WHO = _who("註冊碼")          # CEC API 授權／註冊碼窗口
+
 # 每個案例是一段對話：[(輸入, 預期)]。輸入是字串，或 {"pick": api} / {"item": 編號} 表示點按鈕。
 # 預期：type（answer/ask/clarify/refer）、route 開頭、topic（session 目前的按鈕）、
 #       choices_has（回問選項要包含的按鈕）、text_has（只檢查程式產生的固定文字）、
@@ -36,12 +50,12 @@ CASES = [
     ("規格7-6 本機ID", [("本機ID要給誰", {"type": "answer", "route": "通用問題"})]),
     ("規格7-7 找功能", [("有沒有可以算磁磚的功能", {"type": "answer", "route": "功能目錄"})]),
     ("規格7-8 沒說哪個功能", [("報告存在哪裡？", {"type": "ask", "route": "比對不到→回問"})]),
-    ("規格7-9 機電", [("機電的套管 API 怎麼用", {"route": "非本庫範圍", "text_has": "機電窗口"})]),
-    ("規格7-10 Revit 授權", [("Revit 登不進去", {"type": "refer", "route": "非本庫範圍", "text_has": "Autodesk 窗口"})]),
+    ("規格7-9 機電", [("機電的套管 API 怎麼用", {"route": "非本庫範圍", "text_has": MEP_WHO})]),
+    ("規格7-10 Revit 授權", [("Revit 登不進去", {"type": "refer", "route": "非本庫範圍", "text_has": AUTODESK_WHO})]),
     ("advice 1-1 CEC 授權過期", [("CEC API 授權過期了，按鈕全灰", {"type": "answer", "route": "通用問題"})]),
     ("advice 1-1 機電套管也列建築套管", [("機電套管要開口要用哪個",
                                  {"type": "ask", "route": "非本庫範圍+本庫相近", "choices_has": ["CEC_Integrate.Opening"]})]),
-    ("advice 1-2 BIM 360", [("BIM 360 授權到期", {"type": "refer", "text_has": "Autodesk 窗口"})]),
+    ("advice 1-2 BIM 360", [("BIM 360 授權到期", {"type": "refer", "text_has": AUTODESK_WHO})]),
     ("advice 1-3 樓梯干涉（別名核心詞）", [("樓梯干涉壞掉了", {"type": "clarify", "route": "釐清狀況:" + STAIRS})]),
     ("advice 1-4 對不對不是籠統回報", [("單線轉樑這樣對不對", {"type": "answer", "route": "目錄比對:" + L2B})]),
     ("F2 干涉檢查的期限不能對到門干涉", [("干涉檢查的期限是什麼", {"route_not": "目錄比對:CEC_Detection.DnWDetection"})]),
@@ -85,22 +99,22 @@ CASES = [
         ("切割樓板之後有一塊板不見了", {"type": "ask", "text_has": "1. "}),
         ("2", {"type": "answer", "route": "使用者選擇:"}),
     ]),
-    ("10/7 聊某按鈕時提到機電＝追問，聯絡人只給建築", [
+    ("10/7 聊某按鈕時提到機電＝追問，聯絡人只給建築 API 負責人", [
         ("干涉風險匯出隱含碳是做什麼的", {"type": "answer", "topic": CARBON}),
         ("那機電管線的元件也會算進去嗎", {"type": "answer", "route": "延續話題:" + CARBON,
-                                "prompt_has": "霽倫", "prompt_not": "機電窗口"}),
+                                "prompt_has": ARCH_WHO, "prompt_not": MEP_WHO}),
     ]),
     ("10/7 聊某按鈕時明確問機電 API＝新問題，照樣轉介", [
         ("干涉風險匯出隱含碳是做什麼的", {"type": "answer", "topic": CARBON}),
-        ("那機電的 API 有類似功能嗎", {"type": "refer", "route": "非本庫範圍", "text_has": "機電窗口"}),
+        ("那機電的 API 有類似功能嗎", {"type": "refer", "route": "非本庫範圍", "text_has": MEP_WHO}),
     ]),
     ("10/7 聊某按鈕時問 Revit 登入＝新問題，照樣轉介", [
         ("干涉風險匯出隱含碳是做什麼的", {"type": "answer", "topic": CARBON}),
-        ("Revit 登不進去怎麼辦", {"type": "refer", "text_has": "Autodesk 窗口"}),
+        ("Revit 登不進去怎麼辦", {"type": "refer", "text_has": AUTODESK_WHO}),
     ]),
     ("10/7 聊某按鈕時問授權＝通用問題，聯絡人不限縮", [
         ("干涉風險匯出隱含碳是做什麼的", {"type": "answer", "topic": CARBON}),
-        ("CEC 授權過期了要找誰", {"type": "answer", "prompt_has": "機電窗口"}),
+        ("CEC 授權過期了要找誰", {"type": "answer", "prompt_has": LICENSE_WHO}),
     ]),
     ("10/7 實測：聊略過時問車道（沒講完整按鈕名稱）→ 回問是否換話題", [
         ("要怎麼略過檢查", {"type": "answer", "topic": SKIP}),

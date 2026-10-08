@@ -90,6 +90,8 @@ Ryuzu 收到「任務：...」→ 開 `worktrees/task-N` 隔離分支 → 無頭
 
 ## CEC_API助手（`cec_rag.py`，規格：`data/CEC_Revit API/AIRAGUse.md`）
 
+- **同仁姓名只放在知識庫的「找誰問」表格，不要寫進程式碼、測試、文件或 commit 訊息**（要推 GitHub）；
+  程式需要時用 `cec_rag._contacts()` 讀。
 - 知識庫是公司內部資料（同仁姓名、內部 Notion），`data/CEC_Revit API/`、`data/cec_rag/` 都在 `.gitignore`，不要提交。
 - 照規格書流程：非本庫範圍直接轉介 → 目錄比對（容錯梁/樑、驅/軀、版/板；模糊比對只容許同長度錯一個字）
   → 錯誤訊息字串比對（只比「錯誤訊息對照」與非按鈕名稱的「」）→ 向量檢索 → LLM。判斷與比對都用程式，不讓小模型猜。
