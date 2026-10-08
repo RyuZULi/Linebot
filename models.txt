@@ -1,0 +1,25 @@
+# 本專案需要的模型清單（install_models.bat 會讀這份檔案安裝）
+#
+# 格式：每行「來源 模型名稱」，# 開頭是註解
+#   ollama  → 用 `ollama pull` 下載（要先安裝 Ollama：https://ollama.com）
+#   hf      → 從 HuggingFace 下載到本機快取（%USERPROFILE%\.cache\huggingface）
+#
+# 模型檔本身很大（合計約 30GB），不進 git；換電腦時照這份清單重新下載即可。
+# 程式改用別的模型時，記得同步更新這份清單。
+
+# --- Belfast：拍照估算熱量（三模型投票辨識食物）---
+ollama gemma3:12b
+ollama qwen3-vl:8b
+ollama minicpm-v
+
+# --- CEC_API助手：回答同仁問題 ---
+ollama qwen3:8b
+
+# --- 一般聊天、意圖判斷、PDF／YouTube 統整 ---
+ollama llama3.2
+
+# --- 向量檢索（三個 bot 共用，只載一份）---
+hf BAAI/bge-m3
+
+# --- Belfast：Nutrition5k 外觀相似度參考值 ---
+hf openai/clip-vit-base-patch32

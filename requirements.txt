@@ -1,0 +1,19 @@
+# 主環境的 Python 套件（Python 3.11）。安裝：pip install -r requirements.txt
+# 模型不在這裡，見 models.txt / install_models.bat。
+# MinerU（PDF 的 OCR）裝在獨立 venv，不要裝進主環境，見 README。
+Flask==3.1.3
+line-bot-sdk==3.25.0
+python-dotenv==1.2.3
+llama-index-core==0.14.24
+llama-index-vector-stores-chroma==0.6.0
+llama-index-embeddings-huggingface==0.8.0
+chromadb==1.5.9
+sentence-transformers==6.0.1
+transformers==5.17.0
+torch==2.14.0
+huggingface_hub==1.31.0
+numpy==2.4.6
+pillow==12.3.0
+pypdf==6.18.1
+opencc-python-reimplemented==0.1.7
+youtube-transcript-api==1.2.4

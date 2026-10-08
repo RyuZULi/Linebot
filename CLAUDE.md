@@ -19,6 +19,7 @@ RAG 課程期末專題。三個 LINE bot 共用一個 Flask process：
 → `portion_lookup`（C2，份量換公克；換算不了時用 `typical_portion` 典型便當份量，每個數字都有出處，見 `data/portion_reference/NOTES.md`）→ `calorie_estimator`（C3，信心分級）
 → `final_estimate`（C4，加上 Nutrition5k 視覺相似校準錨點）。
 
+需要的模型列在 `models.txt`（`install_models.bat` 照清單安裝，已安裝的預設不更新），**換模型時要同步改這份清單**；模型檔不進 git。
 本地模型都走 Ollama（`localhost:11434`）；embedding 是 BAAI/bge-m3，
 **只載一份**，其他模組透過 `nutrition_lookup._load()` / `_embed_model` 共用。
 
