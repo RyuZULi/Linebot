@@ -58,13 +58,19 @@ RAG 課程期末專題。三個 LINE bot 共用一個 Flask process：
 - `claude` 是 npm 裝的 `claude.cmd`：subprocess 要用 `["cmd", "/c", "claude", ...]`，
   prompt 用 `input=` 從 stdin 傳（放在命令列參數會被 cmd.exe 在換行處截斷）。
 - cloudflared 要指向 `http://127.0.0.1:5000`，不要用 `localhost`（會解析成 IPv6 連不上）。
+- **伺服器由 `run_bots.py` 背景常駐管理**（`install_autostart.bat` 設成登入時自動啟動，pythonw 無視窗）：
+  啟動 `webhook_app.py` 與 cloudflared、掛掉自動重啟、拿到新 tunnel 網址後用 LINE API 自動更新三個 channel 的
+  Webhook URL（先等新網址從外部連得到再設定：實測網址印出 1 秒就設定，LINE 會回 Invalid webhook endpoint URL）。
+  **開發 session 不要自己再跑 `python webhook_app.py`**（會跟背景那份搶 port 5000）；改完程式要套用時，
+  結束 `webhook_app.py` 那個 python 程序即可，run_bots 約 20 秒內用新程式碼重啟（tunnel 網址不變）。
+  紀錄在 `logs/`（已在 .gitignore）。
 
 ## 任務自動化（`src/task_runner.py`）
 
 Ryuzu 收到「任務：...」→ 開 `worktrees/task-N` 隔離分支 → 無頭呼叫 claude
 （`--permission-mode auto --permission-prompts none`，**不要改成
 `--dangerously-skip-permissions`**）→ 語法健檢 → 回報摘要 → 主人在 LINE 按「套用」才合併。
-合併後**不會自動重啟**，要手動重啟 `webhook_app.py`（刻意保留的人工關卡）。
+合併後**不會自動重啟**，要手動重啟 `webhook_app.py`（刻意保留的人工關卡；常駐時結束那個 python 程序，run_bots 會重啟）。
 
 如果你是被任務流程叫起來的 session：
 - 只在目前這個 worktree 裡工作，不要動 `D:\CalorieCalculation\data` 的正式資料，
@@ -87,7 +93,8 @@ Ryuzu 收到「任務：...」→ 開 `worktrees/task-N` 隔離分支 → 無頭
 - PDF RAG 門檻 `RAG_THRESHOLD=0.55` / `0.40` 只用一份文件初步驗證過。
 - 嚴格提示詞偏保守：偶爾會只列品項而沒回答數值（例：問低脂乳品熱量只回品項），寧可少答不亂答。
 - 三個 bot 共用一個 process，重啟會同時影響三個。
-- cloudflared 用 quick tunnel，重啟後網址會變，要去 LINE Developers Console 重填 Webhook URL。
+- cloudflared 用 quick tunnel，重啟後網址會變（run_bots 會自動更新 LINE Webhook；手動執行時要自己去 Console 重填）。
+  只在登入 Windows 時執行，電腦睡眠或關機 bot 就停。
 
 ## CEC_API助手（`cec_rag.py`，規格：`data/CEC_Revit API/AIRAGUse.md`）
 

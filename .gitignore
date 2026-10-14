@@ -38,3 +38,4 @@ data/meal_photos/
 # CEC 建築 API 問答的知識庫：公司內部資料（同仁姓名、內部 Notion 連結），不進版控
 data/CEC_Revit API/
 data/cec_rag/
+logs/

@@ -98,8 +98,36 @@ MinerU 要裝在**獨立的 venv**（`D:\venvs\mineru`，CUDA 版 torch），不
 
 ## 啟動
 
+### 常駐執行（建議）
+
+雙擊 **`install_autostart.bat`**：設定成登入 Windows 時自動在背景啟動，並立刻啟動一次。不需要開著任何視窗。
+
+背景程式（`run_bots.py`）會：
+1. 啟動 bot 伺服器，等模型載入完成（約 15～60 秒）
+2. 啟動 cloudflared quick tunnel，取得這次的 `https://xxxx.trycloudflare.com` 網址
+3. **自動把三個 LINE channel 的 Webhook URL 設成新網址**（LINE 官方 API），並請 LINE 實際測試連線
+4. 伺服器或 cloudflared 掛掉時自動重啟；cloudflared 重開網址會變，會再自動更新 Webhook
+
+| 檔案 | 作用 |
+|---|---|
+| `install_autostart.bat` | 設定開機自動啟動並立刻啟動；`install_autostart.bat --remove` 取消自動啟動 |
+| `status_bots.bat` | 查看是否在執行，以及最近的啟動／Webhook 設定紀錄 |
+| `stop_bots.bat` | 停止（伺服器、cloudflared 一起停；不會取消自動啟動） |
+
+紀錄在 `logs/`：`run_bots.log`（啟動、重啟、Webhook 結果）、`webhook_app.log`（bot 輸出）、`cloudflared.log`。
+
+**改了程式要套用時**：執行 `stop_bots.bat` 再執行 `install_autostart.bat`；或只結束 bot 伺服器的 python
+程序，背景程式會在約 20 秒內用新程式碼自動重啟（tunnel 網址不變）。
+
+注意：
+- 只在**登入 Windows 時**執行；電腦睡眠或關機時 bot 就停了，可以到「電源設定」關掉自動睡眠。
+- Ollama 也要在執行（安裝後預設會開機自動啟動）。
+- quick tunnel 是 Cloudflare 的免費測試用服務，沒有穩定性保證；要固定網址需要自己的網域與 Cloudflare 帳號。
+
+### 手動執行（除錯用）
+
 ```bat
-:: 1. 啟動 bot（三個一起）
+:: 1. 啟動 bot（三個一起）；先執行 stop_bots.bat，避免跟背景那份搶 port 5000
 cd src
 python webhook_app.py
 
@@ -107,9 +135,8 @@ python webhook_app.py
 cloudflared tunnel --url http://127.0.0.1:5000
 ```
 
-cloudflared 會印出一個 `https://xxxx.trycloudflare.com` 網址，到 LINE Developers Console 把三個 channel 的
-Webhook URL 分別設成 `<網址>/callback/belfast`、`<網址>/callback/dev`、`<網址>/callback/cec`。
-quick tunnel 每次重啟網址都會變，要重新填。
+手動執行時，要自己到 LINE Developers Console 把三個 channel 的 Webhook URL 設成
+`<網址>/callback/belfast`、`<網址>/callback/dev`、`<網址>/callback/cec`。
 
 三個 bot 在同一個程式裡，**重啟會同時影響三個**。
 
